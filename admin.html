@@ -206,7 +206,7 @@
                         <i class="ph ph-arrow-circle-down"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas (Lucro)</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas (Lucros)</p>
                         <h3 id="resumo-entradas" class="text-2xl font-bold text-green-600 mt-0.5">R$ 0,00</h3>
                     </div>
                 </div>
@@ -237,27 +237,27 @@
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                     <div>
                         <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
-                            <i class="ph ph-table text-duda-red"></i> Controle Financeiro Avançado
+                            <i class="ph ph-table text-duda-red"></i> Controle Financeiro com Status
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Filtre por tipo (lucros/despesas) e categorias detalhadas.</p>
+                        <p class="text-xs text-gray-500 font-medium">Controle de status (Pendente, Pago ou 50%) e filtros por categoria.</p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        <!-- Filtro 1: Tipo (Lucro / Despesa) -->
+                        <!-- Filtro Tipo -->
                         <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
                             <option value="todos">📊 Todos os Tipos</option>
-                            <option value="entrada">🟢 Apenas Lucros (Entradas)</option>
-                            <option value="saida">🔴 Apenas Despesas (Saídas)</option>
+                            <option value="entrada">🟢 Entradas (Lucros)</option>
+                            <option value="saida">🔴 Saídas (Despesas)</option>
                         </select>
 
-                        <!-- Filtro 2: Categoria Específica -->
+                        <!-- Filtro Categoria -->
                         <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
                             <option value="todas">🏷️ Todas as Categorias</option>
-                            <option value="Vendas">💰 Vendas (Lucro)</option>
-                            <option value="Ingredientes">🍓 Ingredientes (Despesa)</option>
-                            <option value="Embalagens">📦 Embalagens (Despesa)</option>
-                            <option value="Transporte">🚗 Transporte (Despesa)</option>
-                            <option value="Marketing">📢 Marketing (Despesa)</option>
+                            <option value="Vendas">💰 Vendas</option>
+                            <option value="Ingredientes">🍓 Ingredientes</option>
+                            <option value="Embalagens">📦 Embalagens</option>
+                            <option value="Transporte">🚗 Transporte</option>
+                            <option value="Marketing">📢 Marketing</option>
                             <option value="Outros">⚙️ Outros</option>
                         </select>
 
@@ -272,16 +272,17 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                <th class="py-3.5 px-4 w-36">Data</th>
+                                <th class="py-3.5 px-4 w-32">Data</th>
                                 <th class="py-3.5 px-4">Descrição / Histórico</th>
-                                <th class="py-3.5 px-4 w-44">Categoria</th>
-                                <th class="py-3.5 px-4 w-36">Tipo</th>
-                                <th class="py-3.5 px-4 w-36">Valor (R$)</th>
-                                <th class="py-3.5 px-4 w-20 text-center">Ações</th>
+                                <th class="py-3.5 px-4 w-36">Categoria</th>
+                                <th class="py-3.5 px-4 w-32">Tipo</th>
+                                <th class="py-3.5 px-4 w-32">Valor (R$)</th>
+                                <th class="py-3.5 px-4 w-40">Status Pagamento</th>
+                                <th class="py-3.5 px-4 w-16 text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100">
-                            <tr><td colspan="6" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
+                            <tr><td colspan="7" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -487,12 +488,13 @@
             tbody.innerHTML = '';
 
             if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>`;
                 calcularTotaisCaixa(listaCaixaMemoria);
                 return;
             }
 
             dados.forEach((item) => {
+                const status = item.statusPagamento || 'pendente';
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-duda-cream/40 transition-colors';
                 tr.innerHTML = `
@@ -510,12 +512,19 @@
                     </td>
                     <td class="py-2.5 px-4">
                         <select onchange="atualizarCampoFirebase('${item.id}', 'tipo', this.value); carregarCaixaFirebase();" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
-                            <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada (Lucro)</option>
-                            <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída (Despesa)</option>
+                            <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
+                            <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
                         <input type="number" step="0.01" value="${item.valor || 0}" onchange="atualizarCampoFirebase('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarCampoFirebase('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
+                            <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
+                            <option value="pago" ${status === 'pago' ? 'selected' : ''}>✅ Pago Integral</option>
+                            <option value="50porcento" ${status === '50porcento' ? 'selected' : ''}>⚡ Pago 50% (Sinal)</option>
+                        </select>
                     </td>
                     <td class="py-2.5 px-4 text-center">
                         <button onclick="removerLancamentoFirebase('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
@@ -538,6 +547,7 @@
                     categoria: 'Ingredientes',
                     tipo: 'saida',
                     valor: 0.00,
+                    statusPagamento: 'pago',
                     criadoEm: serverTimestamp()
                 });
                 carregarCaixaFirebase();
@@ -556,7 +566,7 @@
         };
 
         window.removerLancamentoFirebase = async function(id) {
-            if (confirm("Deseja realmente excluir este lançamento do Firebase?")) {
+            if (confirm("Deseja realmente excluir este lançamento?")) {
                 try {
                     await deleteDoc(doc(db, "fluxo_caixa", id));
                     carregarCaixaFirebase();
