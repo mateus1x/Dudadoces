@@ -51,7 +51,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Cursor Personalizado com partículas */
         .custom-cursor-dot {
             width: 8px;
             height: 8px;
@@ -78,15 +77,9 @@
             100% { opacity: 0; transform: translate(-50%, -80px) scale(0.5) rotate(20deg); }
         }
 
-        /* Animações e Efeitos Vivos */
         @keyframes floatSlow {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-12px) rotate(2deg); }
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(232, 193, 193, 0.4); }
-            50% { box-shadow: 0 0 40px rgba(138, 43, 43, 0.35); }
         }
 
         .floating-element {
@@ -108,7 +101,6 @@
             transform: scale(1.1);
         }
 
-        /* Fullscreen Hero Carousel */
         .hero-carousel {
             position: relative;
             width: 100vw;
@@ -190,7 +182,6 @@
             border-radius: 7px;
         }
 
-        /* Custom Buttons Glow Effect */
         .btn-glow {
             transition: all 0.3s ease;
             position: relative;
@@ -237,10 +228,8 @@
 </head>
 <body class="font-sans antialiased relative selection:bg-duda-pink selection:text-duda-brown">
 
-    <!-- Cursor customizado -->
     <div class="custom-cursor-dot hidden sm:block" id="cursorDot"></div>
 
-    <!-- Header Glassmorphism -->
     <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-24">
@@ -265,10 +254,8 @@
     </header>
 
     <main>
-        <!-- Banner Hero Fullscreen Horizontal -->
         <section class="hero-carousel">
             <div class="carousel-inner" id="carouselInner">
-                <!-- Slide 1 -->
                 <div class="carousel-item">
                     <img src="Banner 2.png" alt="Mais que um doce, é uma experiência">
                     <div class="carousel-overlay"></div>
@@ -283,7 +270,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Slide 2 -->
                 <div class="carousel-item">
                     <img src="Bombons de Chocolate com Morango Cremoso.png" alt="Encomendas para Festas">
                     <div class="carousel-overlay"></div>
@@ -298,7 +284,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Slide 3 -->
                 <div class="carousel-item">
                     <img src="Banner 3.png" alt="Duda Doces Logo Banner">
                     <div class="carousel-overlay"></div>
@@ -321,7 +306,7 @@
             </div>
         </section>
 
-        <!-- 1. SEÇÃO: MONTE SEU BOMBOM -->
+        <!-- SEÇÃO: MONTE SEU BOMBOM -->
         <section id="monte" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div class="text-center mb-16">
                 <span class="text-duda-red font-semibold uppercase tracking-widest text-xs bg-duda-pink/30 px-4 py-1.5 rounded-full inline-block mb-3">Sua receita exclusiva</span>
@@ -343,7 +328,6 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 relative z-10">
-                    <!-- 1. Fruta -->
                     <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-gray-100">
                         <h4 class="font-bold text-duda-brown text-xl mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-full bg-duda-pink/40 text-duda-red flex items-center justify-center text-sm">1</span> 
@@ -359,7 +343,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. Recheio -->
                     <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-gray-100">
                         <h4 class="font-bold text-duda-brown text-xl mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-full bg-duda-pink/40 text-duda-red flex items-center justify-center text-sm">2</span> 
@@ -378,7 +361,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. Cobertura -->
                     <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-gray-100">
                         <h4 class="font-bold text-duda-brown text-xl mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-full bg-duda-pink/40 text-duda-red flex items-center justify-center text-sm">3</span> 
@@ -401,10 +383,10 @@
                     </div>
                 </div>
                 
-                <!-- ÁREA DA ANIMAÇÃO DO BOMBOM SENDO MONTAGEM -->
+                <!-- BUG 3 CORRIGIDO: Flex column no mobile para não cortar -->
                 <div class="mb-8 bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-duda-pink/30 text-center shadow-sm relative z-10 max-w-2xl mx-auto">
                     <span class="text-xs font-bold uppercase tracking-widest text-duda-red block mb-3">✨ Acompanhe seu Bombom Sendo Montado:</span>
-                    <div id="assembly-animation-box" class="flex items-center justify-center gap-3 sm:gap-4 py-2 transition-all duration-300">
+                    <div id="assembly-animation-box" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 py-2 transition-all duration-300">
                         <!-- Injetado dinamicamente via JS -->
                     </div>
                     <p id="assembly-text" class="text-sm font-serif italic text-duda-brown mt-3">Bombom de Morango com Ninho e Cobertura de Chocolate Branco</p>
@@ -422,7 +404,7 @@
             </div>
         </section>
 
-        <!-- 2. SEÇÃO: CARDÁPIO (BROWNIES) -->
+        <!-- SEÇÃO: CARDÁPIO (BROWNIES) -->
         <section id="cardapio" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t border-gray-100">
             <div class="text-center mb-16">
                 <span class="text-duda-red font-semibold uppercase tracking-widest text-xs bg-duda-pink/30 px-4 py-1.5 rounded-full inline-block mb-3">Nossos Brownies Artesanais</span>
@@ -431,13 +413,12 @@
                 <p class="text-lg text-gray-600 font-light max-w-2xl mx-auto">Casquinha crocante por fora, massa úmida e recheios incrivelmente cremosos.</p>
             </div>
 
-            <!-- Grid de Brownies -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" id="products-container">
                 <!-- Injetado via JS -->
             </div>
         </section>
 
-        <!-- 3. SEÇÃO: FESTAS E EVENTOS -->
+        <!-- SEÇÃO: FESTAS E EVENTOS -->
         <section id="encomendas" class="bg-white border-y border-gray-100 py-24 relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="flex flex-col lg:flex-row items-center gap-16">
@@ -493,7 +474,6 @@
             </button>
         </div>
 
-        <!-- Lista de Itens do Carrinho -->
         <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar bg-duda-cream/30">
             <div id="empty-cart-msg" class="text-center text-gray-400 mt-24">
                 <i class="ph ph-shopping-bag text-7xl mb-4 opacity-40 animate-bounce"></i>
@@ -502,7 +482,6 @@
             </div>
         </div>
 
-        <!-- Tela de Checkout Integrada (Etapa de Dados) -->
         <div id="checkout-form-container" class="hidden flex-1 overflow-y-auto p-6 space-y-4 bg-duda-cream/30">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="font-serif font-bold text-lg text-duda-brown">Dados para Entrega / Retirada</h3>
@@ -525,7 +504,6 @@
                 <input type="hidden" id="delivery-type" value="retirada">
             </div>
 
-            <!-- Campos de Endereço -->
             <div id="address-fields" class="space-y-3 hidden bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                 <div class="flex gap-2">
                     <div class="flex-1">
@@ -589,14 +567,13 @@
         </div>
     </div>
 
-<div id="toast">Item adicionado com sucesso!</div>
+    <div id="toast">Item adicionado com sucesso!</div>
 
-    <!-- SCRIPT ÚNICO DO FIREBASE E DA APLICAÇÃO (EVITA ERROS DE INICIALIZAÇÃO) -->
+    <!-- SCRIPT DO FIREBASE E APLICAÇÃO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, updateDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // 1. Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
             authDomain: "dudadoces.firebaseapp.com",
@@ -610,7 +587,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Disponibiliza as ferramentas globalmente para o site usar sem erro
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
@@ -621,7 +597,6 @@
         window.getDocs = getDocs;
         window.serverTimestamp = serverTimestamp;
 
-        // --- FUNÇÃO DE REGISTRO DE ACESSOS INTELIGENTE ---
         async function registrarAcesso() {
             try {
                 let visitanteId = localStorage.getItem('duda_visitante_id');
@@ -637,7 +612,6 @@
                         ultimoAcesso: serverTimestamp(),
                         dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
                     });
-                    console.log("Novo visitante registrado com sucesso!");
                 } else {
                     const q = query(collection(db, "acessos"), where("visitanteId", "==", visitanteId));
                     const querySnapshot = await getDocs(q);
@@ -651,7 +625,6 @@
                                 totalAcessos: qtdAtual + 1,
                                 ultimoAcesso: serverTimestamp()
                             });
-                            console.log(`Acesso atualizado! Total de visitas: ${qtdAtual + 1}`);
                         });
                     } else {
                         await addDoc(collection(db, "acessos"), {
@@ -668,6 +641,7 @@
             }
         }
 
+        // BUG 1 CORRIGIDO: Carrinho zera e volta para a aba de itens após finalizar
         window.finalizeOrderWpp = async function() {
             const name = document.getElementById('client-name').value.trim();
             const deliveryType = document.getElementById('delivery-type').value;
@@ -716,21 +690,17 @@
             };
 
             try {
-                // 1. Salva na coleção de Pedidos
                 await addDoc(collection(db, "pedidos"), dadosPedido);
 
-                // 2. Insere automaticamente no Fluxo de Caixa como Entrada (Vendas)
                 await addDoc(collection(db, "fluxo_caixa"), {
                     data: dataHoje,
                     descricao: `Venda p/ ${name} (${deliveryType === 'entrega' ? 'Entrega' : 'Retirada'})`,
                     categoria: 'Vendas',
                     tipo: 'entrada',
                     valor: total,
-                    statusPagamento: 'pendente', // Opções: pendente, pago, 50porcento
+                    statusPagamento: 'pendente',
                     criadoEm: serverTimestamp()
                 });
-
-                console.log("Pedido e Fluxo de Caixa salvos com sucesso!");
             } catch (e) {
                 console.error("Erro ao salvar pedido no Firebase: ", e);
             }
@@ -754,9 +724,14 @@
 
             const encodedMessage = encodeURIComponent(message);
             window.open(`https://wa.me/${WPP_NUMBER}?text=${encodedMessage}`, '_blank');
+
+            // Zera o carrinho e limpa a tela de checkout
+            cart = [];
+            backToCartItems();
+            updateCartUI();
+            toggleCart();
         };
 
-        // Roda ao carregar a página
         window.addEventListener('load', () => {
             renderProducts();
             initCarousel();
@@ -766,9 +741,8 @@
         });
     </script>
 
-    <!-- Restante das funções auxiliares da Loja (Carrinho, Carrossel, etc.) -->
+    <!-- Restante das funções auxiliares -->
     <script>
-        // --- CURSOR INTERATIVO DE PARTÍCULAS ---
         const cursorDot = document.getElementById('cursorDot');
         let lastTrailTime = 0;
 
@@ -799,7 +773,6 @@
             }, 800);
         }
 
-        // --- DADOS DOS BROWNIES DISPONÍVEIS ---
         const products = [
             { id: 4, name: "Brownie Tradicional", description: "Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.", price: 7.00, category: "Brownies", image: "Brownie.png" },
             { id: 5, name: "Brownie com Leite Ninho", description: "O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.", price: 12.00, category: "Brownies Recheados", image: "Brownie Ninho.png" },
@@ -1009,18 +982,19 @@
             showToast(`✨ ${product.name} adicionado!`);
 
             const sidebar = document.getElementById('cart-sidebar');
-            if (cart.reduce((sum, i) => sum + i.quantity, 1) === 1 && sidebar && sidebar.classList.contains('translate-x-full')) {
+            if (sidebar && sidebar.classList.contains('translate-x-full')) {
                 toggleCart();
             }
         }
 
-        function updateQuantity(id, delta) {
-            const item = cart.find(i => i.id === id);
+        // BUG 2 CORRIGIDO: Aceita ID tanto numérico quanto string (para brownies e bombons personalizados)
+        window.updateQuantity = function(id, delta) {
+            const item = cart.find(i => i.id == id);
             if (!item) return;
 
             item.quantity += delta;
             if (item.quantity <= 0) {
-                cart = cart.filter(i => i.id !== id);
+                cart = cart.filter(i => i.id != id);
             }
             updateCartUI();
         }
@@ -1061,7 +1035,7 @@
                 subtotal += item.price * item.quantity;
                 html += `
                     <div class="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-xl shadow-xs">
+                        <img src="${item.image || 'Brownie.png'}" alt="${item.name}" class="w-16 h-16 object-cover rounded-xl shadow-xs">
                         <div class="flex-1">
                             <h4 class="font-bold text-duda-brown text-sm mb-1">${item.name}</h4>
                             <span class="text-xs text-duda-red font-bold">${formatMoney(item.price)}</span>
@@ -1179,3 +1153,5 @@
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
     </script>
+</body>
+</html>
