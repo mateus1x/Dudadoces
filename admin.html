@@ -81,7 +81,7 @@
                     </div>
                 </div>
 
-                <!-- Abas de Navegação (Dashboard, Caixa e Estoque) -->
+                <!-- Abas de Navegação -->
                 <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap justify-center">
                     <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
                         <i class="ph ph-chart-line-up text-base"></i> Dashboard
@@ -351,7 +351,6 @@
         let listaCaixaMemoria = [];
         let listaEstoqueMemoria = [];
 
-        // Itens iniciais fornecidos por você
         const itensIniciaisEstoque = [
             { nome: 'Leite Condensado', medida: '395 g', status: 'cheio' },
             { nome: 'Creme de Leite', medida: '200 g', status: 'cheio' },
@@ -382,7 +381,6 @@
             const btnCaixa = document.getElementById('tab-btn-caixa');
             const btnEstoque = document.getElementById('tab-btn-estoque');
 
-            // Oculta todas
             viewDash.classList.add('hidden');
             viewCaixa.classList.add('hidden');
             viewEstoque.classList.add('hidden');
@@ -406,7 +404,7 @@
             }
         };
 
-        // --- DASHBOARD ---
+        // --- DASHBOARD E CLIENTES INATIVOS (+30 DIAS) ---
         async function carregarDashboard() {
             try {
                 const pedidosRef = collection(db, "pedidos");
@@ -438,9 +436,11 @@
                         </tr>
                     `;
 
+                    // Mapeia a última data que cada cliente comprou
                     if (p.clienteNome && p.dataPedido && p.dataPedido.toDate) {
-                        if (!mapClienteUltimaCompra[p.clienteNome] || p.dataPedido.toDate() > mapClienteUltimaCompra[p.clienteNome]) {
-                            mapClienteUltimaCompra[p.clienteNome] = p.dataPedido.toDate();
+                        const dataCompra = p.dataPedido.toDate();
+                        if (!mapClienteUltimaCompra[p.clienteNome] || dataCompra > mapClienteUltimaCompra[p.clienteNome]) {
+                            mapClienteUltimaCompra[p.clienteNome] = dataCompra;
                         }
                     }
                 });
@@ -453,6 +453,41 @@
                 document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
+                // --- PROCESSAR CLIENTES INATIVOS (+30 DIAS) ---
+                const containerInativos = document.getElementById('inactive-clients-container');
+                let inativosHtml = "";
+                const hoje = new Date();
+                let qtdInativos = 0;
+
+                for (let [cliente, ultimaData] of Object.entries(mapClienteUltimaCompra)) {
+                    const diffTime = Math.abs(hoje - ultimaData);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays > 30) {
+                        qtdInativos++;
+                        const dataFormatada = ultimaData.toLocaleDateString('pt-BR');
+                        const msgWpp = encodeURIComponent(`Olá ${cliente}! Sentimos sua falta aqui na Duda Doces. Que tal aproveitar nossos doces artesanais hoje? Temos novidades te esperando! 🍫✨`);
+                        
+                        inativosHtml += `
+                            <div class="bg-duda-cream/50 p-4 rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-3">
+                                <div>
+                                    <h4 class="font-bold text-duda-brown text-sm">${cliente}</h4>
+                                    <p class="text-xs text-gray-500">Última compra: ${dataFormatada} (${diffDays} dias atrás)</p>
+                                </div>
+                                <a href="https://wa.me/?text=${msgWpp}" target="_blank" class="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-sm" title="Enviar Mensagem no WhatsApp">
+                                    <i class="ph ph-whatsapp-logo text-xl"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (qtdInativos === 0) {
+                    inativosHtml = `<div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo há mais de 30 dias. Excelente! 🎉</div>`;
+                }
+                containerInativos.innerHTML = inativosHtml;
+
+                // --- CARREGAR ACESSOS ---
                 const acessosRef = collection(db, "acessos");
                 const queryAcessos = await getDocs(acessosRef);
 
@@ -672,7 +707,6 @@
                     listaEstoqueMemoria.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
-                // Se o estoque estiver vazio pela primeira vez, insere automaticamente os itens iniciais
                 if (listaEstoqueMemoria.length === 0) {
                     for (let item of itensIniciaisEstoque) {
                         await addDoc(collection(db, "estoque"), item);
