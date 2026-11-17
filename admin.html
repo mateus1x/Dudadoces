@@ -134,7 +134,7 @@
         <!-- Grid inferior: Tabela de Pedidos e Alerta de Clientes Inativos -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- Tabela de Pedidos Recentes (Ocupa 2 colunas) -->
+            <!-- Tabela de Pedidos Recentes -->
             <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
                 <h2 class="text-xl font-serif font-bold text-duda-brown mb-4 flex items-center gap-2">
                     <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes Realizados
@@ -152,7 +152,6 @@
                             </tr>
                         </thead>
                         <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50">
-                            <!-- Injetado via JS -->
                             <tr>
                                <td colspan="5" class="text-center py-6 text-gray-400">Carregando pedidos...</td>
                             </tr>
@@ -161,7 +160,7 @@
                 </div>
             </div>
 
-            <!-- Clientes Inativos > 30 dias (Ocupa 1 coluna) -->
+            <!-- Clientes Inativos -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
                 <h2 class="text-xl font-serif font-bold text-duda-brown mb-2 flex items-center gap-2">
                     <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Inativos (+30 dias)
@@ -187,7 +186,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuração do Firebase (mesma do site principal)
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
             authDomain: "dudadoces.firebaseapp.com",
@@ -235,7 +233,6 @@
                         </tr>
                     `;
 
-                    // Mapeia última compra por cliente para o relatório de inativos
                     if (p.clienteNome && p.dataPedido && p.dataPedido.toDate) {
                         if (!mapClienteUltimaCompra[p.clienteNome] || p.dataPedido.toDate() > mapClienteUltimaCompra[p.clienteNome]) {
                             mapClienteUltimaCompra[p.clienteNome] = p.dataPedido.toDate();
@@ -264,7 +261,6 @@
                     totalVisitantesUnicos++;
                     totalAcessosSoma += (a.totalAcessos || 1);
 
-                    // Agrupa por dia baseado na data do último acesso ou primeiro acesso
                     if (a.ultimoAcesso && a.ultimoAcesso.toDate) {
                         const diaStr = a.ultimoAcesso.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
                         diasContagem[diaStr] = (diasContagem[diaStr] || 0) + (a.totalAcessos || 1);
@@ -274,20 +270,19 @@
                 document.getElementById('stat-visitantes').innerText = totalVisitantesUnicos;
                 document.getElementById('stat-acessos-totais').innerText = totalAcessosSoma;
 
-                // Montar dados para o Gráfico de Acessos por Dia
                 const labelsDias = Object.keys(diasContagem).sort();
                 const valoresDias = labelsDias.map(dia => diasContagem[dia]);
 
                 renderizarGraficoAcessos(labelsDias, valoresDias);
 
-                // 3. Processar Clientes Inativos (> 30 dias)
+                // 3. Processar Clientes Inativos (> 30 dias) - CORRIGIDO O NOME DA VARIÁVEL
                 const agora = new Date();
                 let inativosHtml = "";
-                let 30DiasAtras = new Date();
-                30DiasAtras.setDate(agora.getDate() - 30);
+                let limiteDiasAtras = new Date();
+                limiteDiasAtras.setDate(agora.getDate() - 30);
 
                 for (let [cliente, ultimaData] of Object.entries(mapClienteUltimaCompra)) {
-                    if (ultimaData < 30DiasAtras) {
+                    if (ultimaData < limiteDiasAtras) {
                         const diasInativo = Math.floor((agora - ultimaData) / (1000 * 60 * 60 * 24));
                         inativosHtml += `
                             <div class="p-3 bg-duda-cream/40 rounded-2xl border border-gray-100 flex items-center justify-between">
