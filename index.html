@@ -383,7 +383,7 @@
                     </div>
                 </div>
                 
-                <!-- BUG 3 CORRIGIDO: Flex column no mobile para não cortar -->
+                <!-- Responsivo no Mobile -->
                 <div class="mb-8 bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-duda-pink/30 text-center shadow-sm relative z-10 max-w-2xl mx-auto">
                     <span class="text-xs font-bold uppercase tracking-widest text-duda-red block mb-3">✨ Acompanhe seu Bombom Sendo Montado:</span>
                     <div id="assembly-animation-box" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 py-2 transition-all duration-300">
@@ -493,6 +493,11 @@
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Seu Nome Completo *</label>
                 <input type="text" id="client-name" placeholder="Ex: Maria Silva" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red transition-all text-sm shadow-xs">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Número de WhatsApp (com DDD) *</label>
+                <input type="text" id="client-phone" placeholder="Ex: 31999998888" class="w-full p-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red transition-all text-sm shadow-xs">
             </div>
 
             <div>
@@ -641,15 +646,21 @@
             }
         }
 
-        // BUG 1 CORRIGIDO: Carrinho zera e volta para a aba de itens após finalizar
         window.finalizeOrderWpp = async function() {
             const name = document.getElementById('client-name').value.trim();
+            const phone = document.getElementById('client-phone').value.trim().replace(/\D/g, '');
             const deliveryType = document.getElementById('delivery-type').value;
             const paymentMethod = document.getElementById('payment-method').value;
 
             if (!name) {
                 showToast("Por favor, preencha seu nome completo.");
                 document.getElementById('client-name').focus();
+                return;
+            }
+
+            if (!phone || phone.length < 10) {
+                showToast("Por favor, preencha um número de WhatsApp válido.");
+                document.getElementById('client-phone').focus();
                 return;
             }
 
@@ -679,6 +690,7 @@
 
             const dadosPedido = {
                 clienteNome: name,
+                clienteTelefone: phone,
                 tipoPedido: deliveryType,
                 endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
                 formaPagamento: paymentMethod,
@@ -707,6 +719,7 @@
 
             let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
             message += `👤 *Cliente:* ${name}\n`;
+            message += `📱 *Telefone:* ${phone}\n`;
             message += `🛍️ *Itens do Pedido:*\n`;
 
             cart.forEach(item => {
@@ -725,7 +738,6 @@
             const encodedMessage = encodeURIComponent(message);
             window.open(`https://wa.me/${WPP_NUMBER}?text=${encodedMessage}`, '_blank');
 
-            // Zera o carrinho e limpa a tela de checkout
             cart = [];
             backToCartItems();
             updateCartUI();
@@ -741,7 +753,7 @@
         });
     </script>
 
-    <!-- Restante das funções auxiliares -->
+    <!-- Funções auxiliares -->
     <script>
         const cursorDot = document.getElementById('cursorDot');
         let lastTrailTime = 0;
@@ -987,7 +999,6 @@
             }
         }
 
-        // BUG 2 CORRIGIDO: Aceita ID tanto numérico quanto string (para brownies e bombons personalizados)
         window.updateQuantity = function(id, delta) {
             const item = cart.find(i => i.id == id);
             if (!item) return;
