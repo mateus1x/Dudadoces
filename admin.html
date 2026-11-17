@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Administrativo - Duda Doces</title>
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Inter e Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +25,7 @@
                     },
                     fontFamily: {
                         'serif': ['"Playfair Display"', 'serif'],
-                        'sans': ['"Montserrat"', 'sans-serif'],
+                        'sans': ['"Inter"', 'sans-serif'],
                     },
                     boxShadow: {
                         'premium': '0 20px 40px -15px rgba(138, 43, 43, 0.15)',
@@ -38,7 +38,7 @@
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <!-- Chart.js para o Gráfico de Acessos -->
+    <!-- Chart.js para o Gráfico do Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -47,141 +47,266 @@
             color: #3A201E;
             -webkit-font-smoothing: antialiased;
         }
+        /* Estilos da Planilha de Caixa */
+        table input {
+            background: transparent;
+            border: 1px solid transparent;
+            width: 100%;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        table input:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-color: #e5e7eb;
+        }
+        table input:focus {
+            background-color: #ffffff;
+            border-color: #8A2B2B;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(138, 43, 43, 0.1);
+        }
+        table select {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        table select:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-color: #e5e7eb;
+        }
+        table select:focus {
+            background-color: #ffffff;
+            border-color: #8A2B2B;
+            outline: none;
+        }
     </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header do Painel -->
+    <!-- Header do Painel com Abas Integradas -->
     <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
+            <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
+                
+                <!-- Logo e Título -->
                 <div class="flex items-center gap-3">
                     <img class="h-12 w-auto object-contain" src="logo.png" alt="Duda Doces Logo">
                     <div>
-                        <h1 class="font-serif font-bold text-xl text-duda-brown">Painel Administrativo</h1>
-                        <span class="text-xs text-gray-500 uppercase tracking-wider">Gestão Duda Doces</span>
+                        <h1 class="font-serif font-bold text-lg sm:text-xl text-duda-brown">Painel Duda Doces</h1>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider font-medium">Gestão Completa</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
+
+                <!-- Abas de Navegação Interna -->
+                <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30">
+                    <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
+                        <i class="ph ph-chart-line-up text-base"></i> Dashboard
+                    </button>
+                    <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                        <i class="ph ph-wallet text-base"></i> Fluxo de Caixa
+                    </button>
+                </div>
+
+                <!-- Botão Ver Loja -->
+                <div class="hidden md:flex items-center gap-2">
                     <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-duda-cream px-4 py-2.5 rounded-xl border border-duda-pink/30">
                         <i class="ph ph-storefront text-lg"></i> Ver Loja
                     </a>
                 </div>
+
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <!-- Cards de Resumo Geral -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                    <i class="ph ph-currency-dollar"></i>
+        <!-- ================= ABA 1: DASHBOARD ================= -->
+        <div id="view-dashboard" class="space-y-8">
+            <!-- Cards de Resumo Geral -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                        <i class="ph ph-currency-dollar"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento Total</p>
+                        <h3 id="stat-faturamento" class="text-2xl font-bold text-duda-brown mt-0.5">R$ 0,00</h3>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento Total</p>
-                    <h3 id="stat-faturamento" class="text-2xl font-bold text-duda-brown mt-0.5">R$ 0,00</h3>
+
+                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                        <i class="ph ph-shopping-bag"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Pedidos</p>
+                        <h3 id="stat-pedidos" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                        <i class="ph ph-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Visitantes Únicos</p>
+                        <h3 id="stat-visitantes" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                        <i class="ph ph-eye"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acessos Totais</p>
+                        <h3 id="stat-acessos-totais" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                    <i class="ph ph-shopping-bag"></i>
+            <!-- Gráfico Misto (Linha e Coluna) -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
+                            <i class="ph ph-chart-line-up text-duda-red"></i> Acessos Diários (Linha e Coluna)
+                        </h2>
+                        <p class="text-xs text-gray-500 font-medium">Visualização combinada do fluxo de visitas ao site por dia.</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Pedidos</p>
-                    <h3 id="stat-pedidos" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                    <i class="ph ph-users"></i>
-                </div>
-                <div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Visitantes Únicos</p>
-                    <h3 id="stat-visitantes" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
+                <div class="relative h-80 w-full">
+                    <canvas id="accessChart"></canvas>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                    <i class="ph ph-eye"></i>
-                </div>
-                <div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acessos Totais</p>
-                    <h3 id="stat-acessos-totais" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Seção do Gráfico de Acessos por Dia -->
-        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
-                <div>
-                    <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
-                        <i class="ph ph-chart-line-up text-duda-red"></i> Acessos ao Site por Dia
+            <!-- Tabela de Pedidos e Inativos -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Tabela de Pedidos -->
+                <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                    <h2 class="text-xl font-serif font-bold text-duda-brown mb-4 flex items-center gap-2">
+                        <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes Realizados
                     </h2>
-                    <p class="text-xs text-gray-500">Histórico de visualizações diárias com base na última atividade dos visitantes.</p>
+                    
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    <th class="pb-3 px-2">Cliente</th>
+                                    <th class="pb-3 px-2">Tipo</th>
+                                    <th class="pb-3 px-2">Pagamento</th>
+                                    <th class="pb-3 px-2">Total</th>
+                                    <th class="pb-3 px-2">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50">
+                                <tr>
+                                   <td colspan="5" class="text-center py-6 text-gray-400">Carregando pedidos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <div class="relative h-72 w-full">
-                <canvas id="accessChart"></canvas>
+
+                <!-- Clientes Inativos -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                    <h2 class="text-xl font-serif font-bold text-duda-brown mb-2 flex items-center gap-2">
+                        <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Inativos (+30 dias)
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-6 font-medium">Clientes que compraram há mais de um mês e ainda não voltaram.</p>
+
+                    <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[350px] no-scrollbar">
+                        <div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo no momento.</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Grid inferior: Tabela de Pedidos e Alerta de Clientes Inativos -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- Tabela de Pedidos Recentes -->
-            <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
-                <h2 class="text-xl font-serif font-bold text-duda-brown mb-4 flex items-center gap-2">
-                    <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes Realizados
-                </h2>
-                
-                <div class="overflow-x-auto flex-1">
+        <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
+        <div id="view-caixa" class="space-y-8 hidden">
+            <!-- Cards Resumo Caixa -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-2xl font-bold">
+                        <i class="ph ph-arrow-circle-down"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas</p>
+                        <h3 id="resumo-entradas" class="text-2xl font-bold text-green-600 mt-0.5">R$ 0,00</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-2xl font-bold">
+                        <i class="ph ph-arrow-circle-up"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Saídas</p>
+                        <h3 id="resumo-saidas" class="text-2xl font-bold text-red-600 mt-0.5">R$ 0,00</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                        <i class="ph ph-wallet"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo em Caixa</p>
+                        <h3 id="resumo-saldo" class="text-2xl font-bold text-duda-brown mt-0.5">R$ 0,00</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela Planilha Excel -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
+                            <i class="ph ph-table text-duda-red"></i> Lançamentos Diários
+                        </h2>
+                        <p class="text-xs text-gray-500 font-medium">Clique em qualquer campo para editar. As alterações são salvas automaticamente.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="adicionarLinha()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-plus-circle text-lg"></i> Adicionar Nova Linha
+                        </button>
+                        <button onclick="limparTabela()" class="bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 text-sm font-semibold px-4 py-2.5 rounded-xl transition-all border border-gray-200">
+                            <i class="ph ph-trash text-lg"></i> Limpar Tudo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-gray-200 rounded-2xl">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                <th class="pb-3 px-2">Cliente</th>
-                                <th class="pb-3 px-2">Tipo</th>
-                                <th class="pb-3 px-2">Pagamento</th>
-                                <th class="pb-3 px-2">Total</th>
-                                <th class="pb-3 px-2">Data</th>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                <th class="py-3.5 px-4 w-36">Data</th>
+                                <th class="py-3.5 px-4">Descrição / Histórico</th>
+                                <th class="py-3.5 px-4 w-40">Categoria</th>
+                                <th class="py-3.5 px-4 w-32">Tipo</th>
+                                <th class="py-3.5 px-4 w-36">Valor (R$)</th>
+                                <th class="py-3.5 px-4 w-20 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50">
-                            <tr>
-                               <td colspan="5" class="text-center py-6 text-gray-400">Carregando pedidos...</td>
-                            </tr>
+                        <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100">
+                            <!-- Preenchido via JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- Clientes Inativos -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
-                <h2 class="text-xl font-serif font-bold text-duda-brown mb-2 flex items-center gap-2">
-                    <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Inativos (+30 dias)
-                </h2>
-                <p class="text-xs text-gray-500 mb-6">Clientes que compraram há mais de um mês e ainda não voltaram.</p>
-
-                <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[350px] no-scrollbar">
-                    <div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo no momento.</div>
-                </div>
-            </div>
-
         </div>
 
     </main>
 
     <!-- Rodapé -->
-    <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75">
-        <p>© 2026 Duda Doces • Painel de Controle Restrito</p>
+    <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75 font-medium">
+        <p>© 2026 Duda Doces • Painel de Controle Integrado</p>
     </footer>
 
-    <!-- Script de Conexão com Firebase e Renderização do Dashboard -->
+    <!-- Script de Controle das Abas, Firebase e Caixa -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -201,9 +326,35 @@
 
         let myChart = null;
 
+        // --- SISTEMA DE ABAS (SPA) ---
+        window.mudarAba = function(aba) {
+            const viewDash = document.getElementById('view-dashboard');
+            const viewCaixa = document.getElementById('view-caixa');
+            const btnDash = document.getElementById('tab-btn-dashboard');
+            const btnCaixa = document.getElementById('tab-btn-caixa');
+
+            if (aba === 'dashboard') {
+                viewDash.classList.remove('hidden');
+                viewCaixa.classList.add('hidden');
+                
+                btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
+                btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+                
+                if(myChart) myChart.update();
+            } else {
+                viewCaixa.classList.remove('hidden');
+                viewDash.classList.add('hidden');
+
+                btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
+                btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+                
+                renderizarTabelaCaixa();
+            }
+        };
+
+        // --- CARREGAR DASHBOARD FIREBASE ---
         async function carregarDashboard() {
             try {
-                // 1. Buscar Pedidos
                 const pedidosRef = collection(db, "pedidos");
                 const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
                 const queryPedidos = await getDocs(qPedidos);
@@ -225,11 +376,11 @@
 
                     tabelaHtml += `
                         <tr class="hover:bg-duda-cream/40 transition-colors">
-                            <td class="py-3 px-2 font-bold text-duda-brown">${p.clienteNome || 'Cliente'}</td>
-                            <td class="py-3 px-2 text-gray-600">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
-                            <td class="py-3 px-2 text-gray-600">${p.formaPagamento || 'Pix'}</td>
+                            <td class="py-3 px-2 font-semibold text-duda-brown">${p.clienteNome || 'Cliente'}</td>
+                            <td class="py-3 px-2 text-gray-600 font-medium">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
+                            <td class="py-3 px-2 text-gray-600 font-medium">${p.formaPagamento || 'Pix'}</td>
                             <td class="py-3 px-2 font-bold text-duda-red">R$ ${(p.valorTotal || 0).toFixed(2).replace('.', ',')}</td>
-                            <td class="py-3 px-2 text-xs text-gray-500">${dataFormatada}</td>
+                            <td class="py-3 px-2 text-xs text-gray-500 font-medium">${dataFormatada}</td>
                         </tr>
                     `;
 
@@ -248,7 +399,6 @@
                 document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
-                // 2. Buscar Acessos
                 const acessosRef = collection(db, "acessos");
                 const queryAcessos = await getDocs(acessosRef);
 
@@ -275,7 +425,6 @@
 
                 renderizarGraficoAcessos(labelsDias, valoresDias);
 
-                // 3. Processar Clientes Inativos (> 30 dias) - CORRIGIDO O NOME DA VARIÁVEL
                 const agora = new Date();
                 let inativosHtml = "";
                 let limiteDiasAtras = new Date();
@@ -317,35 +466,185 @@
                 type: 'bar',
                 data: {
                     labels: labels.length > 0 ? labels : ['Hoje'],
-                    datasets: [{
-                        label: 'Visualizações por Dia',
-                        data: data.length > 0 ? data : [0],
-                        backgroundColor: '#8A2B2B',
-                        borderRadius: 8,
-                        hoverBackgroundColor: '#6b1f1f'
-                    }]
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Volume Diário (Colunas)',
+                            data: data.length > 0 ? data : [0],
+                            backgroundColor: 'rgba(138, 43, 43, 0.85)',
+                            borderRadius: 6,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Tendência (Linha)',
+                            data: data.length > 0 ? data : [0],
+                            borderColor: '#B38B59',
+                            backgroundColor: '#B38B59',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            tension: 0.3,
+                            order: 1
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: { family: 'Inter', weight: '600', size: 12 },
+                                color: '#3A201E'
+                            }
+                        }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: { color: '#f3f4f6' },
-                            ticks: { precision: 0 }
+                            ticks: { precision: 0, font: { family: 'Inter' } }
                         },
                         x: {
-                            grid: { display: false }
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
                         }
                     }
                 }
             });
         }
 
-        window.addEventListener('load', carregarDashboard);
+        window.addEventListener('load', () => {
+            carregarDashboard();
+            renderizarTabelaCaixa();
+        });
+    </script>
+
+    <!-- Script de Gestão do Fluxo de Caixa -->
+    <script>
+        let dadosCaixa = JSON.parse(localStorage.getItem('duda_fluxo_caixa')) || [
+            { id: 1, data: '2026-06-01', descricao: 'Venda de Brownies - Lote Festa', categoria: 'Vendas', tipo: 'entrada', valor: 150.00 },
+            { id: 2, data: '2026-06-02', descricao: 'Compra de Chocolate Nobre e Embalagens', categoria: 'Insumos', tipo: 'saida', valor: 85.50 }
+        ];
+
+        function salvarDadosCaixa() {
+            localStorage.setItem('duda_fluxo_caixa', JSON.stringify(dadosCaixa));
+            calcularTotaisCaixa();
+        }
+
+        window.renderizarTabelaCaixa = function() {
+            const tbody = document.getElementById('tabela-caixa-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            if (dadosCaixa.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum lançamento no caixa. Clique em "Adicionar Nova Linha" para começar.</td></tr>`;
+                calcularTotaisCaixa();
+                return;
+            }
+
+            dadosCaixa.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-duda-cream/30 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4">
+                        <input type="date" value="${item.data}" onchange="atualizarDadoCaixa(${index}, 'data', this.value)">
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <input type="text" value="${item.descricao}" placeholder="Ex: Venda, Insumos..." onchange="atualizarDadoCaixa(${index}, 'descricao', this.value)">
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarDadoCaixa(${index}, 'categoria', this.value)">
+                            <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>Vendas</option>
+                            <option value="Insumos" ${item.categoria === 'Insumos' ? 'selected' : ''}>Insumos / Ingredientes</option>
+                            <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>Embalagens</option>
+                            <option value="Marketing" ${item.categoria === 'Marketing' ? 'selected' : ''}>Marketing</option>
+                            <option value="Outros" ${item.categoria === 'Outros' ? 'selected' : ''}>Outros</option>
+                        </select>
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarDadoCaixa(${index}, 'tipo', this.value); renderizarTabelaCaixa();" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                            <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
+                            <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
+                        </select>
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <input type="number" step="0.01" value="${item.valor}" placeholder="0,00" onchange="atualizarDadoCaixa(${index}, 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                    </td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="removerLinhaCaixa(${index})" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir linha">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            calcularTotaisCaixa();
+        }
+
+        window.atualizarDadoCaixa = function(index, campo, valor) {
+            dadosCaixa[index][campo] = valor;
+            salvarDadosCaixa();
+        }
+
+        window.adicionarLinha = function() {
+            const hoje = new Date().toISOString().split('T')[0];
+            dadosCaixa.push({
+                id: Date.now(),
+                data: hoje,
+                descricao: 'Novo lançamento',
+                categoria: 'Vendas',
+                tipo: 'entrada',
+                valor: 0.00
+            });
+            salvarDadosCaixa();
+            renderizarTabelaCaixa();
+        }
+
+        window.removerLinhaCaixa = function(index) {
+            dadosCaixa.splice(index, 1);
+            salvarDadosCaixa();
+            renderizarTabelaCaixa();
+        }
+
+        window.limparTabela = function() {
+            if (confirm("Tem certeza que deseja apagar todos os registros do caixa?")) {
+                dadosCaixa = [];
+                salvarDadosCaixa();
+                renderizarTabelaCaixa();
+            }
+        }
+
+        function calcularTotaisCaixa() {
+            let totalEntradas = 0;
+            let totalSaidas = 0;
+
+            dadosCaixa.forEach(item => {
+                const val = Number(item.valor) || 0;
+                if (item.tipo === 'entrada') {
+                    totalEntradas += val;
+                } else {
+                    totalSaidas += val;
+                }
+            });
+
+            const saldo = totalEntradas - totalSaidas;
+
+            const elEntradas = document.getElementById('resumo-entradas');
+            const elSaidas = document.getElementById('resumo-saidas');
+            const elSaldo = document.getElementById('resumo-saldo');
+
+            if(elEntradas) elEntradas.innerText = totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            if(elSaidas) elSaidas.innerText = totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            if(elSaldo) {
+                elSaldo.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5" : "text-2xl font-bold text-duda-brown mt-0.5";
+            }
+        }
     </script>
 </body>
 </html>
