@@ -668,7 +668,6 @@
             }
         }
 
-        // --- FUNÇÃO DE FINALIZAR PEDIDO (WHATSAPP + FIREBASE) ---
         window.finalizeOrderWpp = async function() {
             const name = document.getElementById('client-name').value.trim();
             const deliveryType = document.getElementById('delivery-type').value;
@@ -702,6 +701,7 @@
             let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             let taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
             let total = subtotal + taxaEntrega;
+            let dataHoje = new Date().toISOString().split('T')[0];
 
             const dadosPedido = {
                 clienteNome: name,
@@ -716,10 +716,23 @@
             };
 
             try {
+                // 1. Salva na coleção de Pedidos
                 await addDoc(collection(db, "pedidos"), dadosPedido);
-                console.log("Pedido salvo com sucesso no banco de dados!");
+
+                // 2. Insere automaticamente no Fluxo de Caixa como Entrada (Vendas)
+                await addDoc(collection(db, "fluxo_caixa"), {
+                    data: dataHoje,
+                    descricao: `Venda p/ ${name} (${deliveryType === 'entrega' ? 'Entrega' : 'Retirada'})`,
+                    categoria: 'Vendas',
+                    tipo: 'entrada',
+                    valor: total,
+                    statusPagamento: 'pendente', // Opções: pendente, pago, 50porcento
+                    criadoEm: serverTimestamp()
+                });
+
+                console.log("Pedido e Fluxo de Caixa salvos com sucesso!");
             } catch (e) {
-                console.error("Erro ao salvar pedido: ", e);
+                console.error("Erro ao salvar pedido no Firebase: ", e);
             }
 
             let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
