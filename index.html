@@ -401,7 +401,7 @@
                     </div>
                 </div>
                 
-                <!-- ÁREA DA ANIMAÇÃO DO BOMBOM SENDO MONTAGEM (LOGO ABAIXO, PERTO DO PREÇO) -->
+                <!-- ÁREA DA ANIMAÇÃO DO BOMBOM SENDO MONTAGEM -->
                 <div class="mb-8 bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-duda-pink/30 text-center shadow-sm relative z-10 max-w-2xl mx-auto">
                     <span class="text-xs font-bold uppercase tracking-widest text-duda-red block mb-3">✨ Acompanhe seu Bombom Sendo Montado:</span>
                     <div id="assembly-animation-box" class="flex items-center justify-center gap-3 sm:gap-4 py-2 transition-all duration-300">
@@ -591,6 +591,32 @@
 
     <div id="toast">Item adicionado com sucesso!</div>
 
+    <script type="module">
+        // --- IMPORTAÇÃO DO FIREBASE ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Configuração do seu Projeto Gratuito do Firebase (Cole suas chaves aqui depois de criar o projeto)
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "seu-projeto.firebaseapp.com",
+            projectId: "seu-projeto-id",
+            storageBucket: "seu-projeto.appspot.com",
+            messagingSenderId: "seu-id",
+            appId: "seu-app-id"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Disponibiliza o db globalmente se precisar em outras funções
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.serverTimestamp = serverTimestamp;
+    </script>
+
     <script>
         // --- CURSOR INTERATIVO DE PARTÍCULAS ---
         const cursorDot = document.getElementById('cursorDot');
@@ -602,7 +628,6 @@
                 cursorDot.style.top = `${e.clientY}px`;
             }
 
-            // Criar rastro a cada 60ms
             const now = Date.now();
             if (now - lastTrailTime > 60) {
                 lastTrailTime = now;
@@ -658,14 +683,12 @@
                 category: "Porções",
                 image: "Brownie Bite.png"
             }
-            
         ];
 
         let cart = [];
         const DELIVERY_FEE = 8.00;
         const WPP_NUMBER = "5531935002261";
         
-        // --- OBJETO GLOBAL PARA O BOMBOM PERSONALIZADO ---
         let customBombom = {
             fruta: 'Morango',
             recheio: 'ninho',
@@ -697,41 +720,6 @@
             "Uva-maracujá-chocolate": 12.00,
             "Uva-maracujá-calda": 15.00,
             "Uva-maracujá-cravejado": 15.00
-        };
-
-        // --- MAPA DE FOTOS ESPECÍFICAS PARA CADA COMBINAÇÃO DE BOMBOM ---
-        const bombomImagesMap = {
-            // MORANGO
-            "Morango-ninho-branco": "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-ninho-chocolate": "https://images.unsplash.com/photo-1579372786545-d24232daf58c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-ninho-calda": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-ninho-cravejado": "https://images.unsplash.com/photo-1526318896980-cf78c08b247c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            
-            "Morango-chocolate-branco": "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-chocolate-chocolate": "https://images.unsplash.com/photo-1579372786545-d24232daf58c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-chocolate-calda": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-chocolate-cravejado": "https://images.unsplash.com/photo-1526318896980-cf78c08b247c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            
-            "Morango-maracujá-branco": "https://images.unsplash.com/photo-1602532458428-20293af54109?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-maracujá-chocolate": "https://images.unsplash.com/photo-1579372786545-d24232daf58c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-maracujá-calda": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Morango-maracujá-cravejado": "https://images.unsplash.com/photo-1526318896980-cf78c08b247c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-
-            // UVA
-            "Uva-ninho-branco": "https://images.unsplash.com/photo-1537633552985-df8429e8048b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-ninho-chocolate": "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-ninho-calda": "https://images.unsplash.com/photo-1511381939415-e44015466834?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-ninho-cravejado": "https://images.unsplash.com/photo-1582293041904-74f0c436b772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            
-            "Uva-chocolate-branco": "https://images.unsplash.com/photo-1537633552985-df8429e8048b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-chocolate-chocolate": "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-chocolate-calda": "https://images.unsplash.com/photo-1511381939415-e44015466834?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-chocolate-cravejado": "https://images.unsplash.com/photo-1582293041904-74f0c436b772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            
-            "Uva-maracujá-branco": "https://images.unsplash.com/photo-1537633552985-df8429e8048b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-maracujá-chocolate": "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-maracujá-calda": "https://images.unsplash.com/photo-1511381939415-e44015466834?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-            "Uva-maracujá-cravejado": "https://images.unsplash.com/photo-1582293041904-74f0c436b772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
         };
 
         let currentCartStep = 'items';
@@ -831,7 +819,6 @@
             const desc = document.getElementById('assembly-text');
             if(!box || !desc) return;
 
-            // Ícones e cores para cada ingrediente
             const frutaIcon = customBombom.fruta === 'Morango' ? '🍓' : '🍇';
             const frutaName = customBombom.fruta === 'Morango' ? 'Morango' : 'Uva';
 
@@ -841,7 +828,6 @@
             const coberturaIcons = { 'branco': '⚪', 'chocolate': '🟤', 'calda': '🍒', 'cravejado': '✨' };
             const coberturaNames = { 'branco': 'Chocolate Branco', 'chocolate': 'Chocolate ao Leite', 'calda': 'Calda do Amor', 'cravejado': 'Cravejado Crocante' };
 
-            // HTML da animação em etapas fluidas
             box.innerHTML = `
                 <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 animate-fade-in shadow-xs">
                     <span class="text-2xl animate-bounce">${frutaIcon}</span>
@@ -1082,7 +1068,8 @@
                 });
         }
 
-        function finalizeOrderWpp() {
+        // --- FUNÇÃO ÚNICA E CORRETA: SALVA NO FIREBASE E ABRE O WHATSAPP ---
+        async function finalizeOrderWpp() {
             const name = document.getElementById('client-name').value.trim();
             const deliveryType = document.getElementById('delivery-type').value;
             const paymentMethod = document.getElementById('payment-method').value;
@@ -1113,8 +1100,30 @@
             }
 
             let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            let total = subtotal + (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
+            let taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
+            let total = subtotal + taxaEntrega;
 
+            // 1. DADOS PARA SALVAR NO FIREBASE
+            const dadosPedido = {
+                clienteNome: name,
+                tipoPedido: deliveryType,
+                endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
+                formaPagamento: paymentMethod,
+                itens: cart,
+                subtotal: subtotal,
+                taxaEntrega: taxaEntrega,
+                valorTotal: total,
+                dataPedido: window.serverTimestamp() // Salva data e hora exata
+            };
+
+            try {
+                await window.addDoc(window.collection(window.db, "pedidos"), dadosPedido);
+                console.log("Pedido salvo com sucesso no banco de dados!");
+            } catch (e) {
+                console.error("Erro ao salvar pedido: ", e);
+            }
+
+            // 2. MONTAR MENSAGEM DO WHATSAPP
             let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
             message += `👤 *Cliente:* ${name}\n`;
             message += `🛍️ *Itens do Pedido:*\n`;
