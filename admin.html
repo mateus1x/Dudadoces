@@ -38,7 +38,7 @@
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <!-- Chart.js para o Gráfico do Dashboard -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -47,60 +47,41 @@
             color: #3A201E;
             -webkit-font-smoothing: antialiased;
         }
-        /* Estilos da Planilha de Caixa */
-        table input {
+        table input, table select {
             background: transparent;
             border: 1px solid transparent;
-            width: 100%;
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 6px;
             transition: all 0.2s ease;
+            width: 100%;
         }
-        table input:hover {
+        table input:hover, table select:hover {
             background-color: rgba(0, 0, 0, 0.02);
             border-color: #e5e7eb;
         }
-        table input:focus {
+        table input:focus, table select:focus {
             background-color: #ffffff;
             border-color: #8A2B2B;
             outline: none;
             box-shadow: 0 0 0 2px rgba(138, 43, 43, 0.1);
         }
-        table select {
-            background: transparent;
-            border: 1px solid transparent;
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        table select:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-            border-color: #e5e7eb;
-        }
-        table select:focus {
-            background-color: #ffffff;
-            border-color: #8A2B2B;
-            outline: none;
-        }
     </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header do Painel com Abas Integradas -->
+    <!-- Header do Painel -->
     <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
-                
-                <!-- Logo e Título -->
                 <div class="flex items-center gap-3">
                     <img class="h-12 w-auto object-contain" src="logo.png" alt="Duda Doces Logo">
                     <div>
                         <h1 class="font-serif font-bold text-lg sm:text-xl text-duda-brown">Painel Duda Doces</h1>
-                        <span class="text-xs text-gray-500 uppercase tracking-wider font-medium">Gestão Completa</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider font-medium">Gestão Integrada</span>
                     </div>
                 </div>
 
-                <!-- Abas de Navegação Interna -->
+                <!-- Abas de Navegação -->
                 <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30">
                     <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
                         <i class="ph ph-chart-line-up text-base"></i> Dashboard
@@ -110,13 +91,11 @@
                     </button>
                 </div>
 
-                <!-- Botão Ver Loja -->
                 <div class="hidden md:flex items-center gap-2">
                     <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-duda-cream px-4 py-2.5 rounded-xl border border-duda-pink/30">
                         <i class="ph ph-storefront text-lg"></i> Ver Loja
                     </a>
                 </div>
-
             </div>
         </div>
     </header>
@@ -125,7 +104,6 @@
 
         <!-- ================= ABA 1: DASHBOARD ================= -->
         <div id="view-dashboard" class="space-y-8">
-            <!-- Cards de Resumo Geral -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
                     <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
@@ -168,14 +146,14 @@
                 </div>
             </div>
 
-            <!-- Gráfico Misto (Linha e Coluna) -->
+            <!-- Gráfico Misto -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                <div class="flex justify-between items-center mb-6">
                     <div>
                         <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
-                            <i class="ph ph-chart-line-up text-duda-red"></i> Acessos Diários (Linha e Coluna)
+                            <i class="ph ph-chart-line-up text-duda-red"></i> Acessos Diários
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Visualização combinada do fluxo de visitas ao site por dia.</p>
+                        <p class="text-xs text-gray-500 font-medium">Fluxo de visitas ao site.</p>
                     </div>
                 </div>
                 <div class="relative h-80 w-full">
@@ -185,12 +163,10 @@
 
             <!-- Tabela de Pedidos e Inativos -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Tabela de Pedidos -->
                 <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
                     <h2 class="text-xl font-serif font-bold text-duda-brown mb-4 flex items-center gap-2">
-                        <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes Realizados
+                        <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes
                     </h2>
-                    
                     <div class="overflow-x-auto flex-1">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -203,29 +179,25 @@
                                 </tr>
                             </thead>
                             <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50">
-                                <tr>
-                                   <td colspan="5" class="text-center py-6 text-gray-400">Carregando pedidos...</td>
-                                </tr>
+                                <tr><td colspan="5" class="text-center py-6 text-gray-400">Carregando pedidos...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Clientes Inativos -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
                     <h2 class="text-xl font-serif font-bold text-duda-brown mb-2 flex items-center gap-2">
                         <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Inativos (+30 dias)
                     </h2>
-                    <p class="text-xs text-gray-500 mb-6 font-medium">Clientes que compraram há mais de um mês e ainda não voltaram.</p>
-
+                    <p class="text-xs text-gray-500 mb-6 font-medium">Clientes sem comprar há mais de 30 dias.</p>
                     <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[350px] no-scrollbar">
-                        <div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo no momento.</div>
+                        <div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo.</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
+        <!-- ================= ABA 2: FLUXO DE CAIXA (INTEGRADO FIREBASE) ================= -->
         <div id="view-caixa" class="space-y-8 hidden">
             <!-- Cards Resumo Caixa -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -260,39 +232,48 @@
                 </div>
             </div>
 
-            <!-- Tabela Planilha Excel -->
+            <!-- Controles e Filtros do Caixa -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                     <div>
                         <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
-                            <i class="ph ph-table text-duda-red"></i> Lançamentos Diários
+                            <i class="ph ph-table text-duda-red"></i> Controle Financeiro
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Clique em qualquer campo para editar. As alterações são salvas automaticamente.</p>
+                        <p class="text-xs text-gray-500 font-medium">Gerencie suas entradas, ingredientes, embalagens e lucros em tempo real.</p>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="adicionarLinha()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                            <i class="ph ph-plus-circle text-lg"></i> Adicionar Nova Linha
-                        </button>
-                        <button onclick="limparTabela()" class="bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 text-sm font-semibold px-4 py-2.5 rounded-xl transition-all border border-gray-200">
-                            <i class="ph ph-trash text-lg"></i> Limpar Tudo
+
+                    <!-- Filtros por Categoria -->
+                    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <select id="filtro-categoria" onchange="filtrarCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="todos">🔍 Todas as Categorias</option>
+                            <option value="Vendas">💰 Vendas</option>
+                            <option value="Ingredientes">🍓 Ingredientes</option>
+                            <option value="Embalagens">📦 Embalagens</option>
+                            <option value="Marketing">📢 Marketing</option>
+                            <option value="Outros">⚙️ Outros</option>
+                        </select>
+
+                        <button onclick="adicionarLancamentoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-plus-circle text-lg"></i> Novo Lançamento
                         </button>
                     </div>
                 </div>
 
+                <!-- Tabela Estilo Planilha -->
                 <div class="overflow-x-auto border border-gray-200 rounded-2xl">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
                                 <th class="py-3.5 px-4 w-36">Data</th>
                                 <th class="py-3.5 px-4">Descrição / Histórico</th>
-                                <th class="py-3.5 px-4 w-40">Categoria</th>
-                                <th class="py-3.5 px-4 w-32">Tipo</th>
+                                <th class="py-3.5 px-4 w-44">Categoria</th>
+                                <th class="py-3.5 px-4 w-36">Tipo</th>
                                 <th class="py-3.5 px-4 w-36">Valor (R$)</th>
                                 <th class="py-3.5 px-4 w-20 text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100">
-                            <!-- Preenchido via JavaScript -->
+                            <tr><td colspan="6" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -303,13 +284,13 @@
 
     <!-- Rodapé -->
     <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75 font-medium">
-        <p>© 2026 Duda Doces • Painel de Controle Integrado</p>
+        <p>© 2026 Duda Doces • Painel Integrado ao Firebase</p>
     </footer>
 
-    <!-- Script de Controle das Abas, Firebase e Caixa -->
+    <!-- Script Principal Unificado (Firebase + Caixa + Filtros) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -325,8 +306,9 @@
         const db = getFirestore(app);
 
         let myChart = null;
+        let listaCaixaMemoria = [];
 
-        // --- SISTEMA DE ABAS (SPA) ---
+        // --- SISTEMA DE ABAS ---
         window.mudarAba = function(aba) {
             const viewDash = document.getElementById('view-dashboard');
             const viewCaixa = document.getElementById('view-caixa');
@@ -336,23 +318,19 @@
             if (aba === 'dashboard') {
                 viewDash.classList.remove('hidden');
                 viewCaixa.classList.add('hidden');
-                
                 btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
                 btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
-                
                 if(myChart) myChart.update();
             } else {
                 viewCaixa.classList.remove('hidden');
                 viewDash.classList.add('hidden');
-
                 btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
                 btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
-                
-                renderizarTabelaCaixa();
+                carregarCaixaFirebase();
             }
         };
 
-        // --- CARREGAR DASHBOARD FIREBASE ---
+        // --- CARREGAR DASHBOARD ---
         async function carregarDashboard() {
             try {
                 const pedidosRef = collection(db, "pedidos");
@@ -422,39 +400,10 @@
 
                 const labelsDias = Object.keys(diasContagem).sort();
                 const valoresDias = labelsDias.map(dia => diasContagem[dia]);
-
                 renderizarGraficoAcessos(labelsDias, valoresDias);
 
-                const agora = new Date();
-                let inativosHtml = "";
-                let limiteDiasAtras = new Date();
-                limiteDiasAtras.setDate(agora.getDate() - 30);
-
-                for (let [cliente, ultimaData] of Object.entries(mapClienteUltimaCompra)) {
-                    if (ultimaData < limiteDiasAtras) {
-                        const diasInativo = Math.floor((agora - ultimaData) / (1000 * 60 * 60 * 24));
-                        inativosHtml += `
-                            <div class="p-3 bg-duda-cream/40 rounded-2xl border border-gray-100 flex items-center justify-between">
-                                <div>
-                                    <h4 class="font-bold text-sm text-duda-brown">${cliente}</h4>
-                                    <span class="text-xs text-red-600 font-medium">Inativo há ${diasInativo} dias</span>
-                                </div>
-                                <a href="https://wa.me/5531935002261?text=Olá%20${encodeURIComponent(cliente)}!%20Sentimos%20sua%20falta%20aqui%20na%20Duda%20Doces.%20Que%20tal%20um%20docinho%20hoje?" target="_blank" class="w-9 h-9 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-xs">
-                                    <i class="ph ph-whatsapp-logo text-lg"></i>
-                                </a>
-                            </div>
-                        `;
-                    }
-                }
-
-                if (!inativosHtml) {
-                    inativosHtml = `<div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo há mais de 30 dias. Excelente retenção!</div>`;
-                }
-
-                document.getElementById('inactive-clients-container').innerHTML = inativosHtml;
-
             } catch (e) {
-                console.error("Erro ao carregar dados do dashboard:", e);
+                console.error("Erro ao carregar dashboard:", e);
             }
         }
 
@@ -469,7 +418,7 @@
                     datasets: [
                         {
                             type: 'bar',
-                            label: 'Volume Diário (Colunas)',
+                            label: 'Volume Diário',
                             data: data.length > 0 ? data : [0],
                             backgroundColor: 'rgba(138, 43, 43, 0.85)',
                             borderRadius: 6,
@@ -477,10 +426,9 @@
                         },
                         {
                             type: 'line',
-                            label: 'Tendência (Linha)',
+                            label: 'Tendência',
                             data: data.length > 0 ? data : [0],
                             borderColor: '#B38B59',
-                            backgroundColor: '#B38B59',
                             borderWidth: 3,
                             pointRadius: 4,
                             tension: 0.3,
@@ -491,90 +439,67 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                font: { family: 'Inter', weight: '600', size: 12 },
-                                color: '#3A201E'
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#f3f4f6' },
-                            ticks: { precision: 0, font: { family: 'Inter' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { family: 'Inter' } }
-                        }
-                    }
+                    plugins: { legend: { display: true, position: 'top' } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
                 }
             });
         }
 
-        window.addEventListener('load', () => {
-            carregarDashboard();
-            renderizarTabelaCaixa();
-        });
-    </script>
+        // --- FLUXO DE CAIXA NO FIREBASE ---
+        window.carregarCaixaFirebase = async function() {
+            try {
+                const caixaRef = collection(db, "fluxo_caixa");
+                const q = query(caixaRef, orderBy("data", "desc"));
+                const snapshot = await getDocs(q);
 
-    <!-- Script de Gestão do Fluxo de Caixa -->
-    <script>
-        let dadosCaixa = JSON.parse(localStorage.getItem('duda_fluxo_caixa')) || [
-            { id: 1, data: '2026-06-01', descricao: 'Venda de Brownies - Lote Festa', categoria: 'Vendas', tipo: 'entrada', valor: 150.00 },
-            { id: 2, data: '2026-06-02', descricao: 'Compra de Chocolate Nobre e Embalagens', categoria: 'Insumos', tipo: 'saida', valor: 85.50 }
-        ];
+                listaCaixaMemoria = [];
+                snapshot.forEach((docSnap) => {
+                    listaCaixaMemoria.push({ id: docSnap.id, ...docSnap.data() });
+                });
 
-        function salvarDadosCaixa() {
-            localStorage.setItem('duda_fluxo_caixa', JSON.stringify(dadosCaixa));
-            calcularTotaisCaixa();
-        }
+                renderizarTabelaCaixa(listaCaixaMemoria);
+            } catch (e) {
+                console.error("Erro ao carregar caixa do Firebase:", e);
+            }
+        };
 
-        window.renderizarTabelaCaixa = function() {
+        window.renderizarTabelaCaixa = function(dados) {
             const tbody = document.getElementById('tabela-caixa-body');
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            if (dadosCaixa.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum lançamento no caixa. Clique em "Adicionar Nova Linha" para começar.</td></tr>`;
-                calcularTotaisCaixa();
+            if (dados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado. Clique em "Novo Lançamento".</td></tr>`;
+                calcularTotaisCaixa(dados);
                 return;
             }
 
-            dadosCaixa.forEach((item, index) => {
+            dados.forEach((item) => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-duda-cream/30 transition-colors';
+                tr.className = 'hover:bg-duda-cream/40 transition-colors';
                 tr.innerHTML = `
+                    <td class="py-2.5 px-4"><input type="date" value="${item.data || ''}" onchange="atualizarCampoFirebase('${item.id}', 'data', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onchange="atualizarCampoFirebase('${item.id}', 'descricao', this.value)"></td>
                     <td class="py-2.5 px-4">
-                        <input type="date" value="${item.data}" onchange="atualizarDadoCaixa(${index}, 'data', this.value)">
-                    </td>
-                    <td class="py-2.5 px-4">
-                        <input type="text" value="${item.descricao}" placeholder="Ex: Venda, Insumos..." onchange="atualizarDadoCaixa(${index}, 'descricao', this.value)">
-                    </td>
-                    <td class="py-2.5 px-4">
-                        <select onchange="atualizarDadoCaixa(${index}, 'categoria', this.value)">
-                            <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>Vendas</option>
-                            <option value="Insumos" ${item.categoria === 'Insumos' ? 'selected' : ''}>Insumos / Ingredientes</option>
-                            <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>Embalagens</option>
-                            <option value="Marketing" ${item.categoria === 'Marketing' ? 'selected' : ''}>Marketing</option>
-                            <option value="Outros" ${item.categoria === 'Outros' ? 'selected' : ''}>Outros</option>
+                        <select onchange="atualizarCampoFirebase('${item.id}', 'categoria', this.value)">
+                            <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
+                            <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
+                            <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>📦 Embalagens</option>
+                            <option value="Marketing" ${item.categoria === 'Marketing' ? 'selected' : ''}>📢 Marketing</option>
+                            <option value="Outros" ${item.categoria === 'Outros' ? 'selected' : ''}>⚙️ Outros</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
-                        <select onchange="atualizarDadoCaixa(${index}, 'tipo', this.value); renderizarTabelaCaixa();" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                        <select onchange="atualizarCampoFirebase('${item.id}', 'tipo', this.value); carregarCaixaFirebase();" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                             <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
                             <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
-                        <input type="number" step="0.01" value="${item.valor}" placeholder="0,00" onchange="atualizarDadoCaixa(${index}, 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                        <input type="number" step="0.01" value="${item.valor || 0}" onchange="atualizarCampoFirebase('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                     </td>
                     <td class="py-2.5 px-4 text-center">
-                        <button onclick="removerLinhaCaixa(${index})" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir linha">
+                        <button onclick="removerLancamentoFirebase('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
                             <i class="ph ph-trash text-base"></i>
                         </button>
                     </td>
@@ -582,69 +507,79 @@
                 tbody.appendChild(tr);
             });
 
-            calcularTotaisCaixa();
-        }
+            calcularTotaisCaixa(dados);
+        };
 
-        window.atualizarDadoCaixa = function(index, campo, valor) {
-            dadosCaixa[index][campo] = valor;
-            salvarDadosCaixa();
-        }
-
-        window.adicionarLinha = function() {
+        window.adicionarLancamentoFirebase = async function() {
             const hoje = new Date().toISOString().split('T')[0];
-            dadosCaixa.push({
-                id: Date.now(),
-                data: hoje,
-                descricao: 'Novo lançamento',
-                categoria: 'Vendas',
-                tipo: 'entrada',
-                valor: 0.00
-            });
-            salvarDadosCaixa();
-            renderizarTabelaCaixa();
-        }
-
-        window.removerLinhaCaixa = function(index) {
-            dadosCaixa.splice(index, 1);
-            salvarDadosCaixa();
-            renderizarTabelaCaixa();
-        }
-
-        window.limparTabela = function() {
-            if (confirm("Tem certeza que deseja apagar todos os registros do caixa?")) {
-                dadosCaixa = [];
-                salvarDadosCaixa();
-                renderizarTabelaCaixa();
+            try {
+                await addDoc(collection(db, "fluxo_caixa"), {
+                    data: hoje,
+                    descricao: 'Novo Lançamento',
+                    categoria: 'Ingredientes',
+                    tipo: 'saida',
+                    valor: 0.00,
+                    criadoEm: serverTimestamp()
+                });
+                carregarCaixaFirebase();
+            } catch (e) {
+                console.error("Erro ao adicionar no Firebase:", e);
             }
-        }
+        };
 
-        function calcularTotaisCaixa() {
+        window.atualizarCampoFirebase = async function(id, campo, valor) {
+            try {
+                const docRef = doc(db, "fluxo_caixa", id);
+                await updateDoc(docRef, { [campo]: valor });
+            } catch (e) {
+                console.error("Erro ao atualizar Firebase:", e);
+            }
+        };
+
+        window.removerLancamentoFirebase = async function(id) {
+            if (confirm("Deseja realmente excluir este lançamento do Firebase?")) {
+                try {
+                    await deleteDoc(doc(db, "fluxo_caixa", id));
+                    carregarCaixaFirebase();
+                } catch (e) {
+                    console.error("Erro ao excluir do Firebase:", e);
+                }
+            }
+        };
+
+        window.filtrarCaixa = function() {
+            const categoriaSelecionada = document.getElementById('filtro-categoria').value;
+            if (categoriaSelecionada === 'todos') {
+                renderizarTabelaCaixa(listaCaixaMemoria);
+            } else {
+                const filtrados = listaCaixaMemoria.filter(item => item.categoria === categoriaSelecionada);
+                renderizarTabelaCaixa(filtrados);
+            }
+        };
+
+        function calcularTotaisCaixa(dados) {
             let totalEntradas = 0;
             let totalSaidas = 0;
 
-            dadosCaixa.forEach(item => {
+            dados.forEach(item => {
                 const val = Number(item.valor) || 0;
-                if (item.tipo === 'entrada') {
-                    totalEntradas += val;
-                } else {
-                    totalSaidas += val;
-                }
+                if (item.tipo === 'entrada') totalEntradas += val;
+                else totalSaidas += val;
             });
 
             const saldo = totalEntradas - totalSaidas;
 
-            const elEntradas = document.getElementById('resumo-entradas');
-            const elSaidas = document.getElementById('resumo-saidas');
-            const elSaldo = document.getElementById('resumo-saldo');
-
-            if(elEntradas) elEntradas.innerText = totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            if(elSaidas) elSaidas.innerText = totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-entradas').innerText = totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-saidas').innerText = totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             
-            if(elSaldo) {
-                elSaldo.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5" : "text-2xl font-bold text-duda-brown mt-0.5";
-            }
+            const elSaldo = document.getElementById('resumo-saldo');
+            elSaldo.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5" : "text-2xl font-bold text-duda-brown mt-0.5";
         }
+
+        window.addEventListener('load', () => {
+            carregarDashboard();
+        });
     </script>
 </body>
 </html>
