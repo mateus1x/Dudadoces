@@ -414,7 +414,7 @@
                 let faturamentoTotal = 0;
                 let qtdPedidos = 0;
                 let tabelaHtml = "";
-                let mapClienteUltimaCompra = {};
+                let mapClienteInfo = {};
 
                 queryPedidos.forEach((docSnap) => {
                     const p = docSnap.data();
@@ -436,11 +436,13 @@
                         </tr>
                     `;
 
-                    // Mapeia a última data que cada cliente comprou
                     if (p.clienteNome && p.dataPedido && p.dataPedido.toDate) {
                         const dataCompra = p.dataPedido.toDate();
-                        if (!mapClienteUltimaCompra[p.clienteNome] || dataCompra > mapClienteUltimaCompra[p.clienteNome]) {
-                            mapClienteUltimaCompra[p.clienteNome] = dataCompra;
+                        if (!mapClienteInfo[p.clienteNome] || dataCompra > mapClienteInfo[p.clienteNome].data) {
+                            mapClienteInfo[p.clienteNome] = {
+                                data: dataCompra,
+                                telefone: p.clienteTelefone || ''
+                            };
                         }
                     }
                 });
@@ -453,28 +455,32 @@
                 document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
-                // --- PROCESSAR CLIENTES INATIVOS (+30 DIAS) ---
+                // --- PROCESSAR CLIENTES INATIVOS (+30 DIAS) COM O TELEFONE DO CADASTRO ---
                 const containerInativos = document.getElementById('inactive-clients-container');
                 let inativosHtml = "";
                 const hoje = new Date();
                 let qtdInativos = 0;
 
-                for (let [cliente, ultimaData] of Object.entries(mapClienteUltimaCompra)) {
-                    const diffTime = Math.abs(hoje - ultimaData);
+                for (let [cliente, info] of Object.entries(mapClienteInfo)) {
+                    const diffTime = Math.abs(hoje - info.data);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                     if (diffDays > 30) {
                         qtdInativos++;
-                        const dataFormatada = ultimaData.toLocaleDateString('pt-BR');
+                        const dataFormatada = info.data.toLocaleDateString('pt-BR');
+                        const telFormatado = info.telefone ? `55${info.telefone}` : '';
                         const msgWpp = encodeURIComponent(`Olá ${cliente}! Sentimos sua falta aqui na Duda Doces. Que tal aproveitar nossos doces artesanais hoje? Temos novidades te esperando! 🍫✨`);
                         
+                        const linkWpp = telFormatado ? `https://api.whatsapp.com/send?phone=${telFormatado}&text=${msgWpp}` : `https://wa.me/?text=${msgWpp}`;
+
                         inativosHtml += `
                             <div class="bg-duda-cream/50 p-4 rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-3">
                                 <div>
                                     <h4 class="font-bold text-duda-brown text-sm">${cliente}</h4>
                                     <p class="text-xs text-gray-500">Última compra: ${dataFormatada} (${diffDays} dias atrás)</p>
+                                    <p class="text-[11px] text-gray-400">Tel: ${info.telefone || 'Não informado'}</p>
                                 </div>
-                                <a href="https://wa.me/?text=${msgWpp}" target="_blank" class="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-sm" title="Enviar Mensagem no WhatsApp">
+                                <a href="${linkWpp}" target="_blank" class="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-sm" title="Enviar Mensagem no WhatsApp do Cliente">
                                     <i class="ph ph-whatsapp-logo text-xl"></i>
                                 </a>
                             </div>
