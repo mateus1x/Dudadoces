@@ -197,7 +197,7 @@
             </div>
         </div>
 
-        <!-- ================= ABA 2: FLUXO DE CAIXA (INTEGRADO FIREBASE) ================= -->
+        <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
         <div id="view-caixa" class="space-y-8 hidden">
             <!-- Cards Resumo Caixa -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -206,7 +206,7 @@
                         <i class="ph ph-arrow-circle-down"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas (Lucro)</p>
                         <h3 id="resumo-entradas" class="text-2xl font-bold text-green-600 mt-0.5">R$ 0,00</h3>
                     </div>
                 </div>
@@ -216,7 +216,7 @@
                         <i class="ph ph-arrow-circle-up"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Saídas</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Saídas (Despesas)</p>
                         <h3 id="resumo-saidas" class="text-2xl font-bold text-red-600 mt-0.5">R$ 0,00</h3>
                     </div>
                 </div>
@@ -226,30 +226,38 @@
                         <i class="ph ph-wallet"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo em Caixa</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Líquido</p>
                         <h3 id="resumo-saldo" class="text-2xl font-bold text-duda-brown mt-0.5">R$ 0,00</h3>
                     </div>
                 </div>
             </div>
 
-            <!-- Controles e Filtros do Caixa -->
+            <!-- Controles e Filtros Avançados do Caixa -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                     <div>
                         <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
-                            <i class="ph ph-table text-duda-red"></i> Controle Financeiro
+                            <i class="ph ph-table text-duda-red"></i> Controle Financeiro Avançado
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Gerencie suas entradas, ingredientes, embalagens e lucros em tempo real.</p>
+                        <p class="text-xs text-gray-500 font-medium">Filtre por tipo (lucros/despesas) e categorias detalhadas.</p>
                     </div>
 
-                    <!-- Filtros por Categoria -->
                     <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        <select id="filtro-categoria" onchange="filtrarCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="todos">🔍 Todas as Categorias</option>
-                            <option value="Vendas">💰 Vendas</option>
-                            <option value="Ingredientes">🍓 Ingredientes</option>
-                            <option value="Embalagens">📦 Embalagens</option>
-                            <option value="Marketing">📢 Marketing</option>
+                        <!-- Filtro 1: Tipo (Lucro / Despesa) -->
+                        <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="todos">📊 Todos os Tipos</option>
+                            <option value="entrada">🟢 Apenas Lucros (Entradas)</option>
+                            <option value="saida">🔴 Apenas Despesas (Saídas)</option>
+                        </select>
+
+                        <!-- Filtro 2: Categoria Específica -->
+                        <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="todas">🏷️ Todas as Categorias</option>
+                            <option value="Vendas">💰 Vendas (Lucro)</option>
+                            <option value="Ingredientes">🍓 Ingredientes (Despesa)</option>
+                            <option value="Embalagens">📦 Embalagens (Despesa)</option>
+                            <option value="Transporte">🚗 Transporte (Despesa)</option>
+                            <option value="Marketing">📢 Marketing (Despesa)</option>
                             <option value="Outros">⚙️ Outros</option>
                         </select>
 
@@ -287,7 +295,7 @@
         <p>© 2026 Duda Doces • Painel Integrado ao Firebase</p>
     </footer>
 
-    <!-- Script Principal Unificado (Firebase + Caixa + Filtros) -->
+    <!-- Script Principal Unificado -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -308,7 +316,6 @@
         let myChart = null;
         let listaCaixaMemoria = [];
 
-        // --- SISTEMA DE ABAS ---
         window.mudarAba = function(aba) {
             const viewDash = document.getElementById('view-dashboard');
             const viewCaixa = document.getElementById('view-caixa');
@@ -330,7 +337,6 @@
             }
         };
 
-        // --- CARREGAR DASHBOARD ---
         async function carregarDashboard() {
             try {
                 const pedidosRef = collection(db, "pedidos");
@@ -445,7 +451,6 @@
             });
         }
 
-        // --- FLUXO DE CAIXA NO FIREBASE ---
         window.carregarCaixaFirebase = async function() {
             try {
                 const caixaRef = collection(db, "fluxo_caixa");
@@ -457,10 +462,23 @@
                     listaCaixaMemoria.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
-                renderizarTabelaCaixa(listaCaixaMemoria);
+                aplicarFiltrosCaixa();
             } catch (e) {
                 console.error("Erro ao carregar caixa do Firebase:", e);
             }
+        };
+
+        window.aplicarFiltrosCaixa = function() {
+            const tipoFiltro = document.getElementById('filtro-tipo').value;
+            const categoriaFiltro = document.getElementById('filtro-categoria').value;
+
+            let dadosFiltrados = listaCaixaMemoria.filter(item => {
+                let matchTipo = (tipoFiltro === 'todos' || item.tipo === tipoFiltro);
+                let matchCategoria = (categoriaFiltro === 'todas' || item.categoria === categoriaFiltro);
+                return matchTipo && matchCategoria;
+            });
+
+            renderizarTabelaCaixa(dadosFiltrados);
         };
 
         window.renderizarTabelaCaixa = function(dados) {
@@ -469,8 +487,8 @@
             tbody.innerHTML = '';
 
             if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado. Clique em "Novo Lançamento".</td></tr>`;
-                calcularTotaisCaixa(dados);
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>`;
+                calcularTotaisCaixa(listaCaixaMemoria);
                 return;
             }
 
@@ -485,14 +503,15 @@
                             <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
                             <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
                             <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>📦 Embalagens</option>
+                            <option value="Transporte" ${item.categoria === 'Transporte' ? 'selected' : ''}>🚗 Transporte</option>
                             <option value="Marketing" ${item.categoria === 'Marketing' ? 'selected' : ''}>📢 Marketing</option>
                             <option value="Outros" ${item.categoria === 'Outros' ? 'selected' : ''}>⚙️ Outros</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
                         <select onchange="atualizarCampoFirebase('${item.id}', 'tipo', this.value); carregarCaixaFirebase();" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
-                            <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
-                            <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
+                            <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada (Lucro)</option>
+                            <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída (Despesa)</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
@@ -507,7 +526,7 @@
                 tbody.appendChild(tr);
             });
 
-            calcularTotaisCaixa(dados);
+            calcularTotaisCaixa(listaCaixaMemoria);
         };
 
         window.adicionarLancamentoFirebase = async function() {
@@ -544,16 +563,6 @@
                 } catch (e) {
                     console.error("Erro ao excluir do Firebase:", e);
                 }
-            }
-        };
-
-        window.filtrarCaixa = function() {
-            const categoriaSelecionada = document.getElementById('filtro-categoria').value;
-            if (categoriaSelecionada === 'todos') {
-                renderizarTabelaCaixa(listaCaixaMemoria);
-            } else {
-                const filtrados = listaCaixaMemoria.filter(item => item.categoria === categoriaSelecionada);
-                renderizarTabelaCaixa(filtrados);
             }
         };
 
