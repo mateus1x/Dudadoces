@@ -69,7 +69,7 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header do Painel -->
+    <!-- Header do Painel com 3 Abas -->
     <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
@@ -81,13 +81,16 @@
                     </div>
                 </div>
 
-                <!-- Abas de Navegação -->
-                <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30">
+                <!-- Abas de Navegação (Dashboard, Caixa e Estoque) -->
+                <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap justify-center">
                     <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
                         <i class="ph ph-chart-line-up text-base"></i> Dashboard
                     </button>
                     <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                        <i class="ph ph-wallet text-base"></i> Fluxo de Caixa
+                        <i class="ph ph-wallet text-base"></i> Caixa
+                    </button>
+                    <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                        <i class="ph ph-package text-base"></i> Estoque & Compras
                     </button>
                 </div>
 
@@ -199,7 +202,6 @@
 
         <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
         <div id="view-caixa" class="space-y-8 hidden">
-            <!-- Cards Resumo Caixa -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
                     <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-2xl font-bold">
@@ -232,7 +234,6 @@
                 </div>
             </div>
 
-            <!-- Controles e Filtros Avançados do Caixa -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                     <div>
@@ -243,14 +244,12 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        <!-- Filtro Tipo -->
                         <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
                             <option value="todos">📊 Todos os Tipos</option>
                             <option value="entrada">🟢 Entradas (Lucros)</option>
                             <option value="saida">🔴 Saídas (Despesas)</option>
                         </select>
 
-                        <!-- Filtro Categoria -->
                         <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
                             <option value="todas">🏷️ Todas as Categorias</option>
                             <option value="Vendas">💰 Vendas</option>
@@ -267,7 +266,6 @@
                     </div>
                 </div>
 
-                <!-- Tabela Estilo Planilha -->
                 <div class="overflow-x-auto border border-gray-200 rounded-2xl">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -283,6 +281,41 @@
                         </thead>
                         <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100">
                             <tr><td colspan="7" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ABA 3: CONTROLE DE ESTOQUE ================= -->
+        <div id="view-estoque" class="space-y-8 hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
+                            <i class="ph ph-package text-duda-red"></i> Controle de Estoque & Compras
+                        </h2>
+                        <p class="text-xs text-gray-500 font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="adicionarItemEstoque()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-plus-circle text-lg"></i> Adicionar Item
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-gray-200 rounded-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                <th class="py-3.5 px-4">Ingrediente / Item</th>
+                                <th class="py-3.5 px-4 w-48">Unidade de Medida</th>
+                                <th class="py-3.5 px-4 w-52">Status no Estoque</th>
+                                <th class="py-3.5 px-4 w-20 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-estoque-body" class="text-sm divide-y divide-gray-100">
+                            <tr><td colspan="4" class="text-center py-8 text-gray-400">Carregando estoque...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -316,28 +349,64 @@
 
         let myChart = null;
         let listaCaixaMemoria = [];
+        let listaEstoqueMemoria = [];
+
+        // Itens iniciais fornecidos por você
+        const itensIniciaisEstoque = [
+            { nome: 'Leite Condensado', medida: '395 g', status: 'cheio' },
+            { nome: 'Creme de Leite', medida: '200 g', status: 'cheio' },
+            { nome: 'Leite Ninho', medida: '380 g', status: 'cheio' },
+            { nome: 'Manteiga', medida: '500 g', status: 'cheio' },
+            { nome: 'Cacau em pó', medida: '500 g', status: 'cheio' },
+            { nome: 'Maracujá', medida: '436 g', status: 'cheio' },
+            { nome: 'Cobertop Blend', medida: '1010 g', status: 'cheio' },
+            { nome: 'Cobertop Branco', medida: '1010 g', status: 'cheio' },
+            { nome: 'Vinagre', medida: 'Unidade', status: 'cheio' },
+            { nome: 'Corante', medida: '25 ml', status: 'cheio' },
+            { nome: 'Açúcar', medida: '5000 g', status: 'cheio' },
+            { nome: 'Ovos', medida: '30 unidades', status: 'cheio' },
+            { nome: 'Farinha de Trigo', medida: '1000 g', status: 'cheio' },
+            { nome: 'Óleo', medida: '900 ml', status: 'cheio' },
+            { nome: 'Fermento Químico', medida: '100 g', status: 'cheio' },
+            { nome: 'Leite Integral', medida: '1000 ml', status: 'cheio' },
+            { nome: 'Morango', medida: '15 unidades', status: 'cheio' },
+            { nome: 'Uva', medida: '500 g', status: 'cheio' }
+        ];
 
         window.mudarAba = function(aba) {
             const viewDash = document.getElementById('view-dashboard');
             const viewCaixa = document.getElementById('view-caixa');
+            const viewEstoque = document.getElementById('view-estoque');
+            
             const btnDash = document.getElementById('tab-btn-dashboard');
             const btnCaixa = document.getElementById('tab-btn-caixa');
+            const btnEstoque = document.getElementById('tab-btn-estoque');
+
+            // Oculta todas
+            viewDash.classList.add('hidden');
+            viewCaixa.classList.add('hidden');
+            viewEstoque.classList.add('hidden');
+
+            btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+            btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+            btnEstoque.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
 
             if (aba === 'dashboard') {
                 viewDash.classList.remove('hidden');
-                viewCaixa.classList.add('hidden');
                 btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
-                btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
                 if(myChart) myChart.update();
-            } else {
+            } else if (aba === 'caixa') {
                 viewCaixa.classList.remove('hidden');
-                viewDash.classList.add('hidden');
                 btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
-                btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
                 carregarCaixaFirebase();
+            } else if (aba === 'estoque') {
+                viewEstoque.classList.remove('hidden');
+                btnEstoque.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
+                carregarEstoqueFirebase();
             }
         };
 
+        // --- DASHBOARD ---
         async function carregarDashboard() {
             try {
                 const pedidosRef = collection(db, "pedidos");
@@ -452,6 +521,7 @@
             });
         }
 
+        // --- FLUXO DE CAIXA ---
         window.carregarCaixaFirebase = async function() {
             try {
                 const caixaRef = collection(db, "fluxo_caixa");
@@ -465,7 +535,7 @@
 
                 aplicarFiltrosCaixa();
             } catch (e) {
-                console.error("Erro ao carregar caixa do Firebase:", e);
+                console.error("Erro ao carregar caixa:", e);
             }
         };
 
@@ -488,7 +558,7 @@
             tbody.innerHTML = '';
 
             if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado.</td></tr>`;
                 calcularTotaisCaixa(listaCaixaMemoria);
                 return;
             }
@@ -498,10 +568,10 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-duda-cream/40 transition-colors';
                 tr.innerHTML = `
-                    <td class="py-2.5 px-4"><input type="date" value="${item.data || ''}" onchange="atualizarCampoFirebase('${item.id}', 'data', this.value)"></td>
-                    <td class="py-2.5 px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onchange="atualizarCampoFirebase('${item.id}', 'descricao', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="date" value="${item.data || ''}" onchange="atualizarCampoCaixa('${item.id}', 'data', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onchange="atualizarCampoCaixa('${item.id}', 'descricao', this.value)"></td>
                     <td class="py-2.5 px-4">
-                        <select onchange="atualizarCampoFirebase('${item.id}', 'categoria', this.value)">
+                        <select onchange="atualizarCampoCaixa('${item.id}', 'categoria', this.value)">
                             <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
                             <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
                             <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>📦 Embalagens</option>
@@ -511,23 +581,23 @@
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
-                        <select onchange="atualizarCampoFirebase('${item.id}', 'tipo', this.value); carregarCaixaFirebase();" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                        <select onchange="atualizarCampoCaixa('${item.id}', 'tipo', this.value); carregarCaixaFirebase();" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                             <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
                             <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
-                        <input type="number" step="0.01" value="${item.valor || 0}" onchange="atualizarCampoFirebase('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                        <input type="number" step="0.01" value="${item.valor || 0}" onchange="atualizarCampoCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                     </td>
                     <td class="py-2.5 px-4">
-                        <select onchange="atualizarCampoFirebase('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
+                        <select onchange="atualizarCampoCaixa('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
                             <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
                             <option value="pago" ${status === 'pago' ? 'selected' : ''}>✅ Pago Integral</option>
                             <option value="50porcento" ${status === '50porcento' ? 'selected' : ''}>⚡ Pago 50% (Sinal)</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4 text-center">
-                        <button onclick="removerLancamentoFirebase('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
+                        <button onclick="removerLancamentoCaixa('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
                             <i class="ph ph-trash text-base"></i>
                         </button>
                     </td>
@@ -552,26 +622,25 @@
                 });
                 carregarCaixaFirebase();
             } catch (e) {
-                console.error("Erro ao adicionar no Firebase:", e);
+                console.error("Erro ao adicionar:", e);
             }
         };
 
-        window.atualizarCampoFirebase = async function(id, campo, valor) {
+        window.atualizarCampoCaixa = async function(id, campo, valor) {
             try {
-                const docRef = doc(db, "fluxo_caixa", id);
-                await updateDoc(docRef, { [campo]: valor });
+                await updateDoc(doc(db, "fluxo_caixa", id), { [campo]: valor });
             } catch (e) {
-                console.error("Erro ao atualizar Firebase:", e);
+                console.error("Erro ao atualizar:", e);
             }
         };
 
-        window.removerLancamentoFirebase = async function(id) {
-            if (confirm("Deseja realmente excluir este lançamento?")) {
+        window.removerLancamentoCaixa = async function(id) {
+            if (confirm("Deseja realmente excluir?")) {
                 try {
                     await deleteDoc(doc(db, "fluxo_caixa", id));
                     carregarCaixaFirebase();
                 } catch (e) {
-                    console.error("Erro ao excluir do Firebase:", e);
+                    console.error("Erro ao excluir:", e);
                 }
             }
         };
@@ -579,22 +648,105 @@
         function calcularTotaisCaixa(dados) {
             let totalEntradas = 0;
             let totalSaidas = 0;
-
             dados.forEach(item => {
                 const val = Number(item.valor) || 0;
                 if (item.tipo === 'entrada') totalEntradas += val;
                 else totalSaidas += val;
             });
-
             const saldo = totalEntradas - totalSaidas;
-
             document.getElementById('resumo-entradas').innerText = totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-saidas').innerText = totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
             const elSaldo = document.getElementById('resumo-saldo');
             elSaldo.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5" : "text-2xl font-bold text-duda-brown mt-0.5";
         }
+
+        // --- CONTROLE DE ESTOQUE ---
+        window.carregarEstoqueFirebase = async function() {
+            try {
+                const estoqueRef = collection(db, "estoque");
+                const snapshot = await getDocs(estoqueRef);
+
+                listaEstoqueMemoria = [];
+                snapshot.forEach((docSnap) => {
+                    listaEstoqueMemoria.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Se o estoque estiver vazio pela primeira vez, insere automaticamente os itens iniciais
+                if (listaEstoqueMemoria.length === 0) {
+                    for (let item of itensIniciaisEstoque) {
+                        await addDoc(collection(db, "estoque"), item);
+                    }
+                    return carregarEstoqueFirebase();
+                }
+
+                renderizarTabelaEstoque(listaEstoqueMemoria);
+            } catch (e) {
+                console.error("Erro ao carregar estoque:", e);
+            }
+        };
+
+        window.renderizarTabelaEstoque = function(dados) {
+            const tbody = document.getElementById('tabela-estoque-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            dados.forEach((item) => {
+                const st = item.status || 'cheio';
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-duda-cream/40 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarCampoEstoque('${item.id}', 'nome', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.medida || ''}" onchange="atualizarCampoEstoque('${item.id}', 'medida', this.value)"></td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarCampoEstoque('${item.id}', 'status', this.value); renderizarTabelaEstoque(listaEstoqueMemoria);" class="font-semibold text-xs py-2 px-3 rounded-xl border border-gray-200 ${st === 'cheio' ? 'bg-green-50 text-green-700' : st === 'metade' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}">
+                            <option value="cheio" ${st === 'cheio' ? 'selected' : ''}>🟢 Cheio</option>
+                            <option value="metade" ${st === 'metade' ? 'selected' : ''}>🟡 Metade</option>
+                            <option value="vazio" ${st === 'vazio' ? 'selected' : ''}>🔴 Vazio (Comprar)</option>
+                        </select>
+                    </td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="removerItemEstoque('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.adicionarItemEstoque = async function() {
+            try {
+                const novo = { nome: 'Novo Ingrediente', medida: '1 un', status: 'cheio', criadoEm: serverTimestamp() };
+                const docRef = await addDoc(collection(db, "estoque"), novo);
+                listaEstoqueMemoria.push({ id: docRef.id, ...novo });
+                renderizarTabelaEstoque(listaEstoqueMemoria);
+            } catch (e) {
+                console.error("Erro ao adicionar item no estoque:", e);
+            }
+        };
+
+        window.atualizarCampoEstoque = async function(id, campo, valor) {
+            try {
+                await updateDoc(doc(db, "estoque", id), { [campo]: valor });
+                const item = listaEstoqueMemoria.find(i => i.id === id);
+                if(item) item[campo] = valor;
+            } catch (e) {
+                console.error("Erro ao atualizar estoque:", e);
+            }
+        };
+
+        window.removerItemEstoque = async function(id) {
+            if (confirm("Deseja remover este item do estoque?")) {
+                try {
+                    await deleteDoc(doc(db, "estoque", id));
+                    listaEstoqueMemoria = listaEstoqueMemoria.filter(i => i.id !== id);
+                    renderizarTabelaEstoque(listaEstoqueMemoria);
+                } catch (e) {
+                    console.error("Erro ao excluir do estoque:", e);
+                }
+            }
+        };
 
         window.addEventListener('load', () => {
             carregarDashboard();
