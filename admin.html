@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Duda Doces</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'duda-cream': '#FCF9F6',
+                        'duda-pink': '#E8C1C1',
+                        'duda-red': '#8A2B2B',
+                        'duda-brown': '#3A201E',
+                        'duda-gold': '#B38B59'
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'premium': '0 20px 40px -15px rgba(138, 43, 43, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Chart.js para o Gráfico de Acessos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #FCF9F6;
+            color: #3A201E;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header do Painel -->
+    <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3">
+                    <img class="h-12 w-auto object-contain" src="logo.png" alt="Duda Doces Logo">
+                    <div>
+                        <h1 class="font-serif font-bold text-xl text-duda-brown">Painel Administrativo</h1>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider">Gestão Duda Doces</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-duda-cream px-4 py-2.5 rounded-xl border border-duda-pink/30">
+                        <i class="ph ph-storefront text-lg"></i> Ver Loja
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+
+        <!-- Cards de Resumo Geral -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <i class="ph ph-currency-dollar"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento Total</p>
+                    <h3 id="stat-faturamento" class="text-2xl font-bold text-duda-brown mt-0.5">R$ 0,00</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <i class="ph ph-shopping-bag"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Pedidos</p>
+                    <h3 id="stat-pedidos" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <i class="ph ph-users"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Visitantes Únicos</p>
+                    <h3 id="stat-visitantes" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <i class="ph ph-eye"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acessos Totais</p>
+                    <h3 id="stat-acessos-totais" class="text-2xl font-bold text-duda-brown mt-0.5">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção do Gráfico de Acessos por Dia -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                <div>
+                    <h2 class="text-xl font-serif font-bold text-duda-brown flex items-center gap-2">
+                        <i class="ph ph-chart-line-up text-duda-red"></i> Acessos ao Site por Dia
+                    </h2>
+                    <p class="text-xs text-gray-500">Histórico de visualizações diárias com base na última atividade dos visitantes.</p>
+                </div>
+            </div>
+            <div class="relative h-72 w-full">
+                <canvas id="accessChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Grid inferior: Tabela de Pedidos e Alerta de Clientes Inativos -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Tabela de Pedidos Recentes (Ocupa 2 colunas) -->
+            <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                <h2 class="text-xl font-serif font-bold text-duda-brown mb-4 flex items-center gap-2">
+                    <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes Realizados
+                </h2>
+                
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                <th class="pb-3 px-2">Cliente</th>
+                                <th class="pb-3 px-2">Tipo</th>
+                                <th class="pb-3 px-2">Pagamento</th>
+                                <th class="pb-3 px-2">Total</th>
+                                <th class="pb-3 px-2">Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50">
+                            <!-- Injetado via JS -->
+                            <tr>
+                               <td colspan="5" class="text-center py-6 text-gray-400">Carregando pedidos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Clientes Inativos > 30 dias (Ocupa 1 coluna) -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                <h2 class="text-xl font-serif font-bold text-duda-brown mb-2 flex items-center gap-2">
+                    <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Inativos (+30 dias)
+                </h2>
+                <p class="text-xs text-gray-500 mb-6">Clientes que compraram há mais de um mês e ainda não voltaram.</p>
+
+                <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[350px] no-scrollbar">
+                    <div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo no momento.</div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75">
+        <p>© 2026 Duda Doces • Painel de Controle Restrito</p>
+    </footer>
+
+    <!-- Script de Conexão com Firebase e Renderização do Dashboard -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Configuração do Firebase (mesma do site principal)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
+            authDomain: "dudadoces.firebaseapp.com",
+            projectId: "dudadoces",
+            storageBucket: "dudadoces.firebasestorage.app",
+            messagingSenderId: "616273504505",
+            appId: "1:616273504505:web:492fb9185a1cc0d1b5da28",
+            measurementId: "G-9NZ8YG2YD4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let myChart = null;
+
+        async function carregarDashboard() {
+            try {
+                // 1. Buscar Pedidos
+                const pedidosRef = collection(db, "pedidos");
+                const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
+                const queryPedidos = await getDocs(qPedidos);
+
+                let faturamentoTotal = 0;
+                let qtdPedidos = 0;
+                let tabelaHtml = "";
+                let mapClienteUltimaCompra = {};
+
+                queryPedidos.forEach((docSnap) => {
+                    const p = docSnap.data();
+                    qtdPedidos++;
+                    faturamentoTotal += p.valorTotal || 0;
+
+                    let dataFormatada = "Data não reg.";
+                    if (p.dataPedido && p.dataPedido.toDate) {
+                        dataFormatada = p.dataPedido.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    tabelaHtml += `
+                        <tr class="hover:bg-duda-cream/40 transition-colors">
+                            <td class="py-3 px-2 font-bold text-duda-brown">${p.clienteNome || 'Cliente'}</td>
+                            <td class="py-3 px-2 text-gray-600">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
+                            <td class="py-3 px-2 text-gray-600">${p.formaPagamento || 'Pix'}</td>
+                            <td class="py-3 px-2 font-bold text-duda-red">R$ ${(p.valorTotal || 0).toFixed(2).replace('.', ',')}</td>
+                            <td class="py-3 px-2 text-xs text-gray-500">${dataFormatada}</td>
+                        </tr>
+                    `;
+
+                    // Mapeia última compra por cliente para o relatório de inativos
+                    if (p.clienteNome && p.dataPedido && p.dataPedido.toDate) {
+                        if (!mapClienteUltimaCompra[p.clienteNome] || p.dataPedido.toDate() > mapClienteUltimaCompra[p.clienteNome]) {
+                            mapClienteUltimaCompra[p.clienteNome] = p.dataPedido.toDate();
+                        }
+                    }
+                });
+
+                if (queryPedidos.empty) {
+                    tabelaHtml = `<tr><td colspan="5" class="text-center py-6 text-gray-400">Nenhum pedido registrado ainda.</td></tr>`;
+                }
+
+                document.getElementById('orders-table-body').innerHTML = tabelaHtml;
+                document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('stat-pedidos').innerText = qtdPedidos;
+
+                // 2. Buscar Acessos
+                const acessosRef = collection(db, "acessos");
+                const queryAcessos = await getDocs(acessosRef);
+
+                let totalVisitantesUnicos = 0;
+                let totalAcessosSoma = 0;
+                let diasContagem = {};
+
+                queryAcessos.forEach((docSnap) => {
+                    const a = docSnap.data();
+                    totalVisitantesUnicos++;
+                    totalAcessosSoma += (a.totalAcessos || 1);
+
+                    // Agrupa por dia baseado na data do último acesso ou primeiro acesso
+                    if (a.ultimoAcesso && a.ultimoAcesso.toDate) {
+                        const diaStr = a.ultimoAcesso.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                        diasContagem[diaStr] = (diasContagem[diaStr] || 0) + (a.totalAcessos || 1);
+                    }
+                });
+
+                document.getElementById('stat-visitantes').innerText = totalVisitantesUnicos;
+                document.getElementById('stat-acessos-totais').innerText = totalAcessosSoma;
+
+                // Montar dados para o Gráfico de Acessos por Dia
+                const labelsDias = Object.keys(diasContagem).sort();
+                const valoresDias = labelsDias.map(dia => diasContagem[dia]);
+
+                renderizarGraficoAcessos(labelsDias, valoresDias);
+
+                // 3. Processar Clientes Inativos (> 30 dias)
+                const agora = new Date();
+                let inativosHtml = "";
+                let 30DiasAtras = new Date();
+                30DiasAtras.setDate(agora.getDate() - 30);
+
+                for (let [cliente, ultimaData] of Object.entries(mapClienteUltimaCompra)) {
+                    if (ultimaData < 30DiasAtras) {
+                        const diasInativo = Math.floor((agora - ultimaData) / (1000 * 60 * 60 * 24));
+                        inativosHtml += `
+                            <div class="p-3 bg-duda-cream/40 rounded-2xl border border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-bold text-sm text-duda-brown">${cliente}</h4>
+                                    <span class="text-xs text-red-600 font-medium">Inativo há ${diasInativo} dias</span>
+                                </div>
+                                <a href="https://wa.me/5531935002261?text=Olá%20${encodeURIComponent(cliente)}!%20Sentimos%20sua%20falta%20aqui%20na%20Duda%20Doces.%20Que%20tal%20um%20docinho%20hoje?" target="_blank" class="w-9 h-9 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-xs">
+                                    <i class="ph ph-whatsapp-logo text-lg"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (!inativosHtml) {
+                    inativosHtml = `<div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo há mais de 30 dias. Excelente retenção!</div>`;
+                }
+
+                document.getElementById('inactive-clients-container').innerHTML = inativosHtml;
+
+            } catch (e) {
+                console.error("Erro ao carregar dados do dashboard:", e);
+            }
+        }
+
+        function renderizarGraficoAcessos(labels, data) {
+            const ctx = document.getElementById('accessChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Hoje'],
+                    datasets: [{
+                        label: 'Visualizações por Dia',
+                        data: data.length > 0 ? data : [0],
+                        backgroundColor: '#8A2B2B',
+                        borderRadius: 8,
+                        hoverBackgroundColor: '#6b1f1f'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6' },
+                            ticks: { precision: 0 }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('load', carregarDashboard);
+    </script>
+</body>
+</html>
