@@ -619,6 +619,32 @@
     </script>
 
     <script>
+
+        // --- FUNÇÃO PARA REGISTRAR QUEM ACESSOU O SITE ---
+async function registrarAcesso() {
+    try {
+        const dadosAcesso = {
+            dataAcesso: window.serverTimestamp(),
+            dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador",
+            pagina: "Home / Vitrine"
+        };
+
+        // Salva na nova coleção "acessos" do Firebase
+        await window.addDoc(window.collection(window.db, "acessos"), dadosAcesso);
+        console.log("Acesso ao site registrado com sucesso!");
+    } catch (e) {
+        console.error("Erro ao registrar acesso: ", e);
+    }
+}
+
+// Chama a função assim que a página terminar de carregar
+window.addEventListener('load', () => {
+    // Mantém o seu window.onload original e roda o registro de acesso
+    if (typeof window.onload === 'function') {
+        window.onload();
+    }
+    registrarAcesso();
+});
         // --- CURSOR INTERATIVO DE PARTÍCULAS ---
         const cursorDot = document.getElementById('cursorDot');
         let lastTrailTime = 0;
