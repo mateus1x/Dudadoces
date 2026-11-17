@@ -589,109 +589,172 @@
         </div>
     </div>
 
-    <div id="toast">Item adicionado com sucesso!</div>
+<div id="toast">Item adicionado com sucesso!</div>
 
+    <!-- SCRIPT ÚNICO DO FIREBASE E DA APLICAÇÃO (EVITA ERROS DE INICIALIZAÇÃO) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// E libere as funções globalmente para o script enxergar:
-window.db = db;
-window.collection = collection;
-window.addDoc = addDoc;
-window.doc = doc;
-window.updateDoc = updateDoc;
-window.query = query;
-window.where = where;
-window.getDocs = getDocs;
-window.serverTimestamp = serverTimestamp;
-        // Configuração do seu Projeto Gratuito do Firebase (Cole suas chaves aqui depois de criar o projeto)
+        // 1. Configuração do Firebase
         const firebaseConfig = {
-  apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
-  authDomain: "dudadoces.firebaseapp.com",
-  projectId: "dudadoces",
-  storageBucket: "dudadoces.firebasestorage.app",
-  messagingSenderId: "616273504505",
-  appId: "1:616273504505:web:492fb9185a1cc0d1b5da28",
-  measurementId: "G-9NZ8YG2YD4"
+            apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
+            authDomain: "dudadoces.firebaseapp.com",
+            projectId: "dudadoces",
+            storageBucket: "dudadoces.firebasestorage.app",
+            messagingSenderId: "616273504505",
+            appId: "1:616273504505:web:492fb9185a1cc0d1b5da28",
+            measurementId: "G-9NZ8YG2YD4"
         };
 
-        // Inicializa o Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Disponibiliza o db globalmente se precisar em outras funções
+        // Disponibiliza as ferramentas globalmente para o site usar sem erro
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.query = query;
+        window.where = where;
+        window.getDocs = getDocs;
         window.serverTimestamp = serverTimestamp;
-    </script>
 
-    <script>
+        // --- FUNÇÃO DE REGISTRO DE ACESSOS INTELIGENTE ---
+        async function registrarAcesso() {
+            try {
+                let visitanteId = localStorage.getItem('duda_visitante_id');
 
-// --- FUNÇÃO DE REGISTRO DE ACESSOS INTELIGENTE (SEM DUPLICAR LIXO) ---
-async function registrarAcesso() {
-    try {
-        // Verifica se o navegador já tem um ID de visitante salvo
-        let visitanteId = localStorage.getItem('duda_visitante_id');
+                if (!visitanteId) {
+                    visitanteId = 'user_' + Math.random().toString(36).substring(2) + Date.now();
+                    localStorage.setItem('duda_visitante_id', visitanteId);
 
-        if (!visitanteId) {
-            // Se NÃO tem, é a primeira vez: gera um ID aleatório único
-            visitanteId = 'user_' + Math.random().toString(36.2) + Date.now();
-            localStorage.setItem('duda_visitante_id', visitanteId);
-
-            // Cria o registro inicial no Firebase com 1 acesso
-            const novoAcessoRef = await window.addDoc(window.collection(window.db, "acessos"), {
-                visitanteId: visitanteId,
-                totalAcessos: 1,
-                primeiroAcesso: window.serverTimestamp(),
-                ultimoAcesso: window.serverTimestamp(),
-                dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
-            });
-            console.log("Novo visitante registrado com sucesso!");
-        } else {
-            // Se JÁ tem o ID, vamos procurar o documento dele no Firebase para atualizar o contador
-            // Como no Firestore a consulta direta por ID exige query, vamos simplificar salvando com o próprio ID do documento
-            // Ou podemos atualizar buscando pelo campo visitanteId:
-            
-            const q = window.query(window.collection(window.db, "acessos"), window.where("visitanteId", "==", visitanteId));
-            const querySnapshot = await window.getDocs(q);
-
-            if (!querySnapshot.empty) {
-                // Se encontrou o documento dele, pega o ID do documento e soma +1
-                querySnapshot.forEach(async (documento) => {
-                    const docRef = window.doc(window.db, "acessos", documento.id);
-                    const qtdAtual = documento.data().totalAcessos || 1;
-
-                    await window.updateDoc(docRef, {
-                        totalAcessos: qtdAtual + 1,
-                        ultimoAcesso: window.serverTimestamp()
+                    await addDoc(collection(db, "acessos"), {
+                        visitanteId: visitanteId,
+                        totalAcessos: 1,
+                        primeiroAcesso: serverTimestamp(),
+                        ultimoAcesso: serverTimestamp(),
+                        dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
                     });
-                    console.log(`Acesso atualizado! Total de visitas deste usuário: ${qtdAtual + 1}`);
-                });
-            } else {
-                // Caso por algum motivo o cache tenha limpado mas o ID continuasse no localStorage
-                await window.addDoc(window.collection(window.db, "acessos"), {
-                    visitanteId: visitanteId,
-                    totalAcessos: 1,
-                    primeiroAcesso: window.serverTimestamp(),
-                    ultimoAcesso: window.serverTimestamp(),
-                    dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
-                });
+                    console.log("Novo visitante registrado com sucesso!");
+                } else {
+                    const q = query(collection(db, "acessos"), where("visitanteId", "==", visitanteId));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        querySnapshot.forEach(async (documento) => {
+                            const docRef = doc(db, "acessos", documento.id);
+                            const qtdAtual = documento.data().totalAcessos || 1;
+
+                            await updateDoc(docRef, {
+                                totalAcessos: qtdAtual + 1,
+                                ultimoAcesso: serverTimestamp()
+                            });
+                            console.log(`Acesso atualizado! Total de visitas: ${qtdAtual + 1}`);
+                        });
+                    } else {
+                        await addDoc(collection(db, "acessos"), {
+                            visitanteId: visitanteId,
+                            totalAcessos: 1,
+                            primeiroAcesso: serverTimestamp(),
+                            ultimoAcesso: serverTimestamp(),
+                            dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao gerenciar acesso inteligente: ", e);
             }
         }
-    } catch (e) {
-        console.error("Erro ao gerenciar acesso inteligente: ", e);
-    }
-}
-// Chama a função assim que a página terminar de carregar
-window.addEventListener('load', () => {
-    // Mantém o seu window.onload original e roda o registro de acesso
-    if (typeof window.onload === 'function') {
-        window.onload();
-    }
-    registrarAcesso();
-});
+
+        // --- FUNÇÃO DE FINALIZAR PEDIDO (WHATSAPP + FIREBASE) ---
+        window.finalizeOrderWpp = async function() {
+            const name = document.getElementById('client-name').value.trim();
+            const deliveryType = document.getElementById('delivery-type').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+
+            if (!name) {
+                showToast("Por favor, preencha seu nome completo.");
+                document.getElementById('client-name').focus();
+                return;
+            }
+
+            if (!paymentMethod) {
+                showToast("Por favor, selecione a forma de pagamento.");
+                document.getElementById('payment-method').focus();
+                return;
+            }
+
+            let rua = '', numero = '', bairro = '', cep = '';
+            if (deliveryType === 'entrega') {
+                rua = document.getElementById('client-rua').value.trim();
+                numero = document.getElementById('client-numero').value.trim();
+                bairro = document.getElementById('client-bairro').value.trim();
+                cep = document.getElementById('client-cep').value.trim();
+
+                if (!rua || !numero || !bairro) {
+                    showToast("Por favor, preencha todos os campos do endereço.");
+                    return;
+                }
+            }
+
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            let taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
+            let total = subtotal + taxaEntrega;
+
+            const dadosPedido = {
+                clienteNome: name,
+                tipoPedido: deliveryType,
+                endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
+                formaPagamento: paymentMethod,
+                itens: cart,
+                subtotal: subtotal,
+                taxaEntrega: taxaEntrega,
+                valorTotal: total,
+                dataPedido: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, "pedidos"), dadosPedido);
+                console.log("Pedido salvo com sucesso no banco de dados!");
+            } catch (e) {
+                console.error("Erro ao salvar pedido: ", e);
+            }
+
+            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
+            message += `👤 *Cliente:* ${name}\n`;
+            message += `🛍️ *Itens do Pedido:*\n`;
+
+            cart.forEach(item => {
+                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
+            });
+
+            message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
+            if (deliveryType === 'entrega') {
+                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
+                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
+            }
+            message += `💳 *Pagamento:* ${paymentMethod}\n`;
+            message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
+            message += `Aguardando confirmação! ✨`;
+
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${WPP_NUMBER}?text=${encodedMessage}`, '_blank');
+        };
+
+        // Roda ao carregar a página
+        window.addEventListener('load', () => {
+            renderProducts();
+            initCarousel();
+            updateCustomBombomAnimation();
+            updateCustomBombomTotal();
+            registrarAcesso();
+        });
+    </script>
+
+    <!-- Restante das funções auxiliares da Loja (Carrinho, Carrossel, etc.) -->
+    <script>
         // --- CURSOR INTERATIVO DE PARTÍCULAS ---
         const cursorDot = document.getElementById('cursorDot');
         let lastTrailTime = 0;
@@ -725,75 +788,25 @@ window.addEventListener('load', () => {
 
         // --- DADOS DOS BROWNIES DISPONÍVEIS ---
         const products = [
-            {
-                id: 4,
-                name: "Brownie Tradicional",
-                description: "Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.",
-                price: 7.00,
-                category: "Brownies",
-                image: "Brownie.png"
-            },
-            {
-                id: 5,
-                name: "Brownie com Leite Ninho",
-                description: "O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.",
-                price: 12.00,
-                category: "Brownies Recheados",
-                image: "Brownie Ninho.png"
-            },
-            {
-                id: 6,
-                name: "Brownie com Chocolate",
-                description: "Brownie artesanal recheado com ganache cremosa de chocolate nobre.",
-                price: 12.00,
-                category: "Brownies Recheados",
-                image: "Brownie Chocolate.png"
-            },
-            {
-                id: 7,
-                name: "Pacote 8 Brownie Bites",
-                description: "Pacotinho com 8 mini quadradinhos do nosso brownie tradicional. A porção perfeita para matar a vontade!",
-                price: 7.00,
-                category: "Porções",
-                image: "Brownie Bite.png"
-            }
+            { id: 4, name: "Brownie Tradicional", description: "Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.", price: 7.00, category: "Brownies", image: "Brownie.png" },
+            { id: 5, name: "Brownie com Leite Ninho", description: "O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.", price: 12.00, category: "Brownies Recheados", image: "Brownie Ninho.png" },
+            { id: 6, name: "Brownie com Chocolate", description: "Brownie artesanal recheado com ganache cremosa de chocolate nobre.", price: 12.00, category: "Brownies Recheados", image: "Brownie Chocolate.png" },
+            { id: 7, name: "Pacote 8 Brownie Bites", description: "Pacotinho com 8 mini quadradinhos do nosso brownie tradicional. A porção perfeita para matar a vontade!", price: 7.00, category: "Porções", image: "Brownie Bite.png" }
         ];
 
         let cart = [];
         const DELIVERY_FEE = 8.00;
         const WPP_NUMBER = "5531935002261";
         
-        let customBombom = {
-            fruta: 'Morango',
-            recheio: 'ninho',
-            cobertura: 'branco'
-        };
+        let customBombom = { fruta: 'Morango', recheio: 'ninho', cobertura: 'branco' };
 
         const bombomPrices = {
-            "Morango-ninho-branco": 10.00,
-            "Morango-ninho-chocolate": 10.00,
-            "Morango-ninho-calda": 12.00,
-            "Morango-ninho-cravejado": 15.00,
-            "Morango-chocolate-branco": 10.00,
-            "Morango-chocolate-chocolate": 10.00,
-            "Morango-chocolate-calda": 12.00,
-            "Morango-chocolate-cravejado": 15.00,
-            "Morango-maracujá-branco": 12.00,
-            "Morango-maracujá-chocolate": 12.00,
-            "Morango-maracujá-calda": 15.00,
-            "Morango-maracujá-cravejado": 15.00,
-            "Uva-ninho-branco": 10.00,
-            "Uva-ninho-chocolate": 10.00,
-            "Uva-ninho-calda": 12.00,
-            "Uva-ninho-cravejado": 15.00,
-            "Uva-chocolate-branco": 10.00,
-            "Uva-chocolate-chocolate": 10.00,
-            "Uva-chocolate-calda": 12.00,
-            "Uva-chocolate-cravejado": 15.00,
-            "Uva-maracujá-branco": 12.00,
-            "Uva-maracujá-chocolate": 12.00,
-            "Uva-maracujá-calda": 15.00,
-            "Uva-maracujá-cravejado": 15.00
+            "Morango-ninho-branco": 10.00, "Morango-ninho-chocolate": 10.00, "Morango-ninho-calda": 12.00, "Morango-ninho-cravejado": 15.00,
+            "Morango-chocolate-branco": 10.00, "Morango-chocolate-chocolate": 10.00, "Morango-chocolate-calda": 12.00, "Morango-chocolate-cravejado": 15.00,
+            "Morango-maracujá-branco": 12.00, "Morango-maracujá-chocolate": 12.00, "Morango-maracujá-calda": 15.00, "Morango-maracujá-cravejado": 15.00,
+            "Uva-ninho-branco": 10.00, "Uva-ninho-chocolate": 10.00, "Uva-ninho-calda": 12.00, "Uva-ninho-cravejado": 15.00,
+            "Uva-chocolate-branco": 10.00, "Uva-chocolate-chocolate": 10.00, "Uva-chocolate-calda": 12.00, "Uva-chocolate-cravejado": 15.00,
+            "Uva-maracujá-branco": 12.00, "Uva-maracujá-chocolate": 12.00, "Uva-maracujá-calda": 15.00, "Uva-maracujá-cravejado": 15.00
         };
 
         let currentCartStep = 'items';
@@ -835,7 +848,6 @@ window.addEventListener('load', () => {
             });
         }
 
-        // --- CARROSSEL DE IMAGENS ---
         function initCarousel() {
             startSlideTimer();
         }
@@ -869,7 +881,6 @@ window.addEventListener('load', () => {
             }, 6000);
         }
 
-        // --- PERSONALIZAÇÃO DE BOMBOM ---
         function selectCustomOption(category, value) {
             customBombom[category] = value;
             
@@ -895,26 +906,24 @@ window.addEventListener('load', () => {
 
             const frutaIcon = customBombom.fruta === 'Morango' ? '🍓' : '🍇';
             const frutaName = customBombom.fruta === 'Morango' ? 'Morango' : 'Uva';
-
             const recheioIcons = { 'ninho': '🥛', 'chocolate': '🍫', 'maracujá': '🟡' };
             const recheioNames = { 'ninho': 'Leite Ninho', 'chocolate': 'Chocolate', 'maracujá': 'Maracujá' };
-
             const coberturaIcons = { 'branco': '⚪', 'chocolate': '🟤', 'calda': '🍒', 'cravejado': '✨' };
             const coberturaNames = { 'branco': 'Chocolate Branco', 'chocolate': 'Chocolate ao Leite', 'calda': 'Calda do Amor', 'cravejado': 'Cravejado Crocante' };
 
             box.innerHTML = `
-                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 animate-fade-in shadow-xs">
-                    <span class="text-2xl animate-bounce">${frutaIcon}</span>
+                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 shadow-xs">
+                    <span class="text-2xl">${frutaIcon}</span>
                     <span class="text-xs sm:text-sm font-bold text-duda-brown">${frutaName}</span>
                 </div>
                 <span class="text-duda-red font-bold text-lg">+</span>
-                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 animate-fade-in shadow-xs" style="animation-delay: 0.1s">
-                    <span class="text-2xl animate-pulse">${recheioIcons[customBombom.recheio]}</span>
+                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 shadow-xs">
+                    <span class="text-2xl">${recheioIcons[customBombom.recheio]}</span>
                     <span class="text-xs sm:text-sm font-bold text-duda-brown">${recheioNames[customBombom.recheio]}</span>
                 </div>
                 <span class="text-duda-red font-bold text-lg">+</span>
-                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 animate-fade-in shadow-xs" style="animation-delay: 0.2s">
-                    <span class="text-2xl animate-pulse">${coberturaIcons[customBombom.cobertura]}</span>
+                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 shadow-xs">
+                    <span class="text-2xl">${coberturaIcons[customBombom.cobertura]}</span>
                     <span class="text-xs sm:text-sm font-bold text-duda-brown">${coberturaNames[customBombom.cobertura]}</span>
                 </div>
             `;
@@ -956,7 +965,6 @@ window.addEventListener('load', () => {
             }
         }
 
-        // --- CARRINHO ---
         function toggleCart() {
             const sidebar = document.getElementById('cart-sidebar');
             const overlay = document.getElementById('cart-overlay');
@@ -1039,7 +1047,7 @@ window.addEventListener('load', () => {
             cart.forEach(item => {
                 subtotal += item.price * item.quantity;
                 html += `
-                    <div class="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                         <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-xl shadow-xs">
                         <div class="flex-1">
                             <h4 class="font-bold text-duda-brown text-sm mb-1">${item.name}</h4>
@@ -1074,7 +1082,6 @@ window.addEventListener('load', () => {
             }
         }
 
-        // --- CHECKOUT FLUXO ---
         function setDelivery(type) {
             const btnRetirada = document.getElementById('btn-retirada');
             const btnEntrega = document.getElementById('btn-entrega');
@@ -1142,83 +1149,6 @@ window.addEventListener('load', () => {
                 });
         }
 
-        // --- FUNÇÃO ÚNICA E CORRETA: SALVA NO FIREBASE E ABRE O WHATSAPP ---
-        async function finalizeOrderWpp() {
-            const name = document.getElementById('client-name').value.trim();
-            const deliveryType = document.getElementById('delivery-type').value;
-            const paymentMethod = document.getElementById('payment-method').value;
-
-            if (!name) {
-                showToast("Por favor, preencha seu nome completo.");
-                document.getElementById('client-name').focus();
-                return;
-            }
-
-            if (!paymentMethod) {
-                showToast("Por favor, selecione a forma de pagamento.");
-                document.getElementById('payment-method').focus();
-                return;
-            }
-
-            let rua = '', numero = '', bairro = '', cep = '';
-            if (deliveryType === 'entrega') {
-                rua = document.getElementById('client-rua').value.trim();
-                numero = document.getElementById('client-numero').value.trim();
-                bairro = document.getElementById('client-bairro').value.trim();
-                cep = document.getElementById('client-cep').value.trim();
-
-                if (!rua || !numero || !bairro) {
-                    showToast("Por favor, preencha todos os campos do endereço.");
-                    return;
-                }
-            }
-
-            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            let taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
-            let total = subtotal + taxaEntrega;
-
-            // 1. DADOS PARA SALVAR NO FIREBASE
-            const dadosPedido = {
-                clienteNome: name,
-                tipoPedido: deliveryType,
-                endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
-                formaPagamento: paymentMethod,
-                itens: cart,
-                subtotal: subtotal,
-                taxaEntrega: taxaEntrega,
-                valorTotal: total,
-                dataPedido: window.serverTimestamp() // Salva data e hora exata
-            };
-
-            try {
-                await window.addDoc(window.collection(window.db, "pedidos"), dadosPedido);
-                console.log("Pedido salvo com sucesso no banco de dados!");
-            } catch (e) {
-                console.error("Erro ao salvar pedido: ", e);
-            }
-
-            // 2. MONTAR MENSAGEM DO WHATSAPP
-            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
-            message += `👤 *Cliente:* ${name}\n`;
-            message += `🛍️ *Itens do Pedido:*\n`;
-
-            cart.forEach(item => {
-                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
-            });
-
-            message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
-            if (deliveryType === 'entrega') {
-                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
-                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
-            }
-            message += `💳 *Pagamento:* ${paymentMethod}\n`;
-            message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
-            message += `Aguardando confirmação! ✨`;
-
-            const encodedMessage = encodeURIComponent(message);
-            window.open(`https://wa.me/${WPP_NUMBER}?text=${encodedMessage}`, '_blank');
-        }
-
         function orderForParty() {
             const msg = encodeURIComponent("Olá Duda Doces! Gostaria de encomendar doces para uma festa. Poderia me passar mais informações?");
             window.open(`https://wa.me/${WPP_NUMBER}?text=${msg}`, '_blank');
@@ -1235,14 +1165,4 @@ window.addEventListener('load', () => {
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
-
-        // Inicializar aplicação ao carregar a página
-        window.onload = function () {
-            renderProducts();
-            initCarousel();
-            updateCustomBombomAnimation();
-            updateCustomBombomTotal();
-        };
     </script>
-</body>
-</html>
