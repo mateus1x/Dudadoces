@@ -703,9 +703,13 @@
             };
 
             try {
-                await addDoc(collection(db, "pedidos"), dadosPedido);
+                // Salva o pedido e captura o ID gerado
+                const pedidoRef = await addDoc(collection(db, "pedidos"), dadosPedido);
+                const pedidoId = pedidoRef.id;
 
+                // Salva no fluxo de caixa já vinculado ao ID do pedido
                 await addDoc(collection(db, "fluxo_caixa"), {
+                    pedidoId: pedidoId, // 🔗 Vínculo criado aqui!
                     data: dataHoje,
                     descricao: `Venda p/ ${name} (${deliveryType === 'entrega' ? 'Entrega' : 'Retirada'})`,
                     categoria: 'Vendas',
