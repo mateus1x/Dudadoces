@@ -510,27 +510,23 @@
             { nome: 'Uva', medida: '500 g', status: 'cheio' }
         ];
 
-        // --- BLOCOS PRONTOS BASEADOS NA SUA PLANILHA DE BOMBONS ---
+        // --- BLOCOS PRONTOS BASEADOS NA SUA PLANILHA DE BOMBONS (COM MÃO DE OBRA R$ 4,00) ---
         let insumosBase = {
-            // Frutas (Valor por unidade do bombom)
             'Fruta Morango': { valor: 0.67, desc: 'Por unidade' },
             'Fruta Uva': { valor: 0.44, desc: 'Por unidade' },
 
-            // Recheios (Já somado o total do brigadeiro dividido por 10 bombons)
             'Recheio Ninho': { valor: 1.11, desc: 'Brigadeiro Ninho' },
             'Recheio Chocolate': { valor: 0.94, desc: 'Brigadeiro Chocolate' },
             'Recheio Maracujá': { valor: 1.54, desc: 'Brigadeiro Maracujá' },
 
-            // Coberturas (Valor unitário proporcional por bombom)
             'Cobertura Chocolate Branco': { valor: 1.26, desc: 'Cobertop Branco' },
             'Cobertura Chocolate Preto': { valor: 1.23, desc: 'Cobertop Blend' },
             'Cobertura Calda do Amor': { valor: 1.58, desc: 'Calda de Açúcar' },
             'Cobertura Cravejado': { valor: 2.11, desc: 'Cravejado Especial' },
 
-            // Custos Extras e Embalagem
             'Embalagem (un)': { valor: 0.012, desc: 'Embalagem' },
             'Adesivos (un)': { valor: 0.28, desc: 'Adesivo' },
-            'Mão de Obra': { valor: 4.00, desc: 'Taxa fixa por fornada (R$ 0,40/un)' }
+            'Mão de Obra': { valor: 4.00, desc: 'Taxa fixa por bombom' }
         };
 
         window.mudarAba = function(aba) {
@@ -568,9 +564,9 @@
             const custoIngredientesTotal = custoFruta + custoRecheio + custoCobertura;
             const embalagem = insumosBase['Embalagem (un)'].valor;
             const adesivo = insumosBase['Adesivos (un)'].valor;
-            const maoDeObraUnitario = insumosBase['Mão de Obra'].valor / 10; // R$ 4,00 / 10 bombons
+            const maoDeObra = insumosBase['Mão de Obra'].valor; // R$ 4,00 por bombom
 
-            const custoTotalProducao = custoIngredientesTotal + embalagem + adesivo + maoDeObraUnitario;
+            const custoTotalProducao = custoIngredientesTotal + embalagem + adesivo + maoDeObra;
 
             // Preço de venda padrão praticado
             let precoVenda = 10.00;
@@ -582,7 +578,7 @@
 
             // Atualiza os cards de resumo
             document.getElementById('resumo-custo-ingredientes').innerText = custoIngredientesTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-custo-extras').innerText = (embalagem + adesivo + maoDeObraUnitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-extras').innerText = (embalagem + adesivo + maoDeObra).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-total').innerText = custoTotalProducao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-preco-sugerido').innerText = precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
@@ -597,7 +593,7 @@
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
                     <td class="py-3 px-2 font-semibold text-duda-brown">Ingrediente Recheio (${recheioKey})</td>
-                    <td class="py-3 px-2 text-gray-600">Total somado da receita / 10</td>
+                    <td class="py-3 px-2 text-gray-600">Total somado da receita</td>
                     <td class="py-3 px-2 font-bold text-duda-brown">${custoRecheio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
@@ -609,6 +605,11 @@
                     <td class="py-3 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
                     <td class="py-3 px-2 text-gray-600">Unitário</td>
                     <td class="py-3 px-2 font-bold text-duda-brown">${(embalagem + adesivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Mão de Obra</td>
+                    <td class="py-3 px-2 text-gray-600">Taxa fixa por unidade</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${maoDeObra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
             `;
             document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
