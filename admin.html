@@ -719,14 +719,30 @@
         function calcularTotaisCaixa(dados) {
             let totalEntradas = 0;
             let totalSaidas = 0;
+
             dados.forEach(item => {
                 const val = Number(item.valor) || 0;
-                if (item.tipo === 'entrada') totalEntradas += val;
-                else totalSaidas += val;
+                const status = item.statusPagamento || 'pendente';
+
+                if (item.tipo === 'entrada') {
+                    // Calcula com base no status do pagamento
+                    if (status === 'pago') {
+                        totalEntradas += val; // 100%
+                    } else if (status === '50porcento') {
+                        totalEntradas += (val / 2); // 50% do sinal
+                    }
+                    // Se for 'pendente', soma 0 (não entra no lucro)
+                } else if (item.tipo === 'saida') {
+                    // Saídas/despesas entram normalmente
+                    totalSaidas += val;
+                }
             });
+
             const saldo = totalEntradas - totalSaidas;
+
             document.getElementById('resumo-entradas').innerText = totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-saidas').innerText = totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
             const elSaldo = document.getElementById('resumo-saldo');
             elSaldo.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5" : "text-2xl font-bold text-duda-brown mt-0.5";
