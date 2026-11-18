@@ -354,25 +354,25 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fruta Base</label>
                         <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="MORANGO">Morango</option>
-                            <option value="UVA">Uva</option>
+                            <option value="morango">Morango</option>
+                            <option value="uva">Uva</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recheio</label>
                         <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="NINHO">Brigadeiro de Ninho</option>
-                            <option value="CHOCOLATE">Brigadeiro de Chocolate</option>
-                            <option value="MARACUJÁ">Brigadeiro de Maracujá</option>
+                            <option value="ninho">Brigadeiro de Ninho</option>
+                            <option value="chocolate">Brigadeiro de Chocolate</option>
+                            <option value="maracuja">Brigadeiro de Maracujá</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cobertura</label>
                         <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="CHOCOLATE BRANCO">Chocolate Branco</option>
-                            <option value="CHOCOLATE PRETO">Chocolate Preto</option>
-                            <option value="CALDA VERMELHA">Calda Vermelha (Amor)</option>
-                            <option value="CRAVEJADO">Cravejado Especial</option>
+                            <option value="branco">Chocolate Branco</option>
+                            <option value="preto">Chocolate Preto</option>
+                            <option value="calda">Calda Vermelha (Amor)</option>
+                            <option value="cravejado">Cravejado Especial</option>
                         </select>
                     </div>
                 </div>
@@ -434,7 +434,7 @@
                             <h3 id="resumo-preco-sugerido" class="text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
                             <span id="resumo-lucro-estimado" class="text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
                         </div>
-                        <p class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Baseado no valor cobrado no balcão/site.</p>
+                        <p id="resumo-margem" class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Margem de Lucro: 0%</p>
                     </div>
                 </div>
             </div>
@@ -446,7 +446,7 @@
                         <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                             <i class="ph ph-sliders text-duda-red"></i> Simulador & Gestão de Preços de Insumos
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Altere o preço de compra e clique em salvar para atualizar em todo o sistema.</p>
+                        <p class="text-xs text-gray-500 font-medium">Altere o preço de mercado de qualquer ingrediente para atualizar proporcionalmente o custo de todos os bombons.</p>
                     </div>
                     <button onclick="salvarNovosPrecosInsumos()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
                         <i class="ph ph-floppy-disk text-lg"></i> Salvar Novos Preços
@@ -494,11 +494,11 @@
             { nome: 'Creme de Leite', medida: '200 g', status: 'cheio' },
             { nome: 'Leite Ninho', medida: '380 g', status: 'cheio' },
             { nome: 'Manteiga', medida: '500 g', status: 'cheio' },
-            { nome: 'Cacau em pó', medida: '500 g', status: 'cheio' },
+            { nome: 'Cacau em pó', medida: '140 g', status: 'cheio' },
             { nome: 'Maracujá', medida: '436 g', status: 'cheio' },
             { nome: 'Cobertop Blend', medida: '1010 g', status: 'cheio' },
             { nome: 'Cobertop Branco', medida: '1010 g', status: 'cheio' },
-            { nome: 'Vinagre', medida: 'Unidade', status: 'cheio' },
+            { nome: 'Vinagre', medida: '750 ml', status: 'cheio' },
             { nome: 'Corante', medida: '25 ml', status: 'cheio' },
             { nome: 'Açúcar', medida: '5000 g', status: 'cheio' },
             { nome: 'Ovos', medida: '30 unidades', status: 'cheio' },
@@ -506,11 +506,43 @@
             { nome: 'Óleo', medida: '900 ml', status: 'cheio' },
             { nome: 'Fermento Químico', medida: '100 g', status: 'cheio' },
             { nome: 'Leite Integral', medida: '1000 ml', status: 'cheio' },
-            { nome: 'Morango', medida: '15 unidades', status: 'cheio' },
+            { nome: 'Morango', medida: '300 g', status: 'cheio' },
             { nome: 'Uva', medida: '500 g', status: 'cheio' }
         ];
 
-        // --- SISTEMA DE ABAS (4 ABAS) ---
+        // --- TABELA DE INSUMOS MÃE (PREÇO DE MERCADO + QUANTIDADE DA EMBALAGEM) ---
+        let insumosBase = {
+            'Leite Condensado': { valor: 5.99, qtdEmb: 395 },
+            'Creme de Leite': { valor: 3.49, qtdEmb: 200 },
+            'Leite Ninho': { valor: 19.90, qtdEmb: 380 },
+            'Manteiga': { valor: 9.98, qtdEmb: 500 },
+            'Cacau em pó': { valor: 7.80, qtdEmb: 140 },
+            'Maracujá': { valor: 4.35, qtdEmb: 436 },
+            'Cobertop Blend': { valor: 41.90, qtdEmb: 1010 },
+            'Cobertop Branco': { valor: 42.90, qtdEmb: 1010 },
+            'Vinagre': { valor: 4.23, qtdEmb: 750 },
+            'Corante': { valor: 5.09, qtdEmb: 25 },
+            'Açúcar': { valor: 15.99, qtdEmb: 5000 },
+            'Ovos': { valor: 19.00, qtdEmb: 30 },
+            'Farinha de Trigo': { valor: 4.29, qtdEmb: 1000 },
+            'Óleo': { valor: 11.90, qtdEmb: 900 },
+            'Fermento Químico': { valor: 4.29, qtdEmb: 100 },
+            'Leite Integral': { valor: 18.32, qtdEmb: 1000 },
+            'Morango': { valor: 10.00, qtdEmb: 300 },
+            'Uva': { valor: 9.99, qtdEmb: 500 },
+            'Embalagem (un)': { valor: 0.012, qtdEmb: 1 },
+            'Adesivos (un)': { valor: 0.28, qtdEmb: 1 }
+        };
+
+        // --- CÁLCULO PROPORCIONAL DE INGREDIENTE ---
+        function calcularProporcao(nomeInsumo, qtdUsada) {
+            const insumo = insumosBase[nomeInsumo];
+            if (!insumo || !insumo.qtdEmb || insumo.qtdEmb <= 0) return 0;
+            const custoUnitario = insumo.valor / insumo.qtdEmb;
+            return custoUnitario * qtdUsada;
+        }
+
+        // --- SISTEMA DE ABAS ---
         window.mudarAba = function(aba) {
             const views = ['dashboard', 'caixa', 'estoque', 'custos'];
             views.forEach(v => {
@@ -529,51 +561,164 @@
             if(aba === 'dashboard' && myChart) myChart.update();
         };
 
-        // --- CALCULADORA DE CUSTOS (DADOS ATUALIZADOS) ---
-        const insumosBase = {
-            'Morango (cx)': 44.00, 'Uva (pct)': 12.00, 'Leite Condensado': 5.69,
-            'Leite Ninho': 23.42, 'Manteiga': 8.72, 'Creme de Leite': 3.69,
-            'Cacau em Pó': 20.99, 'Maracujá (kg)': 15.49, 'Cobertop (1010g)': 43.38,
-            'Açúcar': 13.99, 'Vinagre': 4.23, 'Corante': 7.89,
-            'Embalagem (un)': 0.012, 'Adesivos (un)': 0.28
+        // --- CÁLCULO DINÂMICO DOS BOMBONS (BASEADO NA SUA PLANILHA) ---
+        window.calcularBombom = function() {
+            const fruta = document.getElementById('filtro-fruta').value;       // morango / uva
+            const recheio = document.getElementById('filtro-recheio').value;     // ninho / chocolate / maracuja
+            const cobertura = document.getElementById('filtro-cobertura').value; // branco / preto / calda / cravejado
+
+            // 1. Custo da Fruta
+            let custoFruta = 0;
+            let qtdFrutaStr = '';
+            if (fruta === 'morango') {
+                custoFruta = calcularProporcao('Morango', 20);
+                qtdFrutaStr = '20 g';
+            } else {
+                custoFruta = calcularProporcao('Uva', 22);
+                qtdFrutaStr = '22 g';
+            }
+
+            // 2. Custo do Recheio
+            let custoRecheio = 0;
+            let itensRecheioArr = [];
+            if (recheio === 'ninho') {
+                const cLc = calcularProporcao('Leite Condensado', 395);
+                const cLn = calcularProporcao('Leite Ninho', 46);
+                const cMan = calcularProporcao('Manteiga', 47);
+                const cCl = calcularProporcao('Creme de Leite', 100);
+                custoRecheio = cLc + cLn + cMan + cCl;
+                itensRecheioArr = [
+                    ["Leite Condensado", "395g", cLc],
+                    ["Leite Ninho", "46g", cLn],
+                    ["Manteiga", "47g", cMan],
+                    ["Creme de Leite", "100g", cCl]
+                ];
+            } else if (recheio === 'chocolate') {
+                const cLc = calcularProporcao('Leite Condensado', 395);
+                const cCac = calcularProporcao('Cacau em pó', 46);
+                const cMan = calcularProporcao('Manteiga', 47);
+                const cCl = calcularProporcao('Creme de Leite', 100);
+                custoRecheio = cLc + cCac + cMan + cCl;
+                itensRecheioArr = [
+                    ["Leite Condensado", "395g", cLc],
+                    ["Cacau em pó", "46g", cCac],
+                    ["Manteiga", "47g", cMan],
+                    ["Creme de Leite", "100g", cCl]
+                ];
+            } else if (recheio === 'maracuja') {
+                const cLc = calcularProporcao('Leite Condensado', 395);
+                const cLn = calcularProporcao('Leite Ninho', 46);
+                const cMan = calcularProporcao('Manteiga', 47);
+                const cCl = calcularProporcao('Creme de Leite', 100);
+                const cMar = calcularProporcao('Maracujá', 436);
+                custoRecheio = cLc + cLn + cMan + cCl + cMar;
+                itensRecheioArr = [
+                    ["Leite Condensado", "395g", cLc],
+                    ["Leite Ninho", "46g", cLn],
+                    ["Manteiga", "47g", cMan],
+                    ["Creme de Leite", "100g", cCl],
+                    ["Maracujá", "436g", cMar]
+                ];
+            }
+
+            // 3. Custo da Cobertura
+            let custoCobertura = 0;
+            let nomeCoberturaStr = '';
+            if (cobertura === 'branco') {
+                custoCobertura = calcularProporcao('Cobertop Branco', 296);
+                nomeCoberturaStr = 'Chocolate Branco';
+            } else if (cobertura === 'preto') {
+                custoCobertura = calcularProporcao('Cobertop Blend', 296);
+                nomeCoberturaStr = 'Chocolate Preto';
+            } else if (cobertura === 'calda') {
+                const cAcu = calcularProporcao('Açúcar', 360);
+                const cCor = calcularProporcao('Corante', 6);
+                custoCobertura = cAcu + cCor;
+                nomeCoberturaStr = 'Calda Vermelha';
+            } else if (cobertura === 'cravejado') {
+                const cCob = calcularProporcao('Cobertop Branco', 296);
+                const cAcu = calcularProporcao('Açúcar', 180);
+                const cCor = calcularProporcao('Corante', 6);
+                custoCobertura = cCob + cAcu + cCor;
+                nomeCoberturaStr = 'Cravejado Especial';
+            }
+
+            const custoIngredientesTotal = custoFruta + custoRecheio + custoCobertura;
+            const embalagem = calcularProporcao('Embalagem (un)', 1);
+            const adesivo = calcularProporcao('Adesivos (un)', 1);
+            const maoDeObra = 4.00; // Taxa fixa padrão
+
+            const custoTotalProducao = custoIngredientesTotal + embalagem + adesivo + maoDeObra;
+
+            // Preço de venda padrão praticado baseado nas combinações da planilha
+            let precoVenda = 10.00;
+            if (cobertura === 'calda') precoVenda = 12.00;
+            if (cobertura === 'cravejado' || (recheio === 'maracuja' && cobertura !== 'branco')) precoVenda = 15.00;
+            if (cobertura === 'cravejado' && fruta === 'morango' && recheio === 'ninho') precoVenda = 15.00;
+
+            const lucroReal = precoVenda - custoTotalProducao;
+            const margemLucro = custoTotalProducao > 0 ? ((lucroReal / custoTotalProducao) * 100).toFixed(0) : 0;
+
+            // Renderiza na tela
+            document.getElementById('resumo-custo-ingredientes').innerText = custoIngredientesTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-extras').innerText = (embalagem + adesivo + maoDeObra).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-total').innerText = custoTotalProducao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-preco-sugerido').innerText = precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margemLucro}%`;
+
+            let htmlTabela = `
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Fruta (${fruta.toUpperCase()})</td>
+                    <td class="py-3 px-2 text-gray-600">${qtdFrutaStr}</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoFruta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+            `;
+            itensRecheioArr.forEach(([nome, qtd, val]) => {
+                htmlTabela += `
+                    <tr class="hover:bg-duda-cream/40 transition-colors">
+                        <td class="py-3 px-2 font-semibold text-duda-brown">${nome} (Recheio)</td>
+                        <td class="py-3 px-2 text-gray-600">${qtd}</td>
+                        <td class="py-3 px-2 font-bold text-duda-brown">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    </tr>
+                `;
+            });
+            htmlTabela += `
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Cobertura (${nomeCoberturaStr})</td>
+                    <td class="py-3 px-2 text-gray-600">Proporcional</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoCobertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Embalagem & Adesivos</td>
+                    <td class="py-3 px-2 text-gray-600">1 un</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${(embalagem + adesivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+            `;
+            document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
         };
 
-        const matrizBombons = {
-            "MORANGO_NINHO_CHOCOLATE BRANCO": { custoIng: 3.03, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.03], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CHOCOLATE PRETO": { custoIng: 3.00, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.00], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CALDA VERMELHA": { custoIng: 3.35, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.35], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CRAVEJADO": { custoIng: 3.88, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.88], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            
-            "MORANGO_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.86, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.86], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.83, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.83], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CALDA VERMELHA": { custoIng: 3.19, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.19], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CRAVEJADO": { custoIng: 3.71, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.71], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+        window.calcularBrownie = function() {
+            // Ficha técnica padrão de brownies
+            document.getElementById('resumo-custo-ingredientes').innerText = "R$ 1,67";
+            document.getElementById('resumo-custo-extras').innerText = "R$ 0,29";
+            document.getElementById('resumo-custo-total').innerText = "R$ 1,96";
+            document.getElementById('resumo-preco-sugerido').innerText = "R$ 7,00";
+            document.getElementById('resumo-lucro-estimado').innerText = "Lucro Real: R$ 5,04";
+            document.getElementById('resumo-margem').innerText = "Margem de Lucro: 257%";
 
-            "MORANGO_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.47, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.47], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.44, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.44], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.79, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.79], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CRAVEJADO": { custoIng: 4.32, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.32], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-
-            "UVA_NINHO_CHOCOLATE BRANCO": { custoIng: 2.80, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.80], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_NINHO_CHOCOLATE PRETO": { custoIng: 2.77, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.77], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_NINHO_CALDA VERMELHA": { custoIng: 3.13, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.13], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_NINHO_CRAVEJADO": { custoIng: 3.65, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.65], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-
-            "UVA_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.63, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.63], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.60, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.60], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.96, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.96], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CRAVEJADO": { custoIng: 3.48, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.48], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-
-            "UVA_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.24, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.24], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.21, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.21], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.56, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.56], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CRAVEJADO": { custoIng: 4.09, embalagem: 0.012, adesivos: 0.28, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.09], ["Embalagem por Bombom", "1 un", 0.012], ["Adesivo por Bombom", "1 un", 0.28], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] }
-        };
-
-        const matrizBrownies = {
-            "tradicional": { custoTotal: 1.96, preco: 7.00, itens: [["Massa de Brownie (80g)", "80g", 1.67], ["Adesivos & Embalagem", "1 un", 0.29]] },
-            "bite": { custoTotal: 0.54, preco: 0.88, itens: [["Massa (8g)", "8g", 0.17], ["Cobertura (2g)", "2g", 0.09], ["Embalagem (Unidade)", "1 un", 0.28]] },
-            "pacote8": { custoTotal: 2.32, preco: 7.00, itens: [["Massa Total (64g)", "64g", 1.34], ["Cobertura Total (16g)", "16g", 0.69], ["Pacote / Adesivo", "1 un", 0.29]] }
+            document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Massa de Brownie (80g)</td>
+                    <td class="py-3 px-2 text-gray-600">80g</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">R$ 1,67</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Adesivo & Embalagem</td>
+                    <td class="py-3 px-2 text-gray-600">1 un</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">R$ 0,29</td>
+                </tr>
+            `;
         };
 
         window.mudarCategoria = function() {
@@ -589,81 +734,18 @@
             }
         };
 
-        window.calcularBombom = function() {
-            const fruta = document.getElementById('filtro-fruta').value;
-            const recheio = document.getElementById('filtro-recheio').value;
-            const cobertura = document.getElementById('filtro-cobertura').value;
-            const chave = `${fruta}_${recheio}_${cobertura}`;
-
-            const dados = matrizBombons[chave];
-            if(!dados) return;
-
-            const custoIng = dados.custoIng;
-            const custoExtra = dados.embalagem + dados.adesivos + dados.tempo; 
-            const custoTotal = custoIng + custoExtra;
-            
-            const precoVendidoReal = dados.precoVendido;
-            const lucroReal = precoVendidoReal - custoTotal;
-
-            document.getElementById('resumo-custo-ingredientes').innerText = custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-custo-extras').innerText = custoExtra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-custo-total').innerText = custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
-            document.getElementById('resumo-preco-sugerido').innerText = precoVendidoReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
-
-            let htmlTabela = '';
-            dados.itens.forEach(([item, qtd, val]) => {
-                htmlTabela += `
-                    <tr class="hover:bg-duda-cream/40 transition-colors">
-                        <td class="py-3 px-2 font-semibold text-duda-brown">${item}</td>
-                        <td class="py-3 px-2 text-gray-600">${qtd}</td>
-                        <td class="py-3 px-2 font-bold text-duda-brown">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
-        };
-
-        window.calcularBrownie = function() {
-            const tipo = document.getElementById('filtro-brownie').value;
-            const dados = matrizBrownies[tipo];
-            if(!dados) return;
-
-            const custoTotal = dados.custoTotal;
-            const precoSv = dados.preco;
-            const lucro = precoSv - custoTotal;
-
-            document.getElementById('resumo-custo-ingredientes').innerText = (custoTotal * 0.7).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-custo-extras').innerText = (custoTotal * 0.3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-custo-total').innerText = custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-preco-sugerido').innerText = precoSv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
-
-            let htmlTabela = '';
-            dados.itens.forEach(([item, qtd, val]) => {
-                htmlTabela += `
-                    <tr class="hover:bg-duda-cream/40 transition-colors">
-                        <td class="py-3 px-2 font-semibold text-duda-brown">${item}</td>
-                        <td class="py-3 px-2 text-gray-600">${qtd}</td>
-                        <td class="py-3 px-2 font-bold text-duda-brown">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
-        };
-
+        // --- RENDERIZAR O SIMULADOR DE INSUMOS ---
         function carregarSimulador() {
             const container = document.getElementById('simulador-inputs');
             if(!container) return;
             let html = '';
-            for(let [insumo, valor] of Object.entries(insumosBase)) {
+            for(let [insumo, dados] of Object.entries(insumosBase)) {
                 html += `
                     <div class="bg-duda-cream/60 p-4 rounded-2xl border border-duda-pink/30 space-y-1">
                         <label class="block text-xs font-bold text-gray-500 truncate" title="${insumo}">${insumo}</label>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold text-duda-brown">R$</span>
-                            <input type="number" step="0.001" id="input-${insumo}" value="${valor}" onchange="atualizarSimuladorLocal()" class="w-full bg-white p-2.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-brown outline-none">
+                            <input type="number" step="0.001" id="input-${insumo}" value="${dados.valor}" onchange="atualizarSimuladorLocal()" class="w-full bg-white p-2.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-brown outline-none">
                         </div>
                     </div>
                 `;
@@ -675,7 +757,7 @@
             for(let insumo of Object.keys(insumosBase)) {
                 const inputEl = document.getElementById(`input-${insumo}`);
                 if(inputEl) {
-                    insumosBase[insumo] = parseFloat(inputEl.value) || 0;
+                    insumosBase[insumo].valor = parseFloat(inputEl.value) || 0;
                 }
             }
             
@@ -684,39 +766,17 @@
             else calcularBrownie();
         };
 
+        // --- SALVAR NOVOS PREÇOS NO FIREBASE ---
         window.salvarNovosPrecosInsumos = async function() {
             atualizarSimuladorLocal();
 
             try {
-                const matrizBombonsLimpa = {};
-                for (let [chave, dados] of Object.entries(matrizBombons)) {
-                    matrizBombonsLimpa[chave] = {
-                        custoIng: dados.custoIng,
-                        embalagem: dados.embalagem,
-                        adesivos: dados.adesivos,
-                        tempo: dados.tempo,
-                        precoVendido: dados.precoVendido,
-                        itensJson: JSON.stringify(dados.itens)
-                    };
-                }
-
-                const matrizBrowniesLimpa = {};
-                for (let [chave, dados] of Object.entries(matrizBrownies)) {
-                    matrizBrowniesLimpa[chave] = {
-                        custoTotal: dados.custoTotal,
-                        preco: dados.preco,
-                        itensJson: JSON.stringify(dados.itens)
-                    };
-                }
-
                 await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
-                    matrizBombons: matrizBombonsLimpa,
-                    matrizBrownies: matrizBrowniesLimpa,
                     insumosBase,
                     atualizadoEm: serverTimestamp()
                 });
 
-                showToast("Preços salvos com sucesso na coleção calculo_de_custo! 🚀");
+                showToast("Preços de insumos salvos e atualizados no Firebase! 🚀");
             } catch (e) {
                 console.error("Erro ao salvar novos preços:", e);
                 showToast("Erro ao salvar no Firebase.");
@@ -1151,9 +1211,6 @@
             iniciarOuvinteEstoque();
             carregarSimulador();
             calcularBombom();
-            
-            // Sincronização inicial no carregamento
-            await salvarNovosPrecosInsumos();
         });
     </script>
 </body>
