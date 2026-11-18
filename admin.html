@@ -72,7 +72,7 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header do Painel com 3 Abas -->
+    <!-- Header do Painel com 4 Abas -->
     <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
@@ -86,14 +86,17 @@
 
                 <!-- Abas de Navegação -->
                 <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap justify-center">
-                    <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
+                    <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
                         <i class="ph ph-chart-line-up text-base"></i> Dashboard
                     </button>
-                    <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                    <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
                         <i class="ph ph-wallet text-base"></i> Caixa
                     </button>
-                    <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                        <i class="ph ph-package text-base"></i> Estoque & Compras
+                    <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                        <i class="ph ph-package text-base"></i> Estoque
+                    </button>
+                    <button onclick="mudarAba('custos')" id="tab-btn-custos" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                        <i class="ph ph-calculator text-base"></i> Calculadora
                     </button>
                 </div>
 
@@ -167,7 +170,7 @@
                 </div>
             </div>
 
-            <!-- Tabela de Pedidos e Inativos com Filtro atualizado -->
+            <!-- Tabela de Pedidos e Inativos -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
                     <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
@@ -192,7 +195,6 @@
                     </div>
                 </div>
 
-                <!-- Bloco de Clientes Inativos com Filtro "+ de X dias" -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-lg font-bold text-duda-brown flex items-center gap-2 tracking-tight">
@@ -337,11 +339,123 @@
             </div>
         </div>
 
+        <!-- ================= ABA 4: CALCULADORA DE CUSTOS ================= -->
+        <div id="view-custos" class="space-y-8 hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categoria de Produto</label>
+                    <select id="categoria-produto" onchange="mudarCategoria()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                        <option value="bombom">🍫 Bombom Gourmet no Pote</option>
+                        <option value="brownie">🟫 Ficha Técnica de Brownies</option>
+                    </select>
+                </div>
+
+                <div id="container-select-bombom" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fruta Base</label>
+                        <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="MORANGO">Morango</option>
+                            <option value="UVA">Uva</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recheio</label>
+                        <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="NINHO">Brigadeiro de Ninho</option>
+                            <option value="CHOCOLATE">Brigadeiro de Chocolate</option>
+                            <option value="MARACUJÁ">Brigadeiro de Maracujá</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cobertura</label>
+                        <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="CHOCOLATE BRANCO">Chocolate Branco</option>
+                            <option value="CHOCOLATE PRETO">Chocolate Preto</option>
+                            <option value="CALDA VERMELHA">Calda Vermelha (Amor)</option>
+                            <option value="CRAVEJADO">Cravejado Especial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="container-select-brownie" class="md:col-span-2 hidden">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Selecionar Tipo de Brownie</label>
+                    <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                        <option value="tradicional">Brownie Tradicional (Unidade)</option>
+                        <option value="bite">Brownie Bite (Unidade Avulsa)</option>
+                        <option value="pacote8">Pacote com 8 Bites</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                        <i class="ph ph-receipt text-duda-red"></i> Detalhamento de Insumos e Quantidades
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    <th class="pb-3 px-2">Ingrediente / Item</th>
+                                    <th class="pb-3 px-2">Qtd. Usada</th>
+                                    <th class="pb-3 px-2">Custo Proporcional</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-ingredientes-detalhe" class="text-sm divide-y divide-gray-50 font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col justify-between space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
+                            <i class="ph ph-currency-dollar text-duda-red"></i> Resumo de Custos
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
+                                <span class="text-xs font-bold text-gray-500 uppercase">Custo de Ingredientes</span>
+                                <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                            </div>
+                            <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
+                                <span class="text-xs font-bold text-gray-500 uppercase">Taxa de Embalagem & Tempo</span>
+                                <span id="resumo-custo-extras" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                            </div>
+                            <div class="bg-duda-red/10 p-5 rounded-2xl border border-duda-red/30 flex justify-between items-center">
+                                <span class="text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total de Produção</span>
+                                <span id="resumo-custo-total" class="font-extrabold text-duda-red text-xl">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-duda-brown text-duda-cream p-6 rounded-2xl space-y-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Sugerido</span>
+                        <div class="flex justify-between items-baseline">
+                            <h3 id="resumo-preco-sugerido" class="text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
+                            <span id="resumo-lucro-estimado" class="text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
+                        </div>
+                        <p class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Baseado na margem padrão cadastrada.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                        <i class="ph ph-sliders text-duda-red"></i> Simulador de Reajuste de Insumos
+                    </h2>
+                    <p class="text-xs text-gray-500 font-medium">Altere o preço de compra atual de qualquer ingrediente para recalcular os custos na hora.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="simulador-inputs"></div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Rodapé -->
     <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75 font-medium">
-        <p>© 2026 Duda Doces • Painel Integrado ao Firebase</p>
+        <p>© 2026 Duda Doces • Painel Integrado em Tempo Real</p>
     </footer>
 
     <div id="toast" style="visibility:hidden; min-width:250px; background:#3A201E; color:#fff; text-align:center; border-radius:30px; padding:12px; position:fixed; z-index:1000; left:50%; bottom:30px; transform:translateX(-50%); font-size:14px; font-family:'Inter', sans-serif;"></div>
@@ -390,38 +504,183 @@
             { nome: 'Uva', medida: '500 g', status: 'cheio' }
         ];
 
+        // --- SISTEMA DE ABAS (4 ABAS) ---
         window.mudarAba = function(aba) {
-            const viewDash = document.getElementById('view-dashboard');
-            const viewCaixa = document.getElementById('view-caixa');
-            const viewEstoque = document.getElementById('view-estoque');
-            
-            const btnDash = document.getElementById('tab-btn-dashboard');
-            const btnCaixa = document.getElementById('tab-btn-caixa');
-            const btnEstoque = document.getElementById('tab-btn-estoque');
+            const views = ['dashboard', 'caixa', 'estoque', 'custos'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const btn = document.getElementById(`tab-btn-${v}`);
+                if(el) el.classList.add('hidden');
+                if(btn) btn.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+            });
 
-            viewDash.classList.add('hidden');
-            viewCaixa.classList.add('hidden');
-            viewEstoque.classList.add('hidden');
-
-            btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
-            btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
-            btnEstoque.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+            const viewAtiva = document.getElementById(`view-${aba}`);
+            const btnAtivo = document.getElementById(`tab-btn-${aba}`);
+            if(viewAtiva) viewAtiva.classList.remove('hidden');
+            if(btnAtivo) btnAtivo.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
 
             localStorage.setItem('duda_aba_ativa', aba);
+            if(aba === 'dashboard' && myChart) myChart.update();
+        };
 
-            if (aba === 'dashboard') {
-                viewDash.classList.remove('hidden');
-                btnDash.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
-                if(myChart) myChart.update();
-            } else if (aba === 'caixa') {
-                viewCaixa.classList.remove('hidden');
-                btnCaixa.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
-            } else if (aba === 'estoque') {
-                viewEstoque.classList.remove('hidden');
-                btnEstoque.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
+        // --- CALCULADORA DE CUSTOS (DADOS DA PLANILHA) ---
+        const insumosBase = {
+            'Morango (cx)': 32.97, 'Uva (pct)': 9.99, 'Leite Condensado': 7.29,
+            'Leite Ninho': 19.90, 'Manteiga': 5.98, 'Creme de Leite': 3.49,
+            'Cacau em Pó': 20.99, 'Maracujá (kg)': 4.35, 'Cobertop (1010g)': 46.58,
+            'Açúcar': 13.99, 'Vinagre': 4.23, 'Corante': 7.89
+        };
+
+        const matrizBombons = {
+            "MORANGO_NINHO_CHOCOLATE BRANCO": { custoIng: 1.00, custoExtra: 5.72, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CHOCOLATE PRETO": { custoIng: 0.95, custoExtra: 5.67, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CALDA VERMELHA": { custoIng: 1.76, custoExtra: 6.48, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CRAVEJADO": { custoIng: 2.48, custoExtra: 7.20, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            
+            "MORANGO_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 1.74, custoExtra: 6.46, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 1.69, custoExtra: 6.41, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.50, custoExtra: 7.22, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CRAVEJADO": { custoIng: 3.22, custoExtra: 7.94, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+
+            "MORANGO_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 2.22, custoExtra: 6.94, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 2.17, custoExtra: 6.89, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CALDA VERMELHA": { custoIng: 2.99, custoExtra: 7.71, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CRAVEJADO": { custoIng: 3.70, custoExtra: 8.42, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+
+            "UVA_NINHO_CHOCOLATE BRANCO": { custoIng: 0.71, custoExtra: 5.43, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_NINHO_CHOCOLATE PRETO": { custoIng: 0.66, custoExtra: 5.38, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_NINHO_CALDA VERMELHA": { custoIng: 1.48, custoExtra: 6.20, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_NINHO_CRAVEJADO": { custoIng: 2.19, custoExtra: 6.91, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+
+            "UVA_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 1.45, custoExtra: 6.17, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 1.40, custoExtra: 6.12, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.21, custoExtra: 6.93, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CRAVEJADO": { custoIng: 2.93, custoExtra: 7.65, precoSugerido: 15.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+
+            "UVA_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 1.93, custoExtra: 6.65, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 1.88, custoExtra: 6.60, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_MARACUJÁ_CALDA VERMELHA": { custoIng: 2.70, custoExtra: 7.42, precoSugerido: 15.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_MARACUJÁ_CRAVEJADO": { custoIng: 3.41, custoExtra: 8.13, precoSugerido: 15.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] }
+        };
+
+        const matrizBrownies = {
+            "tradicional": { custoTotal: 1.96, preco: 7.00, itens: [["Massa de Brownie (80g)", "80g", 1.67], ["Adesivos & Embalagem", "1 un", 0.29]] },
+            "bite": { custoTotal: 0.54, preco: 0.88, itens: [["Massa (8g)", "8g", 0.17], ["Cobertura (2g)", "2g", 0.09], ["Embalagem (Unidade)", "1 un", 0.28]] },
+            "pacote8": { custoTotal: 2.32, preco: 7.00, itens: [["Massa Total (64g)", "64g", 1.34], ["Cobertura Total (16g)", "16g", 0.69], ["Pacote / Adesivo", "1 un", 0.29]] }
+        };
+
+        window.mudarCategoria = function() {
+            const cat = document.getElementById('categoria-produto').value;
+            if(cat === 'bombom') {
+                document.getElementById('container-select-bombom').classList.remove('hidden');
+                document.getElementById('container-select-brownie').classList.add('hidden');
+                calcularBombom();
+            } else {
+                document.getElementById('container-select-bombom').classList.add('hidden');
+                document.getElementById('container-select-brownie').classList.remove('hidden');
+                calcularBrownie();
             }
         };
 
+        window.calcularBombom = function() {
+            const fruta = document.getElementById('filtro-fruta').value;
+            const recheio = document.getElementById('filtro-recheio').value;
+            const cobertura = document.getElementById('filtro-cobertura').value;
+            const chave = `${fruta}_${recheio}_${cobertura}`;
+
+            const dados = matrizBombons[chave];
+            if(!dados) return;
+
+            let ajusteDinamico = 0;
+            const inputAcucar = document.getElementById('input-Açúcar');
+            if(inputAcucar) {
+                const valAtual = parseFloat(inputAcucar.value) || 13.99;
+                const diferencaAcucar = (valAtual - 13.99) * 0.1;
+                if(cobertura === 'CRAVEJADO' || cobertura === 'CALDA VERMELHA') {
+                    ajusteDinamico += diferencaAcucar;
+                }
+            }
+
+            const custoIng = dados.custoIng + ajusteDinamico;
+            const custoExtra = dados.custoExtra;
+            const custoTotal = custoIng + custoExtra;
+            const precoSv = dados.precoSugerido;
+            const lucro = precoSv - custoTotal;
+
+            document.getElementById('resumo-custo-ingredientes').innerText = custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-extras').innerText = custoExtra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-total').innerText = custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-preco-sugerido').innerText = precoSv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+
+            let htmlTabela = '';
+            dados.itens.forEach(([item, qtd, val]) => {
+                let valFinal = val;
+                if(item.includes('Calda') || item.includes('Cravejada')) valFinal += ajusteDinamico;
+                htmlTabela += `
+                    <tr class="hover:bg-duda-cream/40 transition-colors">
+                        <td class="py-3 px-2 font-semibold text-duda-brown">${item}</td>
+                        <td class="py-3 px-2 text-gray-600">${qtd}</td>
+                        <td class="py-3 px-2 font-bold text-duda-brown">${valFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
+        };
+
+        window.calcularBrownie = function() {
+            const tipo = document.getElementById('filtro-brownie').value;
+            const dados = matrizBrownies[tipo];
+            if(!dados) return;
+
+            const custoTotal = dados.custoTotal;
+            const precoSv = dados.preco;
+            const lucro = precoSv - custoTotal;
+
+            document.getElementById('resumo-custo-ingredientes').innerText = (custoTotal * 0.7).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-extras').innerText = (custoTotal * 0.3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-total').innerText = custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-preco-sugerido').innerText = precoSv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+
+            let htmlTabela = '';
+            dados.itens.forEach(([item, qtd, val]) => {
+                htmlTabela += `
+                    <tr class="hover:bg-duda-cream/40 transition-colors">
+                        <td class="py-3 px-2 font-semibold text-duda-brown">${item}</td>
+                        <td class="py-3 px-2 text-gray-600">${qtd}</td>
+                        <td class="py-3 px-2 font-bold text-duda-brown">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
+        };
+
+        function carregarSimulador() {
+            const container = document.getElementById('simulador-inputs');
+            if(!container) return;
+            let html = '';
+            for(let [insumo, valor] of Object.entries(insumosBase)) {
+                html += `
+                    <div class="bg-duda-cream/60 p-4 rounded-2xl border border-duda-pink/30 space-y-1">
+                        <label class="block text-xs font-bold text-gray-500 truncate" title="${insumo}">${insumo}</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-duda-brown">R$</span>
+                            <input type="number" step="0.01" id="input-${insumo}" value="${valor}" onchange="atualizarSimulador()" class="w-full bg-white p-2.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-brown outline-none">
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        window.atualizarSimulador = function() {
+            const cat = document.getElementById('categoria-produto').value;
+            if(cat === 'bombom') calcularBombom();
+            else calcularBrownie();
+        };
+
+        // --- TEMPO REAL: DASHBOARD ---
         function iniciarOuvinteDashboard() {
             const pedidosRef = collection(db, "pedidos");
             const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
@@ -545,6 +804,7 @@
             containerInativos.innerHTML = inativosHtml;
         };
 
+        // --- TEMPO REAL: CAIXA ---
         function iniciarOuvinteCaixa() {
             const caixaRef = collection(db, "fluxo_caixa");
             const q = query(caixaRef, orderBy("data", "desc"));
@@ -655,6 +915,7 @@
             elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5 tracking-tight" : "text-2xl font-bold text-duda-brown mt-0.5 tracking-tight";
         }
 
+        // --- TEMPO REAL: ESTOQUE ---
         function iniciarOuvinteEstoque() {
             const estoqueRef = collection(db, "estoque");
 
@@ -704,6 +965,7 @@
             });
         };
 
+        // --- AÇÕES DO FIREBASE ---
         window.adicionarLancamentoFirebase = async function() {
             const hoje = new Date().toISOString().split('T')[0];
             try {
@@ -836,6 +1098,7 @@
             setTimeout(() => { toast.style.visibility = "hidden"; }, 3000);
         }
 
+        // --- INICIALIZAÇÃO ---
         window.addEventListener('load', () => {
             const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
             mudarAba(abaSalva);
@@ -843,6 +1106,8 @@
             iniciarOuvinteDashboard();
             iniciarOuvinteCaixa();
             iniciarOuvinteEstoque();
+            carregarSimulador();
+            calcularBombom();
         });
     </script>
 </body>
