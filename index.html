@@ -646,9 +646,10 @@
             }
         }
 
-        window.finalizeOrderWpp = async function() {
+       window.finalizeOrderWpp = async function() {
             const name = document.getElementById('client-name').value.trim();
-            const phone = document.getElementById('client-phone').value.trim().replace(/\D/g, '');
+            const phoneInput = document.getElementById('client-phone').value.trim();
+            const phone = phoneInput.replace(/\D/g, ''); // Remove máscara e deixa só números
             const deliveryType = document.getElementById('delivery-type').value;
             const paymentMethod = document.getElementById('payment-method').value;
 
@@ -719,7 +720,7 @@
 
             let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
             message += `👤 *Cliente:* ${name}\n`;
-            message += `📱 *Telefone:* ${phone}\n`;
+            message += `📱 *Telefone:* ${phoneInput}\n`;
             message += `🛍️ *Itens do Pedido:*\n`;
 
             cart.forEach(item => {
@@ -736,14 +737,18 @@
             message += `Aguardando confirmação! ✨`;
 
             const encodedMessage = encodeURIComponent(message);
-            window.open(`https://wa.me/${WPP_NUMBER}?text=${encodedMessage}`, '_blank');
-
+            
+            // Força a abertura universal do WhatsApp (funciona melhor em celulares Android e iOS)
+            const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
+            
             cart = [];
             backToCartItems();
             updateCartUI();
             toggleCart();
-        };
 
+            // Abre o WhatsApp redirecionando a página atual de forma segura para o celular
+            window.location.href = wppUrl;
+        };
         window.addEventListener('load', () => {
             renderProducts();
             initCarousel();
