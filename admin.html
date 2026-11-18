@@ -398,7 +398,7 @@
                                 <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
                                     <th class="pb-3 px-2">Item / Descrição</th>
                                     <th class="pb-3 px-2">Referência</th>
-                                    <th class="pb-3 px-2">Custo Proporcional</th>
+                                    <th class="pb-3 px-2">Custo Proporcional Unitário</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ingredientes-detalhe" class="text-sm divide-y divide-gray-50 font-medium"></tbody>
@@ -414,7 +414,7 @@
                         
                         <div class="space-y-4">
                             <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
-                                <span class="text-xs font-bold text-gray-500 uppercase">Custo de Ingredientes</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase">Custo de Ingredientes (por bombom)</span>
                                 <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-base">R$ 0,00</span>
                             </div>
                             <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
@@ -422,7 +422,7 @@
                                 <span id="resumo-custo-extras" class="font-bold text-duda-brown text-base">R$ 0,00</span>
                             </div>
                             <div class="bg-duda-red/10 p-5 rounded-2xl border border-duda-red/30 flex justify-between items-center">
-                                <span class="text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total de Produção</span>
+                                <span class="text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total por Bombom</span>
                                 <span id="resumo-custo-total" class="font-extrabold text-duda-red text-xl">R$ 0,00</span>
                             </div>
                         </div>
@@ -446,7 +446,7 @@
                         <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                             <i class="ph ph-sliders text-duda-red"></i> Simulador & Gestão de Preços de Insumos
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Altere o preço de mercado de qualquer ingrediente para atualizar proporcionalmente o custo de todos os bombons.</p>
+                        <p class="text-xs text-gray-500 font-medium">Altere o preço de mercado para atualizar os custos unitários dos bombons automaticamente.</p>
                     </div>
                     <button onclick="salvarNovosPrecosInsumos()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
                         <i class="ph ph-floppy-disk text-lg"></i> Salvar Novos Preços
@@ -510,7 +510,6 @@
             { nome: 'Uva', medida: '500 g', status: 'cheio' }
         ];
 
-        // --- TABELA DE INSUMOS MÃE (PREÇO DE MERCADO + QUANTIDADE DA EMBALAGEM) ---
         let insumosBase = {
             'Leite Condensado': { valor: 5.99, qtdEmb: 395 },
             'Creme de Leite': { valor: 3.49, qtdEmb: 200 },
@@ -534,15 +533,16 @@
             'Adesivos (un)': { valor: 0.28, qtdEmb: 1 }
         };
 
-        // --- CÁLCULO PROPORCIONAL DE INGREDIENTE ---
-        function calcularProporcao(nomeInsumo, qtdUsada) {
+        // --- CÁLCULO PROPORCIONAL DIVIDIDO POR 10 (LOTE) ---
+        function calcularProporcaoUnitaria(nomeInsumo, qtdUsadaLote) {
             const insumo = insumosBase[nomeInsumo];
             if (!insumo || !insumo.qtdEmb || insumo.qtdEmb <= 0) return 0;
-            const custoUnitario = insumo.valor / insumo.qtdEmb;
-            return custoUnitario * qtdUsada;
+            const custoUnitarioIngrediente = insumo.valor / insumo.qtdEmb;
+            const custoTotalLote = custoUnitarioIngrediente * qtdUsadaLote;
+            // Divide por 10 para achar o custo unitário por bombom
+            return custoTotalLote / 10;
         }
 
-        // --- SISTEMA DE ABAS ---
         window.mudarAba = function(aba) {
             const views = ['dashboard', 'caixa', 'estoque', 'custos'];
             views.forEach(v => {
@@ -561,105 +561,102 @@
             if(aba === 'dashboard' && myChart) myChart.update();
         };
 
-        // --- CÁLCULO DINÂMICO DOS BOMBONS (BASEADO NA SUA PLANILHA) ---
+        // --- CÁLCULO DINÂMICO DOS BOMBONS (COM DIVISÃO POR 10) ---
         window.calcularBombom = function() {
             const fruta = document.getElementById('filtro-fruta').value;       // morango / uva
             const recheio = document.getElementById('filtro-recheio').value;     // ninho / chocolate / maracuja
             const cobertura = document.getElementById('filtro-cobertura').value; // branco / preto / calda / cravejado
 
-            // 1. Custo da Fruta
+            // 1. Fruta (unidade)
             let custoFruta = 0;
             let qtdFrutaStr = '';
             if (fruta === 'morango') {
-                custoFruta = calcularProporcao('Morango', 20);
-                qtdFrutaStr = '20 g';
+                custoFruta = calcularProporcaoUnitaria('Morango', 200); // 200g para o lote de 10
+                qtdFrutaStr = '20g / bombom';
             } else {
-                custoFruta = calcularProporcao('Uva', 22);
-                qtdFrutaStr = '22 g';
+                custoFruta = calcularProporcaoUnitaria('Uva', 220); // 220g para o lote de 10
+                qtdFrutaStr = '22g / bombom';
             }
 
-            // 2. Custo do Recheio
+            // 2. Recheio (já aplicando a divisão por 10 da receita)
             let custoRecheio = 0;
             let itensRecheioArr = [];
             if (recheio === 'ninho') {
-                const cLc = calcularProporcao('Leite Condensado', 395);
-                const cLn = calcularProporcao('Leite Ninho', 46);
-                const cMan = calcularProporcao('Manteiga', 47);
-                const cCl = calcularProporcao('Creme de Leite', 100);
+                const cLc = calcularProporcaoUnitaria('Leite Condensado', 395);
+                const cLn = calcularProporcaoUnitaria('Leite Ninho', 46);
+                const cMan = calcularProporcaoUnitaria('Manteiga', 47);
+                const cCl = calcularProporcaoUnitaria('Creme de Leite', 100);
                 custoRecheio = cLc + cLn + cMan + cCl;
                 itensRecheioArr = [
-                    ["Leite Condensado", "395g", cLc],
-                    ["Leite Ninho", "46g", cLn],
-                    ["Manteiga", "47g", cMan],
-                    ["Creme de Leite", "100g", cCl]
+                    ["Leite Condensado", "Proporcional", cLc],
+                    ["Leite Ninho", "Proporcional", cLn],
+                    ["Manteiga", "Proporcional", cMan],
+                    ["Creme de Leite", "Proporcional", cCl]
                 ];
             } else if (recheio === 'chocolate') {
-                const cLc = calcularProporcao('Leite Condensado', 395);
-                const cCac = calcularProporcao('Cacau em pó', 46);
-                const cMan = calcularProporcao('Manteiga', 47);
-                const cCl = calcularProporcao('Creme de Leite', 100);
+                const cLc = calcularProporcaoUnitaria('Leite Condensado', 395);
+                const cCac = calcularProporcaoUnitaria('Cacau em pó', 46);
+                const cMan = calcularProporcaoUnitaria('Manteiga', 47);
+                const cCl = calcularProporcaoUnitaria('Creme de Leite', 100);
                 custoRecheio = cLc + cCac + cMan + cCl;
                 itensRecheioArr = [
-                    ["Leite Condensado", "395g", cLc],
-                    ["Cacau em pó", "46g", cCac],
-                    ["Manteiga", "47g", cMan],
-                    ["Creme de Leite", "100g", cCl]
+                    ["Leite Condensado", "Proporcional", cLc],
+                    ["Cacau em pó", "Proporcional", cCac],
+                    ["Manteiga", "Proporcional", cMan],
+                    ["Creme de Leite", "Proporcional", cCl]
                 ];
             } else if (recheio === 'maracuja') {
-                const cLc = calcularProporcao('Leite Condensado', 395);
-                const cLn = calcularProporcao('Leite Ninho', 46);
-                const cMan = calcularProporcao('Manteiga', 47);
-                const cCl = calcularProporcao('Creme de Leite', 100);
-                const cMar = calcularProporcao('Maracujá', 436);
+                const cLc = calcularProporcaoUnitaria('Leite Condensado', 395);
+                const cLn = calcularProporcaoUnitaria('Leite Ninho', 46);
+                const cMan = calcularProporcaoUnitaria('Manteiga', 47);
+                const cCl = calcularProporcaoUnitaria('Creme de Leite', 100);
+                const cMar = calcularProporcaoUnitaria('Maracujá', 436);
                 custoRecheio = cLc + cLn + cMan + cCl + cMar;
                 itensRecheioArr = [
-                    ["Leite Condensado", "395g", cLc],
-                    ["Leite Ninho", "46g", cLn],
-                    ["Manteiga", "47g", cMan],
-                    ["Creme de Leite", "100g", cCl],
-                    ["Maracujá", "436g", cMar]
+                    ["Leite Condensado", "Proporcional", cLc],
+                    ["Leite Ninho", "Proporcional", cLn],
+                    ["Manteiga", "Proporcional", cMan],
+                    ["Creme de Leite", "Proporcional", cCl],
+                    ["Maracujá", "Proporcional", cMar]
                 ];
             }
 
-            // 3. Custo da Cobertura
+            // 3. Cobertura (dividido por 10)
             let custoCobertura = 0;
             let nomeCoberturaStr = '';
             if (cobertura === 'branco') {
-                custoCobertura = calcularProporcao('Cobertop Branco', 296);
+                custoCobertura = calcularProporcaoUnitaria('Cobertop Branco', 296);
                 nomeCoberturaStr = 'Chocolate Branco';
             } else if (cobertura === 'preto') {
-                custoCobertura = calcularProporcao('Cobertop Blend', 296);
+                custoCobertura = calcularProporcaoUnitaria('Cobertop Blend', 296);
                 nomeCoberturaStr = 'Chocolate Preto';
             } else if (cobertura === 'calda') {
-                const cAcu = calcularProporcao('Açúcar', 360);
-                const cCor = calcularProporcao('Corante', 6);
+                const cAcu = calcularProporcaoUnitaria('Açúcar', 360);
+                const cCor = calcularProporcaoUnitaria('Corante', 6);
                 custoCobertura = cAcu + cCor;
                 nomeCoberturaStr = 'Calda Vermelha';
             } else if (cobertura === 'cravejado') {
-                const cCob = calcularProporcao('Cobertop Branco', 296);
-                const cAcu = calcularProporcao('Açúcar', 180);
-                const cCor = calcularProporcao('Corante', 6);
+                const cCob = calcularProporcaoUnitaria('Cobertop Branco', 296);
+                const cAcu = calcularProporcaoUnitaria('Açúcar', 180);
+                const cCor = calcularProporcaoUnitaria('Corante', 6);
                 custoCobertura = cCob + cAcu + cCor;
                 nomeCoberturaStr = 'Cravejado Especial';
             }
 
             const custoIngredientesTotal = custoFruta + custoRecheio + custoCobertura;
-            const embalagem = calcularProporcao('Embalagem (un)', 1);
-            const adesivo = calcularProporcao('Adesivos (un)', 1);
-            const maoDeObra = 4.00; // Taxa fixa padrão
+            const embalagem = insumosBase['Embalagem (un)'].valor;
+            const adesivo = insumosBase['Adesivos (un)'].valor;
+            const maoDeObra = 0.40; // Taxa proporcional de tempo por unidade (R$ 4,00 o lote / 10)
 
             const custoTotalProducao = custoIngredientesTotal + embalagem + adesivo + maoDeObra;
 
-            // Preço de venda padrão praticado baseado nas combinações da planilha
             let precoVenda = 10.00;
             if (cobertura === 'calda') precoVenda = 12.00;
             if (cobertura === 'cravejado' || (recheio === 'maracuja' && cobertura !== 'branco')) precoVenda = 15.00;
-            if (cobertura === 'cravejado' && fruta === 'morango' && recheio === 'ninho') precoVenda = 15.00;
 
             const lucroReal = precoVenda - custoTotalProducao;
             const margemLucro = custoTotalProducao > 0 ? ((lucroReal / custoTotalProducao) * 100).toFixed(0) : 0;
 
-            // Renderiza na tela
             document.getElementById('resumo-custo-ingredientes').innerText = custoIngredientesTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-extras').innerText = (embalagem + adesivo + maoDeObra).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-total').innerText = custoTotalProducao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -677,7 +674,7 @@
             itensRecheioArr.forEach(([nome, qtd, val]) => {
                 htmlTabela += `
                     <tr class="hover:bg-duda-cream/40 transition-colors">
-                        <td class="py-3 px-2 font-semibold text-duda-brown">${nome} (Recheio)</td>
+                        <td class="py-3 px-2 font-semibold text-duda-brown">${nome} (Recheio unitário)</td>
                         <td class="py-3 px-2 text-gray-600">${qtd}</td>
                         <td class="py-3 px-2 font-bold text-duda-brown">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     </tr>
@@ -685,7 +682,7 @@
             });
             htmlTabela += `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Cobertura (${nomeCoberturaStr})</td>
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Cobertura (${nomeCoberturaStr} unitária)</td>
                     <td class="py-3 px-2 text-gray-600">Proporcional</td>
                     <td class="py-3 px-2 font-bold text-duda-brown">${custoCobertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
@@ -699,7 +696,6 @@
         };
 
         window.calcularBrownie = function() {
-            // Ficha técnica padrão de brownies
             document.getElementById('resumo-custo-ingredientes').innerText = "R$ 1,67";
             document.getElementById('resumo-custo-extras').innerText = "R$ 0,29";
             document.getElementById('resumo-custo-total').innerText = "R$ 1,96";
@@ -734,7 +730,6 @@
             }
         };
 
-        // --- RENDERIZAR O SIMULADOR DE INSUMOS ---
         function carregarSimulador() {
             const container = document.getElementById('simulador-inputs');
             if(!container) return;
@@ -766,7 +761,6 @@
             else calcularBrownie();
         };
 
-        // --- SALVAR NOVOS PREÇOS NO FIREBASE ---
         window.salvarNovosPrecosInsumos = async function() {
             atualizarSimuladorLocal();
 
@@ -783,7 +777,6 @@
             }
         };
 
-        // --- TEMPO REAL: DASHBOARD ---
         function iniciarOuvinteDashboard() {
             const pedidosRef = collection(db, "pedidos");
             const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
@@ -907,7 +900,6 @@
             containerInativos.innerHTML = inativosHtml;
         };
 
-        // --- TEMPO REAL: CAIXA ---
         function iniciarOuvinteCaixa() {
             const caixaRef = collection(db, "fluxo_caixa");
             const q = query(caixaRef, orderBy("data", "desc"));
@@ -1018,7 +1010,6 @@
             elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5 tracking-tight" : "text-2xl font-bold text-duda-brown mt-0.5 tracking-tight";
         }
 
-        // --- TEMPO REAL: ESTOQUE ---
         function iniciarOuvinteEstoque() {
             const estoqueRef = collection(db, "estoque");
 
@@ -1068,7 +1059,6 @@
             });
         };
 
-        // --- AÇÕES DO FIREBASE ---
         window.adicionarLancamentoFirebase = async function() {
             const hoje = new Date().toISOString().split('T')[0];
             try {
@@ -1201,7 +1191,6 @@
             setTimeout(() => { toast.style.visibility = "hidden"; }, 3000);
         }
 
-        // --- INICIALIZAÇÃO ---
         window.addEventListener('load', async () => {
             const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
             mudarAba(abaSalva);
