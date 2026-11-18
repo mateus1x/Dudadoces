@@ -179,10 +179,11 @@
                                     <th class="pb-3 px-2">Pagamento</th>
                                     <th class="pb-3 px-2">Total</th>
                                     <th class="pb-3 px-2">Data</th>
+                                    <th class="pb-3 px-2 w-16 text-center">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50">
-                                <tr><td colspan="5" class="text-center py-6 text-gray-400">Carregando pedidos...</td></tr>
+                                <tr><td colspan="6" class="text-center py-6 text-gray-400">Carregando pedidos...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -329,10 +330,12 @@
         <p>© 2026 Duda Doces • Painel Integrado ao Firebase</p>
     </footer>
 
+    <div id="toast" style="visibility:hidden; min-width:250px; background:#3A201E; color:#fff; text-align:center; border-radius:30px; padding:12px; position:fixed; z-index:1000; left:50%; bottom:30px; transform:translateX(-50%); font-size:14px;"></div>
+
     <!-- Script Principal Unificado -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -433,6 +436,11 @@
                             <td class="py-3 px-2 text-gray-600 font-medium">${p.formaPagamento || 'Pix'}</td>
                             <td class="py-3 px-2 font-bold text-duda-red">R$ ${(p.valorTotal || 0).toFixed(2).replace('.', ',')}</td>
                             <td class="py-3 px-2 text-xs text-gray-500 font-medium">${dataFormatada}</td>
+                            <td class="py-3 px-2 text-center">
+                                <button onclick="removerPedidoCompleto('${docSnap.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido e Caixa">
+                                    <i class="ph ph-trash text-base"></i>
+                                </button>
+                            </td>
                         </tr>
                     `;
 
@@ -448,14 +456,14 @@
                 });
 
                 if (queryPedidos.empty) {
-                    tabelaHtml = `<tr><td colspan="5" class="text-center py-6 text-gray-400">Nenhum pedido registrado ainda.</td></tr>`;
+                    tabelaHtml = `<tr><td colspan="6" class="text-center py-6 text-gray-400">Nenhum pedido registrado ainda.</td></tr>`;
                 }
 
                 document.getElementById('orders-table-body').innerHTML = tabelaHtml;
                 document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
-                // --- PROCESSAR CLIENTES INATIVOS (+30 DIAS) COM O TELEFONE DO CADASTRO ---
+                // --- PROCESSAR CLIENTES INATIVOS (+30 DIAS) ---
                 const containerInativos = document.getElementById('inactive-clients-container');
                 let inativosHtml = "";
                 const hoje = new Date();
@@ -523,6 +531,28 @@
                 console.error("Erro ao carregar dashboard:", e);
             }
         }
+
+        // --- EXCLUSÃO VINCULADA (PEDIDO + CAIXA) ---
+        window.removerPedidoCompleto = async function(pedidoId) {
+            if (confirm("Tem certeza que deseja excluir este pedido? O registro financeiro correspondente no Fluxo de Caixa também será apagado.")) {
+                try {
+                    await deleteDoc(doc(db, "pedidos", pedidoId));
+
+                    const caixaRef = collection(db, "fluxo_caixa");
+                    const qCaixa = query(caixaRef, where("pedidoId", "==", pedidoId));
+                    const snapshotCaixa = await getDocs(qCaixa);
+
+                    snapshotCaixa.forEach(async (docCaixa) => {
+                        await deleteDoc(doc(db, "fluxo_caixa", docCaixa.id));
+                    });
+
+                    carregarDashboard();
+                    showToast("Pedido e caixa excluídos com sucesso!");
+                } catch (e) {
+                    console.error("Erro ao excluir pedido vinculado:", e);
+                }
+            }
+        };
 
         function renderizarGraficoAcessos(labels, data) {
             const ctx = document.getElementById('accessChart').getContext('2d');
@@ -787,6 +817,14 @@
                 }
             }
         };
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            toast.innerText = text;
+            toast.style.visibility = "visible";
+            setTimeout(() => { toast.style.visibility = "hidden"; }, 3000);
+        }
 
         window.addEventListener('load', () => {
             carregarDashboard();
