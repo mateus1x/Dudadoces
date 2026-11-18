@@ -674,22 +674,35 @@
         // --- SALVAR CONFIGURAÇÕES NO FIREBASE ---
         async function salvarCustosNoFirebase() {
     try {
-        // Converte o array de itens complexos para string ou formato plano aceito pelo Firebase
+        // Limpa e converte todos os arrays internos para string JSON para evitar erro no Firestore
         const matrizBombonsLimpa = {};
         for (let [chave, dados] of Object.entries(matrizBombons)) {
             matrizBombonsLimpa[chave] = {
-                ...dados,
-                // Serializa os itens para JSON string para evitar array aninhado
-                itensJson: JSON.stringify(dados.itens) 
+                custoIng: dados.custoIng,
+                embalagem: dados.embalagem,
+                adesivos: dados.adesivos,
+                tempo: dados.tempo,
+                precoVendido: dados.precoVendido,
+                itensJson: JSON.stringify(dados.itens) // Garante que vira string
+            };
+        }
+
+        const matrizBrowniesLimpa = {};
+        for (let [chave, dados] of Object.entries(matrizBrownies)) {
+            matrizBrowniesLimpa[chave] = {
+                custoTotal: dados.custoTotal,
+                preco: dados.preco,
+                itensJson: JSON.stringify(dados.itens) // Garante que vira string
             };
         }
 
         await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
             matrizBombons: matrizBombonsLimpa,
-            matrizBrownies,
+            matrizBrownies: matrizBrowniesLimpa,
             insumosBase,
             atualizadoEm: serverTimestamp()
         });
+        
         console.log("Custos salvos com sucesso na coleção calculo_de_custo!");
     } catch (e) {
         console.error("Erro ao sincronizar custos com o Firebase:", e);
