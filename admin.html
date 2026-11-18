@@ -674,7 +674,7 @@
         // --- SALVAR CONFIGURAÇÕES NO FIREBASE ---
         async function salvarCustosNoFirebase() {
             try {
-                await setDoc(doc(db, "configuracoes", "matriz_custos"), {
+                await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
                     matrizBombons,
                     matrizBrownies,
                     insumosBase,
