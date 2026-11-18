@@ -524,43 +524,44 @@
         };
 
         // --- CALCULADORA DE CUSTOS (DADOS DA PLANILHA) ---
+        // --- CALCULADORA DE CUSTOS (DADOS ATUALIZADOS DA PLANILHA) ---
         const insumosBase = {
-            'Morango (cx)': 32.97, 'Uva (pct)': 9.99, 'Leite Condensado': 7.29,
-            'Leite Ninho': 19.90, 'Manteiga': 5.98, 'Creme de Leite': 3.49,
-            'Cacau em Pó': 20.99, 'Maracujá (kg)': 4.35, 'Cobertop (1010g)': 46.58,
+            'Morango (cx)': 32.97, 'Uva (pct)': 9.99, 'Leite Condensado': 5.69,
+            'Leite Ninho': 23.42, 'Manteiga': 8.72, 'Creme de Leite': 3.69,
+            'Cacau em Pó': 20.99, 'Maracujá (kg)': 15.49, 'Cobertop (1010g)': 43.38,
             'Açúcar': 13.99, 'Vinagre': 4.23, 'Corante': 7.89
         };
 
         const matrizBombons = {
-            "MORANGO_NINHO_CHOCOLATE BRANCO": { custoIng: 1.00, custoExtra: 5.72, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CHOCOLATE PRETO": { custoIng: 0.95, custoExtra: 5.67, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CALDA VERMELHA": { custoIng: 1.76, custoExtra: 6.48, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CRAVEJADO": { custoIng: 2.48, custoExtra: 7.20, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CHOCOLATE BRANCO": { custoIng: 3.03, custoExtra: 4.00, precoSugerido: 10.55, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.03], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_NINHO_CHOCOLATE PRETO": { custoIng: 3.00, custoExtra: 4.00, precoSugerido: 10.50, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.00], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_NINHO_CALDA VERMELHA": { custoIng: 3.35, custoExtra: 4.00, precoSugerido: 11.03, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.35], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_NINHO_CRAVEJADO": { custoIng: 3.88, custoExtra: 4.00, precoSugerido: 11.82, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.88], ["Tempo de Produção", "Taxa fixa", 4.00]] },
             
-            "MORANGO_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 1.74, custoExtra: 6.46, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 1.69, custoExtra: 6.41, precoSugerido: 10.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.50, custoExtra: 7.22, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CRAVEJADO": { custoIng: 3.22, custoExtra: 7.94, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.86, custoExtra: 4.00, precoSugerido: 10.29, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.86], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.83, custoExtra: 4.00, precoSugerido: 10.25, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.83], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_CHOCOLATE_CALDA VERMELHA": { custoIng: 3.19, custoExtra: 4.00, precoSugerido: 10.78, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.19], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_CHOCOLATE_CRAVEJADO": { custoIng: 3.71, custoExtra: 4.00, precoSugerido: 11.57, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.71], ["Tempo de Produção", "Taxa fixa", 4.00]] },
 
-            "MORANGO_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 2.22, custoExtra: 6.94, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 2.17, custoExtra: 6.89, precoSugerido: 12.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CALDA VERMELHA": { custoIng: 2.99, custoExtra: 7.71, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CRAVEJADO": { custoIng: 3.70, custoExtra: 8.42, precoSugerido: 15.00, itens: [["Morango (1 un)", "1 un", 0.59], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.47, custoExtra: 4.00, precoSugerido: 11.20, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.47], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.44, custoExtra: 4.00, precoSugerido: 11.15, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.44], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.79, custoExtra: 4.00, precoSugerido: 11.68, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.79], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "MORANGO_MARACUJÁ_CRAVEJADO": { custoIng: 4.32, custoExtra: 4.00, precoSugerido: 12.47, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.32], ["Tempo de Produção", "Taxa fixa", 4.00]] },
 
-            "UVA_NINHO_CHOCOLATE BRANCO": { custoIng: 0.71, custoExtra: 5.43, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_NINHO_CHOCOLATE PRETO": { custoIng: 0.66, custoExtra: 5.38, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_NINHO_CALDA VERMELHA": { custoIng: 1.48, custoExtra: 6.20, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_NINHO_CRAVEJADO": { custoIng: 2.19, custoExtra: 6.91, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Ninho", "1 receita", 0.41], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_NINHO_CHOCOLATE BRANCO": { custoIng: 2.80, custoExtra: 4.00, precoSugerido: 10.20, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.80], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_NINHO_CHOCOLATE PRETO": { custoIng: 2.77, custoExtra: 4.00, precoSugerido: 10.16, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.77], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_NINHO_CALDA VERMELHA": { custoIng: 3.13, custoExtra: 4.00, precoSugerido: 10.69, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.13], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_NINHO_CRAVEJADO": { custoIng: 3.65, custoExtra: 4.00, precoSugerido: 11.48, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.65], ["Tempo de Produção", "Taxa fixa", 4.00]] },
 
-            "UVA_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 1.45, custoExtra: 6.17, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 1.40, custoExtra: 6.12, precoSugerido: 10.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.21, custoExtra: 6.93, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CRAVEJADO": { custoIng: 2.93, custoExtra: 7.65, precoSugerido: 15.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Chocolate", "1 receita", 1.15], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.63, custoExtra: 4.00, precoSugerido: 9.95, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.63], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.60, custoExtra: 4.00, precoSugerido: 9.91, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.60], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.96, custoExtra: 4.00, precoSugerido: 10.44, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.96], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_CHOCOLATE_CRAVEJADO": { custoIng: 3.48, custoExtra: 4.00, precoSugerido: 11.23, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.48], ["Tempo de Produção", "Taxa fixa", 4.00]] },
 
-            "UVA_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 1.93, custoExtra: 6.65, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Branco", "296g", 0.72], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 1.88, custoExtra: 6.60, precoSugerido: 12.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobert. Chocolate Preto", "296g", 0.67], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CALDA VERMELHA": { custoIng: 2.70, custoExtra: 7.42, precoSugerido: 15.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Calda Vermelha", "Lote", 1.48], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CRAVEJADO": { custoIng: 3.41, custoExtra: 8.13, precoSugerido: 15.00, itens: [["Uva (3 un)", "3 un", 0.30], ["Brigadeiro de Maracujá", "1 receita", 1.64], ["Cobertura Cravejada", "Lote", 2.20], ["Embalagem & Adesivos", "1 un", 1.74], ["Tempo de Produção", "Taxa", 4.00]] }
+            "UVA_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.24, custoExtra: 4.00, precoSugerido: 10.86, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.24], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.21, custoExtra: 4.00, precoSugerido: 10.81, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.21], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.56, custoExtra: 4.00, precoSugerido: 11.34, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.56], ["Tempo de Produção", "Taxa fixa", 4.00]] },
+            "UVA_MARACUJÁ_CRAVEJADO": { custoIng: 4.09, custoExtra: 4.00, precoSugerido: 12.13, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.09], ["Tempo de Produção", "Taxa fixa", 4.00]] }
         };
 
         const matrizBrownies = {
