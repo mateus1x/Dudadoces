@@ -673,17 +673,28 @@
 
         // --- SALVAR CONFIGURAÇÕES NO FIREBASE ---
         async function salvarCustosNoFirebase() {
-            try {
-                await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
-                    matrizBombons,
-                    matrizBrownies,
-                    insumosBase,
-                    atualizadoEm: serverTimestamp()
-                });
-            } catch (e) {
-                console.error("Erro ao sincronizar custos com o Firebase:", e);
-            }
+    try {
+        // Converte o array de itens complexos para string ou formato plano aceito pelo Firebase
+        const matrizBombonsLimpa = {};
+        for (let [chave, dados] of Object.entries(matrizBombons)) {
+            matrizBombonsLimpa[chave] = {
+                ...dados,
+                // Serializa os itens para JSON string para evitar array aninhado
+                itensJson: JSON.stringify(dados.itens) 
+            };
         }
+
+        await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
+            matrizBombons: matrizBombonsLimpa,
+            matrizBrownies,
+            insumosBase,
+            atualizadoEm: serverTimestamp()
+        });
+        console.log("Custos salvos com sucesso na coleção calculo_de_custo!");
+    } catch (e) {
+        console.error("Erro ao sincronizar custos com o Firebase:", e);
+    }
+}
 
         // --- TEMPO REAL: DASHBOARD ---
         function iniciarOuvinteDashboard() {
