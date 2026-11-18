@@ -418,7 +418,7 @@
                                 <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-base">R$ 0,00</span>
                             </div>
                             <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
-                                <span class="text-xs font-bold text-gray-500 uppercase">Taxa de Embalagem & Tempo</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase">Embalagens & Taxa de Tempo</span>
                                 <span id="resumo-custo-extras" class="font-bold text-duda-brown text-base">R$ 0,00</span>
                             </div>
                             <div class="bg-duda-red/10 p-5 rounded-2xl border border-duda-red/30 flex justify-between items-center">
@@ -429,12 +429,12 @@
                     </div>
 
                     <div class="bg-duda-brown text-duda-cream p-6 rounded-2xl space-y-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Sugerido</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Praticado</span>
                         <div class="flex justify-between items-baseline">
                             <h3 id="resumo-preco-sugerido" class="text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
                             <span id="resumo-lucro-estimado" class="text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
                         </div>
-                        <p class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Baseado na margem padrão cadastrada.</p>
+                        <p class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Baseado no valor cobrado no balcão/site.</p>
                     </div>
                 </div>
             </div>
@@ -463,7 +463,7 @@
     <!-- Script Principal Unificado -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -523,7 +523,7 @@
             if(aba === 'dashboard' && myChart) myChart.update();
         };
 
-// --- CALCULADORA DE CUSTOS (DADOS COMPLETOS DA PLANILHA) ---
+        // --- CALCULADORA DE CUSTOS (DADOS COMPLETOS DA PLANILHA) ---
         const insumosBase = {
             'Morango (cx)': 44.00, 'Uva (pct)': 12.00, 'Leite Condensado': 5.69,
             'Leite Ninho': 23.42, 'Manteiga': 8.72, 'Creme de Leite': 3.69,
@@ -533,73 +533,37 @@
         };
 
         const matrizBombons = {
-            "MORANGO_NINHO_CHOCOLATE BRANCO": { custoIng: 3.03, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.03], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CHOCOLATE PRETO": { custoIng: 3.00, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.00], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CALDA VERMELHA": { custoIng: 3.35, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.35], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_NINHO_CRAVEJADO": { custoIng: 3.88, embalagem: 1.74, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.88], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CHOCOLATE BRANCO": { custoIng: 3.03, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.03], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CHOCOLATE PRETO": { custoIng: 3.00, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.00], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CALDA VERMELHA": { custoIng: 3.35, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.35], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_NINHO_CRAVEJADO": { custoIng: 3.88, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.88], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
             
-            "MORANGO_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.86, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.86], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.83, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.83], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CALDA VERMELHA": { custoIng: 3.19, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.19], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_CHOCOLATE_CRAVEJADO": { custoIng: 3.71, embalagem: 1.74, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.71], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.86, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.86], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.83, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.83], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CALDA VERMELHA": { custoIng: 3.19, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.19], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_CHOCOLATE_CRAVEJADO": { custoIng: 3.71, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.71], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
 
-            "MORANGO_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.47, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.47], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.44, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.44], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.79, embalagem: 1.74, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.79], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "MORANGO_MARACUJÁ_CRAVEJADO": { custoIng: 4.32, embalagem: 1.74, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.32], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.47, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.47], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.44, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.44], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.79, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.79], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "MORANGO_MARACUJÁ_CRAVEJADO": { custoIng: 4.32, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.32], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
 
-            "UVA_NINHO_CHOCOLATE BRANCO": { custoIng: 2.80, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.80], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_NINHO_CHOCOLATE PRETO": { custoIng: 2.77, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.77], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_NINHO_CALDA VERMELHA": { custoIng: 3.13, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.13], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_NINHO_CRAVEJADO": { custoIng: 3.65, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.65], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_NINHO_CHOCOLATE BRANCO": { custoIng: 2.80, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.80], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_NINHO_CHOCOLATE PRETO": { custoIng: 2.77, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.77], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_NINHO_CALDA VERMELHA": { custoIng: 3.13, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.13], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_NINHO_CRAVEJADO": { custoIng: 3.65, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.65], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
 
-            "UVA_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.63, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.63], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.60, embalagem: 1.74, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.60], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.96, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.96], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_CHOCOLATE_CRAVEJADO": { custoIng: 3.48, embalagem: 1.74, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.48], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CHOCOLATE BRANCO": { custoIng: 2.63, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.63], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CHOCOLATE PRETO": { custoIng: 2.60, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 10.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.60], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CALDA VERMELHA": { custoIng: 2.96, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 2.96], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_CHOCOLATE_CRAVEJADO": { custoIng: 3.48, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.48], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
 
-            "UVA_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.24, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.24], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.21, embalagem: 1.74, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.21], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.56, embalagem: 1.74, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.56], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
-            "UVA_MARACUJÁ_CRAVEJADO": { custoIng: 4.09, embalagem: 1.74, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.09], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] }
+            "UVA_MARACUJÁ_CHOCOLATE BRANCO": { custoIng: 3.24, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.24], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_MARACUJÁ_CHOCOLATE PRETO": { custoIng: 3.21, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 12.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.21], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_MARACUJÁ_CALDA VERMELHA": { custoIng: 3.56, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 3.56], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] },
+            "UVA_MARACUJÁ_CRAVEJADO": { custoIng: 4.09, embalagem: 1.74, adesivos: 1.23, tempo: 4.00, precoVendido: 15.00, itens: [["Fruta / Recheio / Cobertura", "Ingredientes", 4.09], ["Embalagem, Pote & Forminha", "Custos", 1.74], ["Adesivos e Cartão", "Custos", 1.23], ["Tempo de Produção (Mão de Obra)", "Taxa", 4.00]] }
         };
 
-        window.calcularBombom = function() {
-            const fruta = document.getElementById('filtro-fruta').value;
-            const recheio = document.getElementById('filtro-recheio').value;
-            const cobertura = document.getElementById('filtro-cobertura').value;
-            const chave = `${fruta}_${recheio}_${cobertura}`;
-
-            const dados = matrizBombons[chave];
-            if(!dados) return;
-
-            const custoIng = dados.custoIng;
-            const custoExtra = dados.embalagem + dados.tempo; // Embalagens/Adesivos + Mão de obra
-            const custoTotal = custoIng + custoExtra;
-            
-            const precoVendidoReal = dados.precoVendido;
-            const lucroReal = precoVendidoReal - custoTotal;
-
-            document.getElementById('resumo-custo-ingredientes').innerText = custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-custo-extras').innerText = custoExtra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-custo-total').innerText = custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
-            // Exibe o preço de venda real que você cobra
-            document.getElementById('resumo-preco-sugerido').innerText = precoVendidoReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
-
-            let htmlTabela = '';
-            dados.itens.forEach(([item, qtd, val]) => {
-                htmlTabela += `
-                    <tr class="hover:bg-duda-cream/40 transition-colors">
-                        <td class="py-3 px-2 font-semibold text-duda-brown">${item}</td>
-                        <td class="py-3 px-2 text-gray-600">${qtd}</td>
-                        <td class="py-3 px-2 font-bold text-duda-brown">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
-        };
         const matrizBrownies = {
             "tradicional": { custoTotal: 1.96, preco: 7.00, itens: [["Massa de Brownie (80g)", "80g", 1.67], ["Adesivos & Embalagem", "1 un", 0.29]] },
             "bite": { custoTotal: 0.54, preco: 0.88, itens: [["Massa (8g)", "8g", 0.17], ["Cobertura (2g)", "2g", 0.09], ["Embalagem (Unidade)", "1 un", 0.28]] },
@@ -628,37 +592,27 @@
             const dados = matrizBombons[chave];
             if(!dados) return;
 
-            let ajusteDinamico = 0;
-            const inputAcucar = document.getElementById('input-Açúcar');
-            if(inputAcucar) {
-                const valAtual = parseFloat(inputAcucar.value) || 13.99;
-                const diferencaAcucar = (valAtual - 13.99) * 0.1;
-                if(cobertura === 'CRAVEJADO' || cobertura === 'CALDA VERMELHA') {
-                    ajusteDinamico += diferencaAcucar;
-                }
-            }
-
-            const custoIng = dados.custoIng + ajusteDinamico;
-            const custoExtra = dados.custoExtra;
+            const custoIng = dados.custoIng;
+            const custoExtra = dados.embalagem + dados.adesivos + dados.tempo; 
             const custoTotal = custoIng + custoExtra;
-            const precoSv = dados.precoSugerido;
-            const lucro = precoSv - custoTotal;
+            
+            const precoVendidoReal = dados.precoVendido;
+            const lucroReal = precoVendidoReal - custoTotal;
 
             document.getElementById('resumo-custo-ingredientes').innerText = custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-extras').innerText = custoExtra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-total').innerText = custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-preco-sugerido').innerText = precoSv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-lucro-estimado').innerText = `Lucro: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            
+            document.getElementById('resumo-preco-sugerido').innerText = precoVendidoReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
 
             let htmlTabela = '';
             dados.itens.forEach(([item, qtd, val]) => {
-                let valFinal = val;
-                if(item.includes('Calda') || item.includes('Cravejada')) valFinal += ajusteDinamico;
                 htmlTabela += `
                     <tr class="hover:bg-duda-cream/40 transition-colors">
                         <td class="py-3 px-2 font-semibold text-duda-brown">${item}</td>
                         <td class="py-3 px-2 text-gray-600">${qtd}</td>
-                        <td class="py-3 px-2 font-bold text-duda-brown">${valFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        <td class="py-3 px-2 font-bold text-duda-brown">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     </tr>
                 `;
             });
@@ -678,7 +632,7 @@
             document.getElementById('resumo-custo-extras').innerText = (custoTotal * 0.3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-total').innerText = custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-preco-sugerido').innerText = precoSv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-lucro-estimado').innerText = `Lucro: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
 
             let htmlTabela = '';
             dados.itens.forEach(([item, qtd, val]) => {
@@ -716,6 +670,20 @@
             if(cat === 'bombom') calcularBombom();
             else calcularBrownie();
         };
+
+        // --- SALVAR CONFIGURAÇÕES NO FIREBASE ---
+        async function salvarCustosNoFirebase() {
+            try {
+                await setDoc(doc(db, "configuracoes", "matriz_custos"), {
+                    matrizBombons,
+                    matrizBrownies,
+                    insumosBase,
+                    atualizadoEm: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Erro ao sincronizar custos com o Firebase:", e);
+            }
+        }
 
         // --- TEMPO REAL: DASHBOARD ---
         function iniciarOuvinteDashboard() {
@@ -1145,6 +1113,7 @@
             iniciarOuvinteEstoque();
             carregarSimulador();
             calcularBombom();
+            salvarCustosNoFirebase(); // Salva os dados de custos estruturados no Firestore
         });
     </script>
 </body>
