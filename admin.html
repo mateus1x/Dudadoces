@@ -439,12 +439,18 @@
                 </div>
             </div>
 
+            <!-- SIMULADOR & GESTÃO DE PREÇOS INTEGRADA -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                <div>
-                    <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                        <i class="ph ph-sliders text-duda-red"></i> Simulador de Reajuste de Insumos
-                    </h2>
-                    <p class="text-xs text-gray-500 font-medium">Altere o preço de compra atual de qualquer ingrediente para recalcular os custos na hora.</p>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                            <i class="ph ph-sliders text-duda-red"></i> Simulador & Gestão de Preços de Insumos
+                        </h2>
+                        <p class="text-xs text-gray-500 font-medium">Altere o preço de compra e clique em salvar para atualizar em todo o sistema.</p>
+                    </div>
+                    <button onclick="salvarNovosPrecosInsumos()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                        <i class="ph ph-floppy-disk text-lg"></i> Salvar Novos Preços
+                    </button>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="simulador-inputs"></div>
@@ -657,7 +663,7 @@
                         <label class="block text-xs font-bold text-gray-500 truncate" title="${insumo}">${insumo}</label>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold text-duda-brown">R$</span>
-                            <input type="number" step="0.001" id="input-${insumo}" value="${valor}" onchange="atualizarSimulador()" class="w-full bg-white p-2.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-brown outline-none">
+                            <input type="number" step="0.001" id="input-${insumo}" value="${valor}" onchange="atualizarSimuladorLocal()" class="w-full bg-white p-2.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-brown outline-none">
                         </div>
                     </div>
                 `;
@@ -665,49 +671,57 @@
             container.innerHTML = html;
         }
 
-        window.atualizarSimulador = function() {
+        window.atualizarSimuladorLocal = function() {
+            for(let insumo of Object.keys(insumosBase)) {
+                const inputEl = document.getElementById(`input-${insumo}`);
+                if(inputEl) {
+                    insumosBase[insumo] = parseFloat(inputEl.value) || 0;
+                }
+            }
+            
             const cat = document.getElementById('categoria-produto').value;
             if(cat === 'bombom') calcularBombom();
             else calcularBrownie();
         };
 
-        // --- SALVAR CONFIGURAÇÕES NO FIREBASE ---
-        async function salvarCustosNoFirebase() {
-    try {
-        // Limpa e converte todos os arrays internos para string JSON para evitar erro no Firestore
-        const matrizBombonsLimpa = {};
-        for (let [chave, dados] of Object.entries(matrizBombons)) {
-            matrizBombonsLimpa[chave] = {
-                custoIng: dados.custoIng,
-                embalagem: dados.embalagem,
-                adesivos: dados.adesivos,
-                tempo: dados.tempo,
-                precoVendido: dados.precoVendido,
-                itensJson: JSON.stringify(dados.itens) // Garante que vira string
-            };
-        }
+        window.salvarNovosPrecosInsumos = async function() {
+            atualizarSimuladorLocal();
 
-        const matrizBrowniesLimpa = {};
-        for (let [chave, dados] of Object.entries(matrizBrownies)) {
-            matrizBrowniesLimpa[chave] = {
-                custoTotal: dados.custoTotal,
-                preco: dados.preco,
-                itensJson: JSON.stringify(dados.itens) // Garante que vira string
-            };
-        }
+            try {
+                const matrizBombonsLimpa = {};
+                for (let [chave, dados] of Object.entries(matrizBombons)) {
+                    matrizBombonsLimpa[chave] = {
+                        custoIng: dados.custoIng,
+                        embalagem: dados.embalagem,
+                        adesivos: dados.adesivos,
+                        tempo: dados.tempo,
+                        precoVendido: dados.precoVendido,
+                        itensJson: JSON.stringify(dados.itens)
+                    };
+                }
 
-        await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
-            matrizBombons: matrizBombonsLimpa,
-            matrizBrownies: matrizBrowniesLimpa,
-            insumosBase,
-            atualizadoEm: serverTimestamp()
-        });
-        
-        console.log("Custos salvos com sucesso na coleção calculo_de_custo!");
-    } catch (e) {
-        console.error("Erro ao sincronizar custos com o Firebase:", e);
-    }
-}
+                const matrizBrowniesLimpa = {};
+                for (let [chave, dados] of Object.entries(matrizBrownies)) {
+                    matrizBrowniesLimpa[chave] = {
+                        custoTotal: dados.custoTotal,
+                        preco: dados.preco,
+                        itensJson: JSON.stringify(dados.itens)
+                    };
+                }
+
+                await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
+                    matrizBombons: matrizBombonsLimpa,
+                    matrizBrownies: matrizBrowniesLimpa,
+                    insumosBase,
+                    atualizadoEm: serverTimestamp()
+                });
+
+                showToast("Preços salvos com sucesso na coleção calculo_de_custo! 🚀");
+            } catch (e) {
+                console.error("Erro ao salvar novos preços:", e);
+                showToast("Erro ao salvar no Firebase.");
+            }
+        };
 
         // --- TEMPO REAL: DASHBOARD ---
         function iniciarOuvinteDashboard() {
@@ -1128,17 +1142,19 @@
         }
 
         // --- INICIALIZAÇÃO ---
-       window.addEventListener('load', () => {
-    const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
-    mudarAba(abaSalva);
+        window.addEventListener('load', async () => {
+            const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
+            mudarAba(abaSalva);
 
-    iniciarOuvinteDashboard();
-    iniciarOuvinteCaixa();
-    iniciarOuvinteEstoque();
-    carregarSimulador();
-    calcularBombom();
-    salvarCustosNoFirebase(); // <-- Essa linha tem que estar aqui!
-});
+            iniciarOuvinteDashboard();
+            iniciarOuvinteCaixa();
+            iniciarOuvinteEstoque();
+            carregarSimulador();
+            calcularBombom();
+            
+            // Sincronização inicial no carregamento
+            await salvarNovosPrecosInsumos();
+        });
     </script>
 </body>
 </html>
