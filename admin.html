@@ -1104,17 +1104,17 @@
         }
 
         // --- INICIALIZAÇÃO ---
-        window.addEventListener('load', () => {
-            const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
-            mudarAba(abaSalva);
+       window.addEventListener('load', () => {
+    const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
+    mudarAba(abaSalva);
 
-            iniciarOuvinteDashboard();
-            iniciarOuvinteCaixa();
-            iniciarOuvinteEstoque();
-            carregarSimulador();
-            calcularBombom();
-            salvarCustosNoFirebase();
-        });
+    iniciarOuvinteDashboard();
+    iniciarOuvinteCaixa();
+    iniciarOuvinteEstoque();
+    carregarSimulador();
+    calcularBombom();
+    salvarCustosNoFirebase(); // <-- Essa linha tem que estar aqui!
+});
     </script>
 </body>
 </html>
