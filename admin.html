@@ -257,10 +257,19 @@
                         <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                             <i class="ph ph-table text-duda-red"></i> Controle Financeiro com Status
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Controle de status (Pendente, Pago ou 50%) e filtros por categoria.</p>
+                        <p class="text-xs text-gray-500 font-medium">Separe por mês, busque por descrição e controle o status (Pendente, Pago ou 50%).</p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <div class="relative flex-1 sm:flex-initial min-w-[210px]">
+                            <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
+                            <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento (ex: venda alice)..." class="w-full bg-duda-cream pl-10 pr-3.5 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                        </div>
+
+                        <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="todos">📅 Todos os meses</option>
+                        </select>
+
                         <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
                             <option value="todos">📊 Todos os Tipos</option>
                             <option value="entrada">🟢 Entradas (Lucros)</option>
@@ -529,6 +538,57 @@
             'Mão de Obra': { valor: 4.00, desc: 'Taxa fixa por bombom' }
         };
 
+        function normalizarBusca(texto = "") {
+            return String(texto)
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        function obterChaveMes(dataStr = "") {
+            if (!dataStr || typeof dataStr !== "string") return "";
+            const match = dataStr.match(/^(\d{4}-\d{2})/);
+            return match ? match[1] : "";
+        }
+
+        function formatarNomeMes(chaveMes = "") {
+            const partes = chaveMes.split("-");
+            if (partes.length !== 2) return chaveMes;
+            const ano = parseInt(partes[0], 10);
+            const mes = parseInt(partes[1], 10) - 1;
+            if (isNaN(ano) || isNaN(mes) || mes < 0 || mes > 11) return chaveMes;
+
+            const nomeMes = new Date(ano, mes, 1).toLocaleDateString("pt-BR", { month: "long" });
+            return `${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)} de ${ano}`;
+        }
+
+        function sincronizarOpcoesMes(dados) {
+            const selectMes = document.getElementById("filtro-mes");
+            if (!selectMes) return;
+
+            const mesAtual = selectMes.value;
+            const mesesSet = new Set();
+
+            dados.forEach((item) => {
+                const chave = obterChaveMes(item.data);
+                if (chave) mesesSet.add(chave);
+            });
+
+            const mesesOrdenados = Array.from(mesesSet).sort().reverse();
+            let html = `<option value="todos">📅 Todos os meses</option>`;
+            mesesOrdenados.forEach((chave) => {
+                html += `<option value="${chave}">${formatarNomeMes(chave)}</option>`;
+            });
+
+            selectMes.innerHTML = html;
+            if (mesAtual && Array.from(selectMes.options).some(opt => opt.value === mesAtual)) {
+                selectMes.value = mesAtual;
+            } else {
+                selectMes.value = "todos";
+            }
+        }
+
         window.mudarAba = function(aba) {
             const views = ['dashboard', 'caixa', 'estoque', 'custos'];
             views.forEach(v => {
@@ -564,11 +624,10 @@
             const custoIngredientesTotal = custoFruta + custoRecheio + custoCobertura;
             const embalagem = insumosBase['Embalagem (un)'].valor;
             const adesivo = insumosBase['Adesivos (un)'].valor;
-            const maoDeObra = insumosBase['Mão de Obra'].valor; // R$ 4,00 por bombom
+            const maoDeObra = insumosBase['Mão de Obra'].valor;
 
             const custoTotalProducao = custoIngredientesTotal + embalagem + adesivo + maoDeObra;
 
-            // Preço de venda padrão praticado
             let precoVenda = 10.00;
             if (coberturaVal === 'calda') precoVenda = 12.00;
             if (coberturaVal === 'cravejado' || (recheioKey === 'Recheio Maracujá')) precoVenda = 15.00;
@@ -576,7 +635,6 @@
             const lucroReal = precoVenda - custoTotalProducao;
             const margemLucro = custoTotalProducao > 0 ? ((lucroReal / custoTotalProducao) * 100).toFixed(0) : 0;
 
-            // Atualiza os cards de resumo
             document.getElementById('resumo-custo-ingredientes').innerText = custoIngredientesTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-extras').innerText = (embalagem + adesivo + maoDeObra).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-total').innerText = custoTotalProducao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -584,7 +642,6 @@
             document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
             document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margemLucro}%`;
 
-            // Renderiza a tabela exatamente no formato solicitado
             let htmlTabela = `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
                     <td class="py-3 px-2 font-semibold text-duda-brown">Fruta (${frutaKey})</td>
@@ -829,18 +886,23 @@
                 snapshot.forEach((docSnap) => {
                     listaCaixaMemoria.push({ id: docSnap.id, ...docSnap.data() });
                 });
+                sincronizarOpcoesMes(listaCaixaMemoria);
                 aplicarFiltrosCaixa();
             });
         }
 
         window.aplicarFiltrosCaixa = function() {
+            const mesFiltro = document.getElementById('filtro-mes')?.value || 'todos';
             const tipoFiltro = document.getElementById('filtro-tipo').value;
             const categoriaFiltro = document.getElementById('filtro-categoria').value;
+            const termoBusca = normalizarBusca(document.getElementById('busca-caixa')?.value || '');
 
             let dadosFiltrados = listaCaixaMemoria.filter(item => {
-                let matchTipo = (tipoFiltro === 'todos' || item.tipo === tipoFiltro);
-                let matchCategoria = (categoriaFiltro === 'todas' || item.categoria === categoriaFiltro);
-                return matchTipo && matchCategoria;
+                const matchMes = (mesFiltro === 'todos' || obterChaveMes(item.data) === mesFiltro);
+                const matchTipo = (tipoFiltro === 'todos' || item.tipo === tipoFiltro);
+                const matchCategoria = (categoriaFiltro === 'todas' || item.categoria === categoriaFiltro);
+                const matchBusca = (!termoBusca || normalizarBusca(item.descricao || '').includes(termoBusca));
+                return matchMes && matchTipo && matchCategoria && matchBusca;
             });
 
             renderizarTabelaCaixa(dadosFiltrados);
@@ -852,8 +914,8 @@
             tbody.innerHTML = '';
 
             if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado.</td></tr>`;
-                calcularTotaisCaixa(listaCaixaMemoria);
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros atuais.</td></tr>`;
+                calcularTotaisCaixa(dados);
                 return;
             }
 
@@ -899,7 +961,7 @@
                 tbody.appendChild(tr);
             });
 
-            calcularTotaisCaixa(listaCaixaMemoria);
+            calcularTotaisCaixa(dados);
         };
 
         function calcularTotaisCaixa(dados) {
