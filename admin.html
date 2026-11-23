@@ -252,22 +252,22 @@
             </div>
 
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-table text-duda-red"></i> Controle Financeiro com Status
-                        </h2>
-                        <p class="text-xs text-gray-500 font-medium">Separe por mês, busque por descrição e controle o status (Pendente, Pago ou 50%).</p>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        <div class="relative flex-1 sm:flex-initial min-w-[210px]">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-3 flex-1">
+                        <div class="relative flex-1 min-w-[200px] max-w-xs">
                             <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
                             <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento (ex: venda alice)..." class="w-full bg-duda-cream pl-10 pr-3.5 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
                         </div>
 
                         <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
                             <option value="todos">📅 Todos os meses</option>
+                        </select>
+
+                        <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="todos">💳 Todos os status</option>
+                            <option value="pago">✅ Pago integral</option>
+                            <option value="50porcento">⚡ Pago 50%</option>
+                            <option value="pendente">⏳ Ainda não pagou</option>
                         </select>
 
                         <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
@@ -285,11 +285,11 @@
                             <option value="Marketing">📢 Marketing</option>
                             <option value="Outros">⚙️ Outros</option>
                         </select>
-
-                        <button onclick="adicionarLancamentoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                            <i class="ph ph-plus-circle text-lg"></i> Novo Lançamento
-                        </button>
                     </div>
+
+                    <button onclick="adicionarLancamentoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
+                        <i class="ph ph-plus-circle text-lg"></i> Novo Lançamento
+                    </button>
                 </div>
 
                 <div class="overflow-x-auto border border-gray-200 rounded-2xl">
@@ -893,16 +893,19 @@
 
         window.aplicarFiltrosCaixa = function() {
             const mesFiltro = document.getElementById('filtro-mes')?.value || 'todos';
+            const statusFiltro = document.getElementById('filtro-status')?.value || 'todos';
             const tipoFiltro = document.getElementById('filtro-tipo').value;
             const categoriaFiltro = document.getElementById('filtro-categoria').value;
             const termoBusca = normalizarBusca(document.getElementById('busca-caixa')?.value || '');
 
             let dadosFiltrados = listaCaixaMemoria.filter(item => {
+                const statusItem = item.statusPagamento || 'pendente';
                 const matchMes = (mesFiltro === 'todos' || obterChaveMes(item.data) === mesFiltro);
+                const matchStatus = (statusFiltro === 'todos' || statusItem === statusFiltro);
                 const matchTipo = (tipoFiltro === 'todos' || item.tipo === tipoFiltro);
                 const matchCategoria = (categoriaFiltro === 'todas' || item.categoria === categoriaFiltro);
                 const matchBusca = (!termoBusca || normalizarBusca(item.descricao || '').includes(termoBusca));
-                return matchMes && matchTipo && matchCategoria && matchBusca;
+                return matchMes && matchStatus && matchTipo && matchCategoria && matchBusca;
             });
 
             renderizarTabelaCaixa(dadosFiltrados);
