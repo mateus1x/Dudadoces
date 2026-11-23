@@ -649,7 +649,7 @@
        window.finalizeOrderWpp = async function() {
             const name = document.getElementById('client-name').value.trim();
             const phoneInput = document.getElementById('client-phone').value.trim();
-            const phone = phoneInput.replace(/\D/g, ''); // Remove máscara e deixa só números
+            const phone = phoneInput.replace(/\D/g, '');
             const deliveryType = document.getElementById('delivery-type').value;
             const paymentMethod = document.getElementById('payment-method').value;
 
@@ -703,13 +703,11 @@
             };
 
             try {
-                // Salva o pedido e captura o ID gerado
                 const pedidoRef = await addDoc(collection(db, "pedidos"), dadosPedido);
                 const pedidoId = pedidoRef.id;
 
-                // Salva no fluxo de caixa já vinculado ao ID do pedido
                 await addDoc(collection(db, "fluxo_caixa"), {
-                    pedidoId: pedidoId, // 🔗 Vínculo criado aqui!
+                    pedidoId: pedidoId,
                     data: dataHoje,
                     descricao: `Venda p/ ${name} (${deliveryType === 'entrega' ? 'Entrega' : 'Retirada'})`,
                     categoria: 'Vendas',
@@ -741,8 +739,6 @@
             message += `Aguardando confirmação! ✨`;
 
             const encodedMessage = encodeURIComponent(message);
-            
-            // Força a abertura universal do WhatsApp (funciona melhor em celulares Android e iOS)
             const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
             
             cart = [];
@@ -750,9 +746,9 @@
             updateCartUI();
             toggleCart();
 
-            // Abre o WhatsApp redirecionando a página atual de forma segura para o celular
             window.location.href = wppUrl;
         };
+
         window.addEventListener('load', () => {
             renderProducts();
             initCarousel();
@@ -815,6 +811,44 @@
             "Uva-chocolate-branco": 10.00, "Uva-chocolate-chocolate": 10.00, "Uva-chocolate-calda": 12.00, "Uva-chocolate-cravejado": 15.00,
             "Uva-maracujá-branco": 12.00, "Uva-maracujá-chocolate": 12.00, "Uva-maracujá-calda": 15.00, "Uva-maracujá-cravejado": 15.00
         };
+
+        // Mapa de fotos (.jpeg) por combinação: fruta -> recheio -> cobertura
+        const FOTOS_BOMBOM = {
+            "morango-ninho-branco": "Morango Ninho Branco.jpeg",
+            "morango-ninho-chocolate": "Morango Ninho Chocolate.jpeg",
+            "morango-ninho-calda": "Morango Ninho Amor.jpeg",
+            "morango-ninho-cravejado": "Morango Ninho Cravejado.jpeg",
+
+            "morango-chocolate-branco": "Morango Chocolate Branco.jpeg",
+            "morango-chocolate-chocolate": "Morango Chocolate Chocolate.jpeg",
+            "morango-chocolate-calda": "Morango Chocolate Amor.jpeg",
+            "morango-chocolate-cravejado": "Morango Chocolate Cravejado.jpeg",
+
+            "morango-maracujá-branco": "Morango Maracujá Branco.jpeg",
+            "morango-maracujá-chocolate": "Morango Maracujá Chocolate.jpeg",
+            "morango-maracujá-calda": "Morango Maracujá Amor.jpeg",
+            "morango-maracujá-cravejado": "Morango Maracujá Cravejado.jpeg",
+
+            "uva-ninho-branco": "Uva Ninho Branco.jpeg",
+            "uva-ninho-chocolate": "Uva Ninho Chocolate.jpeg",
+            "uva-ninho-calda": "Uva Ninho Amor.jpeg",
+            "uva-ninho-cravejado": "Uva Ninho Cravejado.jpeg",
+
+            "uva-chocolate-branco": "Uva Chocolate Branco.jpeg",
+            "uva-chocolate-chocolate": "Uva Chocolate Chocolate.jpeg",
+            "uva-chocolate-calda": "Uva Chocolate Amor.jpeg",
+            "uva-chocolate-cravejado": "Uva Chocolate Cravejado.jpeg",
+
+            "uva-maracujá-branco": "Uva Maracujá Branco.jpeg",
+            "uva-maracujá-chocolate": "Uva Maracujá Chocolate.jpeg",
+            "uva-maracujá-calda": "Uva Maracujá Amor.jpeg",
+            "uva-maracujá-cravejado": "Uva Maracujá Cravejado.jpeg"
+        };
+
+        function getCustomBombomImage(fruta, recheio, cobertura) {
+            const key = `${fruta}-${recheio}-${cobertura}`.toLowerCase();
+            return FOTOS_BOMBOM[key] || "logo.png";
+        }
 
         let currentCartStep = 'items';
         let currentSlide = 0;
@@ -954,7 +988,7 @@
             const price = updateCustomBombomTotal();
             const id = `custom-${customBombom.fruta}-${customBombom.recheio}-${customBombom.cobertura}`;
             const name = `Bombom Personalizado (${customBombom.fruta} + ${customBombom.recheio} + ${customBombom.cobertura})`;
-            const image = "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"; 
+            const image = getCustomBombomImage(customBombom.fruta, customBombom.recheio, customBombom.cobertura);
 
             const existingItem = cart.find(item => item.id === id);
             if (existingItem) {
@@ -1172,7 +1206,7 @@
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
-        // 📌 Cole a máscara do telefone aqui em qualquer lugar dentro do <script>
+
         document.addEventListener('DOMContentLoaded', () => {
             const inputPhone = document.getElementById('client-phone');
             if (inputPhone) {
