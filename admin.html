@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Administrativo - Duda Doces</title>
-    <link rel="icon" type="image/png" href="Morango.png">
-    <link rel="apple-touch-icon" href="Morango.png">
-    
+    <link rel="icon" type="image/png" href="Morango%20sem%20fundo.png">
+    <link rel="apple-touch-icon" href="Morango%20sem%20fundo.png">
+
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -36,10 +36,10 @@
             }
         }
     </script>
-    
+
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -74,413 +74,487 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- Header do Painel com 4 Abas -->
-    <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
-                <div class="flex items-center gap-3">
-                    <img class="h-12 w-auto object-contain" src="logo.png" alt="Duda Doces Logo">
-                    <div>
-                        <h1 class="font-bold text-lg sm:text-xl text-duda-brown tracking-tight">Painel Duda Doces</h1>
-                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Gestão Integrada em Tempo Real</span>
-                    </div>
-                </div>
-
-                <!-- Abas de Navegação -->
-                <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap justify-center">
-                    <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
-                        <i class="ph ph-chart-line-up text-base"></i> Dashboard
-                    </button>
-                    <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                        <i class="ph ph-wallet text-base"></i> Caixa
-                    </button>
-                    <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                        <i class="ph ph-package text-base"></i> Estoque
-                    </button>
-                    <button onclick="mudarAba('custos')" id="tab-btn-custos" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                        <i class="ph ph-calculator text-base"></i> Calculadora
-                    </button>
-                </div>
-
-                <div class="hidden md:flex items-center gap-2">
-                    <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-duda-cream px-4 py-2.5 rounded-xl border border-duda-pink/30">
-                        <i class="ph ph-storefront text-lg"></i> Ver Loja
-                    </a>
-                </div>
+    <!-- Tela de Bloqueio / Acesso Rápido -->
+    <div id="auth-gate" class="fixed inset-0 z-50 bg-duda-cream flex items-center justify-center p-4">
+        <div class="bg-white max-w-sm w-full p-8 rounded-3xl shadow-premium border border-duda-pink/40 text-center space-y-6">
+            <img class="h-14 w-auto object-contain mx-auto" src="logo.png" alt="Duda Doces Logo">
+            <div class="space-y-1">
+                <h2 class="text-xl font-extrabold text-duda-brown tracking-tight">Acesso Restrito</h2>
+                <p class="text-xs text-gray-500 font-medium">Digite sua senha/PIN para abrir o Painel Duda Doces.</p>
             </div>
+
+            <form id="form-login-painel" class="space-y-4">
+                <input type="password" id="input-senha-painel" autocomplete="current-password" placeholder="Digite a senha do painel..." class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-center text-sm font-bold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
+                <p id="erro-login-painel" class="text-xs font-semibold text-red-600 hidden">Senha incorreta. Tente novamente.</p>
+                <button type="submit" class="w-full bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-sm">
+                    Entrar no Painel
+                </button>
+            </form>
+
+            <a href="index.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-duda-red transition-colors">
+                <i class="ph ph-arrow-left"></i> Voltar para a loja
+            </a>
         </div>
-    </header>
+    </div>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Conteúdo Principal (Oculto até autenticar) -->
+    <div id="painel-protegido" class="hidden flex-1 flex flex-col">
 
-        <!-- ================= ABA 1: DASHBOARD ================= -->
-        <div id="view-dashboard" class="space-y-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                        <i class="ph ph-currency-dollar"></i>
+        <!-- Header do Painel com 4 Abas -->
+        <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
+                    <div class="flex items-center gap-3">
+                        <img class="h-12 w-auto object-contain" src="logo.png" alt="Duda Doces Logo">
+                        <div>
+                            <h1 class="font-bold text-lg sm:text-xl text-duda-brown tracking-tight">Painel Duda Doces</h1>
+                            <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Gestão Integrada em Tempo Real</span>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento Total</p>
-                        <h3 id="stat-faturamento" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
-                    </div>
-                </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                        <i class="ph ph-shopping-bag"></i>
+                    <!-- Abas de Navegação -->
+                    <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap justify-center">
+                        <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
+                            <i class="ph ph-chart-line-up text-base"></i> Dashboard
+                        </button>
+                        <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                            <i class="ph ph-wallet text-base"></i> Caixa
+                        </button>
+                        <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                            <i class="ph ph-package text-base"></i> Estoque
+                        </button>
+                        <button onclick="mudarAba('custos')" id="tab-btn-custos" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                            <i class="ph ph-calculator text-base"></i> Calculadora
+                        </button>
                     </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Pedidos</p>
-                        <h3 id="stat-pedidos" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
-                    </div>
-                </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                        <i class="ph ph-users"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Visitantes Únicos</p>
-                        <h3 id="stat-visitantes" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                        <i class="ph ph-eye"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acessos Totais</p>
-                        <h3 id="stat-acessos-totais" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                    <div class="hidden md:flex items-center gap-2">
+                        <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-duda-cream px-4 py-2.5 rounded-xl border border-duda-pink/30">
+                            <i class="ph ph-storefront text-lg"></i> Ver Loja
+                        </a>
+                        <button onclick="bloquearPainel()" class="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-red-600 transition-all bg-gray-100 px-3.5 py-2.5 rounded-xl" title="Bloquear Painel">
+                            <i class="ph ph-lock-key text-lg"></i> Sair
+                        </button>
                     </div>
                 </div>
             </div>
+        </header>
 
-            <!-- Gráfico Misto -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-chart-line-up text-duda-red"></i> Acessos Diários
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+            <!-- ================= ABA 1: DASHBOARD ================= -->
+            <div id="view-dashboard" class="space-y-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-currency-dollar"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento Total</p>
+                            <h3 id="stat-faturamento" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-shopping-bag"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Pedidos</p>
+                            <h3 id="stat-pedidos" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-users"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Visitantes Únicos</p>
+                            <h3 id="stat-visitantes" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-eye"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acessos Totais</p>
+                            <h3 id="stat-acessos-totais" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico Misto -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-chart-line-up text-duda-red"></i> Acessos Diários
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Fluxo de visitas ao site.</p>
+                        </div>
+                    </div>
+                    <div class="relative h-80 w-full">
+                        <canvas id="accessChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tabela de Pedidos e Inativos -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                        <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
+                            <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Fluxo de visitas ao site.</p>
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <th class="pb-3 px-2">Cliente</th>
+                                        <th class="pb-3 px-2">Tipo</th>
+                                        <th class="pb-3 px-2">Pagamento</th>
+                                        <th class="pb-3 px-2">Total</th>
+                                        <th class="pb-3 px-2">Data</th>
+                                        <th class="pb-3 px-2 w-16 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50 font-medium">
+                                    <tr><td colspan="6" class="text-center py-6 text-gray-400">Carregando pedidos...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                <div class="relative h-80 w-full">
-                    <canvas id="accessChart"></canvas>
+
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Reengajamento
+                            </h2>
+                            <select id="filtro-dias-inativos" onchange="atualizarListaInativos()" class="bg-duda-cream text-xs font-bold text-duda-brown p-2 rounded-xl border border-duda-pink/40 outline-none cursor-pointer">
+                                <option value="15">+ de 15 dias</option>
+                                <option value="20">+ de 20 dias</option>
+                                <option value="30" selected>+ de 30 dias</option>
+                                <option value="45">+ de 45 dias</option>
+                                <option value="60">+ de 60 dias</option>
+                            </select>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-4 font-medium">Clientes sem comprar há mais de X dias.</p>
+
+                        <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[320px] no-scrollbar">
+                            <div class="text-center py-8 text-gray-400 text-sm">Carregando...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tabela de Pedidos e Inativos -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
-                    <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
-                        <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes
-                    </h2>
-                    <div class="overflow-x-auto flex-1">
+            <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
+            <div id="view-caixa" class="space-y-8 hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-arrow-circle-down"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas (Lucros)</p>
+                            <h3 id="resumo-entradas" class="text-2xl font-bold text-green-600 mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-arrow-circle-up"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Saídas (Despesas)</p>
+                            <h3 id="resumo-saidas" class="text-2xl font-bold text-red-600 mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-wallet"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Líquido</p>
+                            <h3 id="resumo-saldo" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-3 flex-1">
+                            <div class="relative flex-1 min-w-[200px] max-w-xs">
+                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
+                                <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento (ex: venda alice)..." class="w-full bg-duda-cream pl-10 pr-3.5 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                            </div>
+
+                            <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">📅 Todos os meses</option>
+                            </select>
+
+                            <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">💳 Todos os status</option>
+                                <option value="pago">✅ Pago integral</option>
+                                <option value="50porcento">⚡ Pago 50%</option>
+                                <option value="pendente">⏳ Ainda não pagou</option>
+                            </select>
+
+                            <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">📊 Todos os Tipos</option>
+                                <option value="entrada">🟢 Entradas (Lucros)</option>
+                                <option value="saida">🔴 Saídas (Despesas)</option>
+                            </select>
+
+                            <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todas">🏷️ Todas as Categorias</option>
+                                <option value="Vendas">💰 Vendas</option>
+                                <option value="Ingredientes">🍓 Ingredientes</option>
+                                <option value="Embalagens">📦 Embalagens</option>
+                                <option value="Transporte">🚗 Transporte</option>
+                                <option value="Marketing">📢 Marketing</option>
+                                <option value="Outros">⚙️ Outros</option>
+                            </select>
+                        </div>
+
+                        <button onclick="adicionarLancamentoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
+                            <i class="ph ph-plus-circle text-lg"></i> Novo Lançamento
+                        </button>
+                    </div>
+
+                    <!-- Resumo Mensal Rápido -->
+                    <div id="resumo-mensal-bar" class="bg-duda-cream/70 border border-duda-pink/30 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-duda-brown">
+                        <span id="resumo-mes-titulo" class="font-bold text-duda-red">📅 Período: Todos os meses</span>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <span id="resumo-mes-vendas" class="text-green-700">Entradas: R$ 0,00</span>
+                            <span id="resumo-mes-gastos" class="text-red-700">Saídas: R$ 0,00</span>
+                            <span id="resumo-mes-saldo" class="text-duda-brown font-bold">Saldo: R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                    <th class="pb-3 px-2">Cliente</th>
-                                    <th class="pb-3 px-2">Tipo</th>
-                                    <th class="pb-3 px-2">Pagamento</th>
-                                    <th class="pb-3 px-2">Total</th>
-                                    <th class="pb-3 px-2">Data</th>
-                                    <th class="pb-3 px-2 w-16 text-center">Ações</th>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 w-32">Data</th>
+                                    <th class="py-3.5 px-4">Descrição / Histórico</th>
+                                    <th class="py-3.5 px-4 w-36">Categoria</th>
+                                    <th class="py-3.5 px-4 w-32">Tipo</th>
+                                    <th class="py-3.5 px-4 w-32">Valor (R$)</th>
+                                    <th class="py-3.5 px-4 w-40">Status Pagamento</th>
+                                    <th class="py-3.5 px-4 w-16 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50 font-medium">
-                                <tr><td colspan="6" class="text-center py-6 text-gray-400">Carregando pedidos...</td></tr>
+                            <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100 font-medium">
+                                <tr><td colspan="7" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-lg font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Reengajamento
-                        </h2>
-                        <select id="filtro-dias-inativos" onchange="atualizarListaInativos()" class="bg-duda-cream text-xs font-bold text-duda-brown p-2 rounded-xl border border-duda-pink/40 outline-none cursor-pointer">
-                            <option value="15">+ de 15 dias</option>
-                            <option value="20">+ de 20 dias</option>
-                            <option value="30" selected>+ de 30 dias</option>
-                            <option value="45">+ de 45 dias</option>
-                            <option value="60">+ de 60 dias</option>
-                        </select>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-4 font-medium">Clientes sem comprar há mais de X dias.</p>
-                    
-                    <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[320px] no-scrollbar">
-                        <div class="text-center py-8 text-gray-400 text-sm">Carregando...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
-        <div id="view-caixa" class="space-y-8 hidden">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-2xl font-bold">
-                        <i class="ph ph-arrow-circle-down"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas (Lucros)</p>
-                        <h3 id="resumo-entradas" class="text-2xl font-bold text-green-600 mt-0.5 tracking-tight">R$ 0,00</h3>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-2xl font-bold">
-                        <i class="ph ph-arrow-circle-up"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Saídas (Despesas)</p>
-                        <h3 id="resumo-saidas" class="text-2xl font-bold text-red-600 mt-0.5 tracking-tight">R$ 0,00</h3>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
-                        <i class="ph ph-wallet"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Líquido</p>
-                        <h3 id="resumo-saldo" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
-                    </div>
-                </div>
             </div>
 
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex flex-wrap items-center gap-3 flex-1">
-                        <div class="relative flex-1 min-w-[200px] max-w-xs">
-                            <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
-                            <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento (ex: venda alice)..." class="w-full bg-duda-cream pl-10 pr-3.5 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+            <!-- ================= ABA 3: CONTROLE DE ESTOQUE ================= -->
+            <div id="view-estoque" class="space-y-8 hidden">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-package text-duda-red"></i> Controle de Estoque & Compras
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
                         </div>
-
-                        <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="todos">📅 Todos os meses</option>
-                        </select>
-
-                        <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="todos">💳 Todos os status</option>
-                            <option value="pago">✅ Pago integral</option>
-                            <option value="50porcento">⚡ Pago 50%</option>
-                            <option value="pendente">⏳ Ainda não pagou</option>
-                        </select>
-
-                        <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="todos">📊 Todos os Tipos</option>
-                            <option value="entrada">🟢 Entradas (Lucros)</option>
-                            <option value="saida">🔴 Saídas (Despesas)</option>
-                        </select>
-
-                        <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="todas">🏷️ Todas as Categorias</option>
-                            <option value="Vendas">💰 Vendas</option>
-                            <option value="Ingredientes">🍓 Ingredientes</option>
-                            <option value="Embalagens">📦 Embalagens</option>
-                            <option value="Transporte">🚗 Transporte</option>
-                            <option value="Marketing">📢 Marketing</option>
-                            <option value="Outros">⚙️ Outros</option>
-                        </select>
+                        <div class="flex items-center gap-3">
+                            <button onclick="adicionarItemEstoque()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph ph-plus-circle text-lg"></i> Adicionar Item
+                            </button>
+                        </div>
                     </div>
 
-                    <button onclick="adicionarLancamentoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
-                        <i class="ph ph-plus-circle text-lg"></i> Novo Lançamento
-                    </button>
-                </div>
-
-                <div class="overflow-x-auto border border-gray-200 rounded-2xl">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                <th class="py-3.5 px-4 w-32">Data</th>
-                                <th class="py-3.5 px-4">Descrição / Histórico</th>
-                                <th class="py-3.5 px-4 w-36">Categoria</th>
-                                <th class="py-3.5 px-4 w-32">Tipo</th>
-                                <th class="py-3.5 px-4 w-32">Valor (R$)</th>
-                                <th class="py-3.5 px-4 w-40">Status Pagamento</th>
-                                <th class="py-3.5 px-4 w-16 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100 font-medium">
-                            <tr><td colspan="7" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= ABA 3: CONTROLE DE ESTOQUE ================= -->
-        <div id="view-estoque" class="space-y-8 hidden">
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-package text-duda-red"></i> Controle de Estoque & Compras
-                        </h2>
-                        <p class="text-xs text-gray-500 font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="adicionarItemEstoque()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                            <i class="ph ph-plus-circle text-lg"></i> Adicionar Item
-                        </button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto border border-gray-200 rounded-2xl">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                <th class="py-3.5 px-4">Ingrediente / Item</th>
-                                <th class="py-3.5 px-4 w-48">Unidade de Medida</th>
-                                <th class="py-3.5 px-4 w-52">Status no Estoque</th>
-                                <th class="py-3.5 px-4 w-20 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-estoque-body" class="text-sm divide-y divide-gray-100 font-medium">
-                            <tr><td colspan="4" class="text-center py-8 text-gray-400">Carregando estoque...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= ABA 4: CALCULADORA DE CUSTOS ================= -->
-        <div id="view-custos" class="space-y-8 hidden">
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categoria de Produto</label>
-                    <select id="categoria-produto" onchange="mudarCategoria()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                        <option value="bombom">🍫 Bombom Gourmet no Pote</option>
-                        <option value="brownie">🟫 Ficha Técnica de Brownies</option>
-                    </select>
-                </div>
-
-                <div id="container-select-bombom" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fruta Base</label>
-                        <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="morango">Morango</option>
-                            <option value="uva">Uva</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recheio</label>
-                        <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="ninho">Brigadeiro de Ninho</option>
-                            <option value="chocolate">Brigadeiro de Chocolate</option>
-                            <option value="maracuja">Brigadeiro de Maracujá</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cobertura</label>
-                        <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                            <option value="branco">Chocolate Branco</option>
-                            <option value="preto">Chocolate Preto</option>
-                            <option value="calda">Calda Vermelha (Amor)</option>
-                            <option value="cravejado">Cravejado Especial</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="container-select-brownie" class="md:col-span-2 hidden">
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Selecionar Tipo de Brownie</label>
-                    <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                        <option value="tradicional">Brownie Tradicional (Unidade)</option>
-                        <option value="bite">Brownie Bite (Unidade Avulsa)</option>
-                        <option value="pacote8">Pacote com 8 Bites</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                        <i class="ph ph-receipt text-duda-red"></i> Resumo de Blocos da Ficha Técnica
-                    </h2>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                    <th class="pb-3 px-2">Bloco de Insumo / Componente</th>
-                                    <th class="pb-3 px-2">Especificação</th>
-                                    <th class="pb-3 px-2">Valor Total Gasto</th>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4">Ingrediente / Item</th>
+                                    <th class="py-3.5 px-4 w-48">Unidade de Medida</th>
+                                    <th class="py-3.5 px-4 w-52">Status no Estoque</th>
+                                    <th class="py-3.5 px-4 w-20 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-ingredientes-detalhe" class="text-sm divide-y divide-gray-50 font-medium"></tbody>
+                            <tbody id="tabela-estoque-body" class="text-sm divide-y divide-gray-100 font-medium">
+                                <tr><td colspan="4" class="text-center py-8 text-gray-400">Carregando estoque...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
-
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col justify-between space-y-6">
-                    <div>
-                        <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-currency-dollar text-duda-red"></i> Resumo de Custos
-                        </h2>
-                        
-                        <div class="space-y-4">
-                            <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
-                                <span class="text-xs font-bold text-gray-500 uppercase">Custo de Ingredientes (por bombom)</span>
-                                <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-base">R$ 0,00</span>
-                            </div>
-                            <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
-                                <span class="text-xs font-bold text-gray-500 uppercase">Embalagens, Adesivos & Mão de Obra</span>
-                                <span id="resumo-custo-extras" class="font-bold text-duda-brown text-base">R$ 0,00</span>
-                            </div>
-                            <div class="bg-duda-red/10 p-5 rounded-2xl border border-duda-red/30 flex justify-between items-center">
-                                <span class="text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total por Bombom</span>
-                                <span id="resumo-custo-total" class="font-extrabold text-duda-red text-xl">R$ 0,00</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-duda-brown text-duda-cream p-6 rounded-2xl space-y-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Praticado</span>
-                        <div class="flex justify-between items-baseline">
-                            <h3 id="resumo-preco-sugerido" class="text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
-                            <span id="resumo-lucro-estimado" class="text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
-                        </div>
-                        <p id="resumo-margem" class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Margem de Lucro: 0%</p>
-                    </div>
-                </div>
             </div>
 
-            <!-- SIMULADOR & GESTÃO DE PREÇOS INTEGRADA -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <!-- ================= ABA 4: CALCULADORA DE CUSTOS & PREÇOS DA LOJA ================= -->
+            <div id="view-custos" class="space-y-8 hidden">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categoria de Produto</label>
+                        <select id="categoria-produto" onchange="mudarCategoria()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="bombom">🍫 Bombom Gourmet no Pote</option>
+                            <option value="brownie">🟫 Ficha Técnica de Brownies</option>
+                        </select>
+                    </div>
+
+                    <div id="container-select-bombom" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fruta Base</label>
+                            <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="morango">Morango</option>
+                                <option value="uva">Uva</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recheio</label>
+                            <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="ninho">Brigadeiro de Ninho</option>
+                                <option value="chocolate">Brigadeiro de Chocolate</option>
+                                <option value="maracuja">Brigadeiro de Maracujá</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cobertura</label>
+                            <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="branco">Chocolate Branco</option>
+                                <option value="preto">Chocolate Preto</option>
+                                <option value="calda">Calda Vermelha (Amor)</option>
+                                <option value="cravejado">Cravejado Especial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="container-select-brownie" class="md:col-span-2 hidden">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Selecionar Tipo de Brownie</label>
+                        <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="tradicional">Brownie Tradicional (Unidade)</option>
+                            <option value="bite">Brownie Bite (Unidade Avulsa)</option>
+                            <option value="pacote8">Pacote com 8 Bites</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
                         <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-sliders text-duda-red"></i> Simulador de Preços de Blocos e Insumos
+                            <i class="ph ph-receipt text-duda-red"></i> Resumo de Blocos da Ficha Técnica
                         </h2>
-                        <p class="text-xs text-gray-500 font-medium">Altere o valor do bloco ou insumo base para atualizar a calculadora instantaneamente.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <th class="pb-3 px-2">Bloco de Insumo / Componente</th>
+                                        <th class="pb-3 px-2">Especificação</th>
+                                        <th class="pb-3 px-2">Valor Total Gasto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-ingredientes-detalhe" class="text-sm divide-y divide-gray-50 font-medium"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <button onclick="salvarNovosPrecosInsumos()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                        <i class="ph ph-floppy-disk text-lg"></i> Salvar Novos Preços
-                    </button>
+
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col justify-between space-y-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-currency-dollar text-duda-red"></i> Resumo de Custos
+                            </h2>
+
+                            <div class="space-y-4">
+                                <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
+                                    <span class="text-xs font-bold text-gray-500 uppercase">Custo de Ingredientes (por bombom)</span>
+                                    <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                                </div>
+                                <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
+                                    <span class="text-xs font-bold text-gray-500 uppercase">Embalagens, Adesivos & Mão de Obra</span>
+                                    <span id="resumo-custo-extras" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                                </div>
+                                <div class="bg-duda-red/10 p-5 rounded-2xl border border-duda-red/30 flex justify-between items-center">
+                                    <span class="text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total por Bombom</span>
+                                    <span id="resumo-custo-total" class="font-extrabold text-duda-red text-xl">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-duda-brown text-duda-cream p-6 rounded-2xl space-y-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Praticado</span>
+                            <div class="flex justify-between items-baseline">
+                                <h3 id="resumo-preco-sugerido" class="text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
+                                <span id="resumo-lucro-estimado" class="text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
+                            </div>
+                            <p id="resumo-margem" class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Margem de Lucro: 0%</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="simulador-inputs"></div>
+                <!-- SIMULADOR & GESTÃO DE PREÇOS DE INSUMOS -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-sliders text-duda-red"></i> Simulador de Preços de Blocos e Insumos
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Altere o valor do bloco ou insumo base e salve para persistir no Firebase.</p>
+                        </div>
+                        <button onclick="salvarNovosPrecosInsumos()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-floppy-disk text-lg"></i> Salvar Custos
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="simulador-inputs"></div>
+                </div>
+
+                <!-- PREÇOS OFICIAIS DA LOJA (INDEX.HTML) EM TEMPO REAL -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-tag text-duda-red"></i> Preços da Loja (index.html) em Tempo Real
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Altere o preço de venda aqui e salve para atualizar automaticamente os preços exibidos na loja.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="adicionarProdutoCatalogo()" class="bg-duda-cream hover:bg-duda-pink/30 text-duda-brown text-sm font-semibold px-4 py-2.5 rounded-xl border border-duda-pink/40 transition-all flex items-center gap-2">
+                                <i class="ph ph-plus text-base"></i> Novo Item
+                            </button>
+                            <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph ph-floppy-disk text-lg"></i> Salvar Preços da Loja
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 w-44">ID / Chave (index)</th>
+                                    <th class="py-3.5 px-4">Nome do Produto na Loja</th>
+                                    <th class="py-3.5 px-4 w-44">Preço Venda (R$)</th>
+                                    <th class="py-3.5 px-4 w-16 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-catalogo-body" class="text-sm divide-y divide-gray-100 font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
 
-    </main>
+        </main>
 
-    <!-- Rodapé -->
-    <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75 font-medium">
-        <p>© 2026 Duda Doces • Painel Integrado em Tempo Real</p>
-    </footer>
+        <!-- Rodapé -->
+        <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75 font-medium">
+            <p>© 2026 Duda Doces • Painel Integrado em Tempo Real</p>
+        </footer>
+    </div>
 
     <div id="toast" style="visibility:hidden; min-width:250px; background:#3A201E; color:#fff; text-align:center; border-radius:30px; padding:12px; position:fixed; z-index:1000; left:50%; bottom:30px; transform:translateX(-50%); font-size:14px; font-family:'Inter', sans-serif;"></div>
 
     <!-- Script Principal Unificado -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -494,6 +568,11 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Senha padrão caso ainda não exista senha configurada no Firestore
+        const SENHA_PADRAO_ADMIN = "1234";
+        let senhaAdminAtual = SENHA_PADRAO_ADMIN;
+        let painelInicializado = false;
 
         let myChart = null;
         let listaCaixaMemoria = [];
@@ -521,7 +600,6 @@
             { nome: 'Uva', medida: '500 g', status: 'cheio' }
         ];
 
-        // --- BLOCOS PRONTOS BASEADOS NA SUA PLANILHA DE BOMBONS (COM MÃO DE OBRA R$ 4,00) ---
         let insumosBase = {
             'Fruta Morango': { valor: 0.67, desc: 'Por unidade' },
             'Fruta Uva': { valor: 0.44, desc: 'Por unidade' },
@@ -540,6 +618,65 @@
             'Mão de Obra': { valor: 4.00, desc: 'Taxa fixa por bombom' }
         };
 
+        let catalogoLoja = [
+            { id: 'brownie-bite', nome: 'Brownie Bite (Unidade)', preco: 3.50 },
+            { id: 'brownie-pacote-8', nome: 'Pacote com 8 Brownie Bites', preco: 24.00 },
+            { id: 'brownie-tradicional', nome: 'Brownie Tradicional', preco: 7.00 },
+            { id: 'bombom-morango-ninho', nome: 'Bombom no Pote - Morango com Ninho', preco: 12.00 },
+            { id: 'morango-do-amor', nome: 'Morango do Amor', preco: 12.00 }
+        ];
+
+        // --- CONTROLE DE ACESSO ---
+        async function carregarSenhaAdmin() {
+            try {
+                const snap = await getDoc(doc(db, "configuracoes", "acesso_admin"));
+                if (snap.exists() && snap.data().senha) {
+                    senhaAdminAtual = String(snap.data().senha);
+                }
+            } catch (e) {
+                console.warn("Usando senha padrão local:", e);
+            }
+        }
+
+        function liberarPainel() {
+            sessionStorage.setItem("duda_admin_autenticado", "sim");
+            document.getElementById("auth-gate").classList.add("hidden");
+            document.getElementById("painel-protegido").classList.remove("hidden");
+
+            if (!painelInicializado) {
+                painelInicializado = true;
+                const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
+                mudarAba(abaSalva);
+
+                iniciarOuvinteDashboard();
+                iniciarOuvinteCaixa();
+                iniciarOuvinteEstoque();
+                carregarCustosSalvosFirebase();
+                iniciarOuvinteCatalogo();
+            }
+        }
+
+        window.bloquearPainel = function() {
+            sessionStorage.removeItem("duda_admin_autenticado");
+            document.getElementById("painel-protegido").classList.add("hidden");
+            document.getElementById("auth-gate").classList.remove("hidden");
+            document.getElementById("input-senha-painel").value = "";
+            document.getElementById("erro-login-painel").classList.add("hidden");
+        };
+
+        document.getElementById("form-login-painel").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            await carregarSenhaAdmin();
+            const digitada = document.getElementById("input-senha-painel").value;
+            if (digitada === senhaAdminAtual) {
+                document.getElementById("erro-login-painel").classList.add("hidden");
+                liberarPainel();
+            } else {
+                document.getElementById("erro-login-painel").classList.remove("hidden");
+            }
+        });
+
+        // --- HELPERS ---
         function normalizarBusca(texto = "") {
             return String(texto)
                 .toLowerCase()
@@ -609,7 +746,25 @@
             if(aba === 'dashboard' && myChart) myChart.update();
         };
 
-        // --- CÁLCULO DINÂMICO DOS BOMBONS COM OS BLOCOS DA PLANILHA ---
+        // --- CUSTOS & SINCRONIZAÇÃO COM FIREBASE ---
+        async function carregarCustosSalvosFirebase() {
+            try {
+                const snap = await getDoc(doc(db, "calculo_de_custo", "matriz_custos"));
+                if (snap.exists() && snap.data().insumosBase) {
+                    const salvos = snap.data().insumosBase;
+                    for (const [chave, info] of Object.entries(salvos)) {
+                        if (insumosBase[chave] && typeof info.valor === "number") {
+                            insumosBase[chave].valor = info.valor;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao ler matriz_custos do Firebase:", e);
+            }
+            carregarSimulador();
+            calcularBombom();
+        }
+
         window.calcularBombom = function() {
             const frutaKey = document.getElementById('filtro-fruta').value === 'morango' ? 'Fruta Morango' : 'Fruta Uva';
             const recheioKey = document.getElementById('filtro-recheio').value === 'ninho' ? 'Recheio Ninho' : document.getElementById('filtro-recheio').value === 'chocolate' ? 'Recheio Chocolate' : 'Recheio Maracujá';
@@ -644,7 +799,7 @@
             document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
             document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margemLucro}%`;
 
-            let htmlTabela = `
+            document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
                     <td class="py-3 px-2 font-semibold text-duda-brown">Fruta (${frutaKey})</td>
                     <td class="py-3 px-2 text-gray-600">Por unidade</td>
@@ -671,27 +826,48 @@
                     <td class="py-3 px-2 font-bold text-duda-brown">${maoDeObra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
             `;
-            document.getElementById('tabela-ingredientes-detalhe').innerHTML = htmlTabela;
         };
 
         window.calcularBrownie = function() {
-            document.getElementById('resumo-custo-ingredientes').innerText = "R$ 1,67";
-            document.getElementById('resumo-custo-extras').innerText = "R$ 0,29";
-            document.getElementById('resumo-custo-total').innerText = "R$ 1,96";
-            document.getElementById('resumo-preco-sugerido').innerText = "R$ 7,00";
-            document.getElementById('resumo-lucro-estimado').innerText = "Lucro Real: R$ 5,04";
-            document.getElementById('resumo-margem').innerText = "Margem de Lucro: 257%";
+            const tipo = document.getElementById('filtro-brownie')?.value || 'tradicional';
+            let custoIng = 1.67;
+            let custoExt = 0.29;
+            let preco = 7.00;
+            let spec = "80g";
+
+            if (tipo === 'bite') {
+                custoIng = 0.65;
+                custoExt = 0.15;
+                preco = 3.50;
+                spec = "1 unidade bite";
+            } else if (tipo === 'pacote8') {
+                custoIng = 5.20;
+                custoExt = 0.85;
+                preco = 24.00;
+                spec = "Pacote com 8 unidades";
+            }
+
+            const total = custoIng + custoExt;
+            const lucro = preco - total;
+            const margem = total > 0 ? ((lucro / total) * 100).toFixed(0) : 0;
+
+            document.getElementById('resumo-custo-ingredientes').innerText = custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-extras').innerText = custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-total').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-preco-sugerido').innerText = preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margem}%`;
 
             document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Massa de Brownie (80g)</td>
-                    <td class="py-3 px-2 text-gray-600">80g</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">R$ 1,67</td>
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Massa / Produção Brownie</td>
+                    <td class="py-3 px-2 text-gray-600">${spec}</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Adesivo & Embalagem</td>
-                    <td class="py-3 px-2 text-gray-600">1 un</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">R$ 0,29</td>
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
+                    <td class="py-3 px-2 text-gray-600">Por item/pacote</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
             `;
         };
@@ -734,7 +910,6 @@
                     insumosBase[insumo].valor = parseFloat(inputEl.value) || 0;
                 }
             }
-            
             const cat = document.getElementById('categoria-produto').value;
             if(cat === 'bombom') calcularBombom();
             else calcularBrownie();
@@ -742,20 +917,84 @@
 
         window.salvarNovosPrecosInsumos = async function() {
             atualizarSimuladorLocal();
-
             try {
                 await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
                     insumosBase,
                     atualizadoEm: serverTimestamp()
                 });
-
-                showToast("Preços de insumos salvos e atualizados no Firebase! 🚀");
+                showToast("Custos salvos e sincronizados no Firebase!");
             } catch (e) {
                 console.error("Erro ao salvar novos preços:", e);
-                showToast("Erro ao salvar no Firebase.");
+                showToast("Erro ao salvar custos no Firebase.");
             }
         };
 
+        // --- CATÁLOGO DE PREÇOS DA LOJA (INDEX.HTML) ---
+        function iniciarOuvinteCatalogo() {
+            const docRef = doc(db, "configuracoes", "catalogo_loja");
+            onSnapshot(docRef, (snap) => {
+                if (snap.exists() && Array.isArray(snap.data().itens)) {
+                    catalogoLoja = snap.data().itens;
+                }
+                renderizarTabelaCatalogo();
+            });
+        }
+
+        function renderizarTabelaCatalogo() {
+            const tbody = document.getElementById("tabela-catalogo-body");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            catalogoLoja.forEach((item, idx) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-duda-cream/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4"><input type="text" value="${item.id || ''}" onchange="atualizarItemCatalogo(${idx}, 'id', this.value)" class="font-mono text-xs text-gray-600"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-semibold text-duda-brown"></td>
+                    <td class="py-2.5 px-4"><input type="number" step="0.01" value="${item.preco ?? 0}" onchange="atualizarItemCatalogo(${idx}, 'preco', parseFloat(this.value) || 0)" class="font-bold text-duda-red"></td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="removerItemCatalogo(${idx})" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Remover item">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.atualizarItemCatalogo = function(idx, campo, valor) {
+            if (!catalogoLoja[idx]) return;
+            catalogoLoja[idx][campo] = valor;
+        };
+
+        window.adicionarProdutoCatalogo = function() {
+            catalogoLoja.push({
+                id: `produto-${Date.now().toString().slice(-4)}`,
+                nome: "Novo Produto",
+                preco: 10.00
+            });
+            renderizarTabelaCatalogo();
+        };
+
+        window.removerItemCatalogo = function(idx) {
+            catalogoLoja.splice(idx, 1);
+            renderizarTabelaCatalogo();
+        };
+
+        window.salvarPrecosCatalogoFirebase = async function() {
+            try {
+                await setDoc(doc(db, "configuracoes", "catalogo_loja"), {
+                    itens: catalogoLoja,
+                    atualizadoEm: serverTimestamp()
+                });
+                showToast("Preços da loja salvos no Firebase! A loja atualizará automaticamente.");
+            } catch (e) {
+                console.error("Erro ao salvar catálogo:", e);
+                showToast("Erro ao salvar preços da loja.");
+            }
+        };
+
+        // --- DASHBOARD ---
         function iniciarOuvinteDashboard() {
             const pedidosRef = collection(db, "pedidos");
             const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
@@ -855,7 +1094,6 @@
                     const dataFormatada = info.data.toLocaleDateString('pt-BR');
                     const telFormatado = info.telefone ? `55${info.telefone}` : '';
                     const msgWpp = encodeURIComponent(`Olá ${cliente}! Sentimos sua falta aqui na Duda Doces. Que tal aproveitar nossos doces artesanais hoje? Temos novidades te esperando! 🍫✨`);
-                    
                     const linkWpp = telFormatado ? `https://api.whatsapp.com/send?phone=${telFormatado}&text=${msgWpp}` : `https://wa.me/?text=${msgWpp}`;
 
                     inativosHtml += `
@@ -879,6 +1117,7 @@
             containerInativos.innerHTML = inativosHtml;
         };
 
+        // --- CAIXA ---
         function iniciarOuvinteCaixa() {
             const caixaRef = collection(db, "fluxo_caixa");
             const q = query(caixaRef, orderBy("data", "desc"));
@@ -910,17 +1149,17 @@
                 return matchMes && matchStatus && matchTipo && matchCategoria && matchBusca;
             });
 
-            renderizarTabelaCaixa(dadosFiltrados);
+            renderizarTabelaCaixa(dadosFiltrados, mesFiltro);
         };
 
-        window.renderizarTabelaCaixa = function(dados) {
+        window.renderizarTabelaCaixa = function(dados, mesFiltro = 'todos') {
             const tbody = document.getElementById('tabela-caixa-body');
             if(!tbody) return;
             tbody.innerHTML = '';
 
             if (dados.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros atuais.</td></tr>`;
-                calcularTotaisCaixa(dados);
+                calcularTotaisCaixa(dados, mesFiltro);
                 return;
             }
 
@@ -966,10 +1205,10 @@
                 tbody.appendChild(tr);
             });
 
-            calcularTotaisCaixa(dados);
+            calcularTotaisCaixa(dados, mesFiltro);
         };
 
-        function calcularTotaisCaixa(dados) {
+        function calcularTotaisCaixa(dados, mesFiltro = 'todos') {
             let totalEntradas = 0;
             let totalSaidas = 0;
 
@@ -989,14 +1228,23 @@
             });
 
             const saldo = totalEntradas - totalSaidas;
-            document.getElementById('resumo-entradas').innerText = totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-saidas').innerText = totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
+            const fmtBRL = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            document.getElementById('resumo-entradas').innerText = fmtBRL(totalEntradas);
+            document.getElementById('resumo-saidas').innerText = fmtBRL(totalSaidas);
+
             const elSaldo = document.getElementById('resumo-saldo');
-            elSaldo.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            elSaldo.innerText = fmtBRL(saldo);
             elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5 tracking-tight" : "text-2xl font-bold text-duda-brown mt-0.5 tracking-tight";
+
+            const rotuloPeriodo = mesFiltro && mesFiltro !== 'todos' ? formatarNomeMes(mesFiltro) : 'Todos os meses';
+            document.getElementById('resumo-mes-titulo').innerText = `📅 Período: ${rotuloPeriodo}`;
+            document.getElementById('resumo-mes-vendas').innerText = `Entradas: ${fmtBRL(totalEntradas)}`;
+            document.getElementById('resumo-mes-gastos').innerText = `Saídas: ${fmtBRL(totalSaidas)}`;
+            document.getElementById('resumo-mes-saldo').innerText = `Saldo: ${fmtBRL(saldo)}`;
         }
 
+        // --- ESTOQUE ---
         function iniciarOuvinteEstoque() {
             const estoqueRef = collection(db, "estoque");
 
@@ -1179,14 +1427,10 @@
         }
 
         window.addEventListener('load', async () => {
-            const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
-            mudarAba(abaSalva);
-
-            iniciarOuvinteDashboard();
-            iniciarOuvinteCaixa();
-            iniciarOuvinteEstoque();
-            carregarSimulador();
-            calcularBombom();
+            await carregarSenhaAdmin();
+            if (sessionStorage.getItem("duda_admin_autenticado") === "sim") {
+                liberarPainel();
+            }
         });
     </script>
 </body>
