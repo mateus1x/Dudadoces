@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo • Duda Doces</title>
-    <link rel="icon" type="image/png" href="Morango.png">
+    <title>Painel Administrativo - Duda Doces</title>
+    <link rel="icon" type="image/png" href="Morango%20sem%20fundo.png">
+    <link rel="apple-touch-icon" href="Morango%20sem%20fundo.png">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -25,7 +26,11 @@
                         'duda-gold': '#B38B59'
                     },
                     fontFamily: {
-                        'sans': ['"Inter"', 'sans-serif']
+                        'sans': ['"Inter"', 'sans-serif'],
+                        'serif': ['"Inter"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'premium': '0 20px 40px -15px rgba(138, 43, 43, 0.15)',
                     }
                 }
             }
@@ -35,6 +40,9 @@
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body {
             background-color: #FCF9F6;
@@ -42,236 +50,511 @@
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
         }
+        table input, table select {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        table input:hover, table select:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-color: #e5e7eb;
+        }
+        table input:focus, table select:focus {
+            background-color: #ffffff;
+            border-color: #8A2B2B;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(138, 43, 43, 0.1);
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- TELA DE LOGIN -->
-    <div id="login-screen" class="fixed inset-0 z-50 bg-duda-cream flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-xl border border-duda-pink/40 p-8 space-y-6">
-            <div class="text-center space-y-2">
-                <img src="logo.png" alt="Duda Doces" class="h-16 mx-auto object-contain">
-                <h1 class="text-2xl font-extrabold text-duda-brown">Painel Duda Doces</h1>
-                <p class="text-xs text-gray-500">Digite a senha de administrador para acessar.</p>
+    <!-- Tela de Bloqueio / Acesso Rápido -->
+    <div id="auth-gate" class="fixed inset-0 z-50 bg-duda-cream flex items-center justify-center p-4">
+        <div class="bg-white max-w-sm w-full p-8 rounded-3xl shadow-premium border border-duda-pink/40 text-center space-y-6">
+            <img class="h-14 w-auto object-contain mx-auto" src="logo.png" alt="Duda Doces Logo">
+            <div class="space-y-1">
+                <h2 class="text-xl font-extrabold text-duda-brown tracking-tight">Acesso Restrito</h2>
+                <p class="text-xs text-gray-500 font-medium">Digite sua senha/PIN para abrir o Painel Duda Doces.</p>
             </div>
 
-            <form id="form-login" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Senha</label>
-                    <input type="password" id="input-senha-login" required placeholder="••••••••"
-                        class="w-full px-4 py-3 rounded-xl bg-duda-cream border border-gray-200 text-sm font-medium outline-none focus:border-duda-red">
-                </div>
-                <p id="erro-login" class="text-xs font-semibold text-red-600 hidden">Senha incorreta.</p>
-                <button type="submit" class="w-full bg-duda-brown hover:bg-duda-red text-white font-bold text-sm py-3.5 rounded-xl transition-all">
+            <form id="form-login-painel" class="space-y-4">
+                <input type="password" id="input-senha-painel" autocomplete="current-password" placeholder="Digite a senha do painel..." class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-center text-sm font-bold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
+                <p id="erro-login-painel" class="text-xs font-semibold text-red-600 hidden">Senha incorreta. Tente novamente.</p>
+                <button type="submit" class="w-full bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-sm">
                     Entrar no Painel
                 </button>
             </form>
+
+            <a href="index.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-duda-red transition-colors">
+                <i class="ph ph-arrow-left"></i> Voltar para a loja
+            </a>
         </div>
     </div>
 
-    <!-- HEADER ADMIN -->
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <img src="logo.png" alt="Duda Doces" class="h-12 w-auto object-contain">
-                <div>
-                    <span class="font-extrabold text-lg text-duda-brown block leading-tight">Admin • Duda Doces</span>
-                    <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Gestão & Loja em Tempo Real</span>
-                </div>
-            </div>
+    <!-- Conteúdo Principal (Oculto até autenticar) -->
+    <div id="painel-protegido" class="hidden flex-1 flex flex-col">
 
-            <nav class="flex items-center gap-1 sm:gap-2 overflow-x-auto">
-                <button onclick="abrirAba('dashboard')" data-tab="dashboard" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-duda-red text-white">Dashboard</button>
-                <button onclick="abrirAba('pedidos')" data-tab="pedidos" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-duda-brown hover:bg-duda-cream">Pedidos</button>
-                <button onclick="abrirAba('caixa')" data-tab="caixa" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-duda-brown hover:bg-duda-cream">Fluxo de Caixa</button>
-                <button onclick="abrirAba('estoque')" data-tab="estoque" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-duda-brown hover:bg-duda-cream">Estoque</button>
-                <button onclick="abrirAba('calculadora')" data-tab="calculadora" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-duda-brown hover:bg-duda-cream">Calculadora & Preços</button>
-            </nav>
-
-            <div class="flex items-center gap-2">
-                <a href="index.html" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-duda-cream text-duda-brown border border-duda-pink/40 hover:bg-duda-pink/20">
-                    <i class="ph ph-storefront"></i> Ver Loja
-                </a>
-                <button onclick="sairAdmin()" class="px-3 py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-duda-red">Sair</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-        <!-- ABA: DASHBOARD -->
-        <section id="aba-dashboard" class="aba-conteudo space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-                    <span class="text-xs font-bold uppercase text-gray-400">Entradas Pagas</span>
-                    <p id="kpi-entradas" class="text-2xl font-extrabold text-emerald-600 mt-1">R$ 0,00</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-                    <span class="text-xs font-bold uppercase text-gray-400">A Receber (Pendente)</span>
-                    <p id="kpi-pendentes" class="text-2xl font-extrabold text-amber-600 mt-1">R$ 0,00</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-                    <span class="text-xs font-bold uppercase text-gray-400">Saídas / Custos</span>
-                    <p id="kpi-saidas" class="text-2xl font-extrabold text-duda-red mt-1">R$ 0,00</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
-                    <span class="text-xs font-bold uppercase text-gray-400">Visitantes Únicos / Acessos</span>
-                    <p id="kpi-acessos" class="text-2xl font-extrabold text-duda-brown mt-1">0 / 0</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ABA: PEDIDOS -->
-        <section id="aba-pedidos" class="aba-conteudo hidden space-y-4">
-            <h2 class="text-xl font-extrabold text-duda-brown">Pedidos Recebidos</h2>
-            <div id="lista-pedidos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        </section>
-
-        <!-- ABA: FLUXO DE CAIXA -->
-        <section id="aba-caixa" class="aba-conteudo hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
-                <h2 class="text-lg font-extrabold text-duda-brown mb-4">Novo Lançamento</h2>
-                <form id="form-caixa" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                    <input type="date" id="caixa-data" required class="px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-semibold">
-                    <input type="text" id="caixa-desc" required placeholder="Descrição" class="px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-medium sm:col-span-2">
-                    <select id="caixa-tipo" class="px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-semibold">
-                        <option value="entrada">Entrada (+)</option>
-                        <option value="saida">Saída (-)</option>
-                    </select>
-                    <div class="flex gap-2">
-                        <input type="number" step="0.01" id="caixa-valor" required placeholder="Valor R$" class="w-full px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-bold">
-                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-duda-brown hover:bg-duda-red text-white text-xs font-bold">Salvar</button>
+        <!-- Header do Painel com 4 Abas -->
+        <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
+                    <div class="flex items-center gap-3">
+                        <img class="h-12 w-auto object-contain" src="logo.png" alt="Duda Doces Logo">
+                        <div>
+                            <h1 class="font-bold text-lg sm:text-xl text-duda-brown tracking-tight">Painel Duda Doces</h1>
+                            <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Gestão Integrada em Tempo Real</span>
+                        </div>
                     </div>
-                </form>
+
+                    <!-- Abas de Navegação -->
+                    <div class="flex items-center gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap justify-center">
+                        <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
+                            <i class="ph ph-chart-line-up text-base"></i> Dashboard
+                        </button>
+                        <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                            <i class="ph ph-wallet text-base"></i> Caixa
+                        </button>
+                        <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                            <i class="ph ph-package text-base"></i> Estoque
+                        </button>
+                        <button onclick="mudarAba('custos')" id="tab-btn-custos" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                            <i class="ph ph-calculator text-base"></i> Calculadora
+                        </button>
+                    </div>
+
+                    <div class="hidden md:flex items-center gap-2">
+                        <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-duda-cream px-4 py-2.5 rounded-xl border border-duda-pink/30">
+                            <i class="ph ph-storefront text-lg"></i> Ver Loja
+                        </a>
+                        <button onclick="bloquearPainel()" class="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-red-600 transition-all bg-gray-100 px-3.5 py-2.5 rounded-xl" title="Bloquear Painel">
+                            <i class="ph ph-lock-key text-lg"></i> Sair
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+            <!-- ================= ABA 1: DASHBOARD ================= -->
+            <div id="view-dashboard" class="space-y-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-currency-dollar"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento Total</p>
+                            <h3 id="stat-faturamento" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-shopping-bag"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Pedidos</p>
+                            <h3 id="stat-pedidos" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-users"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Visitantes Únicos</p>
+                            <h3 id="stat-visitantes" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-eye"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acessos Totais</p>
+                            <h3 id="stat-acessos-totais" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico Misto -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-chart-line-up text-duda-red"></i> Acessos Diários
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Fluxo de visitas ao site.</p>
+                        </div>
+                    </div>
+                    <div class="relative h-80 w-full">
+                        <canvas id="accessChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tabela de Pedidos e Inativos -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                        <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
+                            <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes
+                        </h2>
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <th class="pb-3 px-2">Cliente</th>
+                                        <th class="pb-3 px-2">Tipo</th>
+                                        <th class="pb-3 px-2">Pagamento</th>
+                                        <th class="pb-3 px-2">Total</th>
+                                        <th class="pb-3 px-2">Data</th>
+                                        <th class="pb-3 px-2 w-16 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50 font-medium">
+                                    <tr><td colspan="6" class="text-center py-6 text-gray-400">Carregando pedidos...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Reengajamento
+                            </h2>
+                            <select id="filtro-dias-inativos" onchange="atualizarListaInativos()" class="bg-duda-cream text-xs font-bold text-duda-brown p-2 rounded-xl border border-duda-pink/40 outline-none cursor-pointer">
+                                <option value="15">+ de 15 dias</option>
+                                <option value="20">+ de 20 dias</option>
+                                <option value="30" selected>+ de 30 dias</option>
+                                <option value="45">+ de 45 dias</option>
+                                <option value="60">+ de 60 dias</option>
+                            </select>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-4 font-medium">Clientes sem comprar há mais de X dias.</p>
+
+                        <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[320px] no-scrollbar">
+                            <div class="text-center py-8 text-gray-400 text-sm">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-duda-cream text-gray-500 uppercase">
-                        <tr>
-                            <th class="p-3.5">Data</th>
-                            <th class="p-3.5">Descrição</th>
-                            <th class="p-3.5">Tipo</th>
-                            <th class="p-3.5">Valor</th>
-                            <th class="p-3.5">Status</th>
-                            <th class="p-3.5 text-right">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-caixa" class="divide-y divide-gray-100"></tbody>
-                </table>
-            </div>
-        </section>
+            <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
+            <div id="view-caixa" class="space-y-8 hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-arrow-circle-down"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas (Lucros)</p>
+                            <h3 id="resumo-entradas" class="text-2xl font-bold text-green-600 mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
 
-        <!-- ABA: ESTOQUE -->
-        <section id="aba-estoque" class="aba-conteudo hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <h2 class="text-lg font-extrabold text-duda-brown">Controle de Estoque</h2>
-                    <div class="flex items-center gap-2">
-                        <label class="text-xs font-bold text-gray-500">Filtrar Status:</label>
-                        <select id="filtro-status-estoque" onchange="renderEstoque()" class="px-3 py-2 rounded-xl bg-duda-cream border border-gray-200 text-xs font-bold text-duda-brown">
-                            <option value="todos">Todos</option>
-                            <option value="Cheio">Cheio</option>
-                            <option value="Metade">Metade</option>
-                            <option value="Vazio">Vazio</option>
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-arrow-circle-up"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Saídas (Despesas)</p>
+                            <h3 id="resumo-saidas" class="text-2xl font-bold text-red-600 mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                            <i class="ph ph-wallet"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Líquido</p>
+                            <h3 id="resumo-saldo" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-3 flex-1">
+                            <div class="relative flex-1 min-w-[200px] max-w-xs">
+                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
+                                <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento (ex: venda alice)..." class="w-full bg-duda-cream pl-10 pr-3.5 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                            </div>
+
+                            <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">📅 Todos os meses</option>
+                            </select>
+
+                            <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">💳 Todos os status</option>
+                                <option value="pago">✅ Pago integral</option>
+                                <option value="50porcento">⚡ Pago 50%</option>
+                                <option value="pendente">⏳ Ainda não pagou</option>
+                            </select>
+
+                            <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">📊 Todos os Tipos</option>
+                                <option value="entrada">🟢 Entradas (Lucros)</option>
+                                <option value="saida">🔴 Saídas (Despesas)</option>
+                            </select>
+
+                            <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todas">🏷️ Todas as Categorias</option>
+                                <option value="Vendas">💰 Vendas</option>
+                                <option value="Ingredientes">🍓 Ingredientes</option>
+                                <option value="Embalagens">📦 Embalagens</option>
+                                <option value="Transporte">🚗 Transporte</option>
+                                <option value="Marketing">📢 Marketing</option>
+                                <option value="Outros">⚙️ Outros</option>
+                            </select>
+                        </div>
+
+                        <button onclick="adicionarLancamentoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
+                            <i class="ph ph-plus-circle text-lg"></i> Novo Lançamento
+                        </button>
+                    </div>
+
+                    <!-- Resumo Mensal Rápido -->
+                    <div id="resumo-mensal-bar" class="bg-duda-cream/70 border border-duda-pink/30 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-duda-brown">
+                        <span id="resumo-mes-titulo" class="font-bold text-duda-red">📅 Período: Todos os meses</span>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <span id="resumo-mes-vendas" class="text-green-700">Entradas: R$ 0,00</span>
+                            <span id="resumo-mes-gastos" class="text-red-700">Saídas: R$ 0,00</span>
+                            <span id="resumo-mes-saldo" class="text-duda-brown font-bold">Saldo: R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 w-32">Data</th>
+                                    <th class="py-3.5 px-4">Descrição / Histórico</th>
+                                    <th class="py-3.5 px-4 w-36">Categoria</th>
+                                    <th class="py-3.5 px-4 w-32">Tipo</th>
+                                    <th class="py-3.5 px-4 w-32">Valor (R$)</th>
+                                    <th class="py-3.5 px-4 w-40">Status Pagamento</th>
+                                    <th class="py-3.5 px-4 w-16 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100 font-medium">
+                                <tr><td colspan="7" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= ABA 3: CONTROLE DE ESTOQUE ================= -->
+            <div id="view-estoque" class="space-y-8 hidden">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-package text-duda-red"></i> Controle de Estoque & Compras
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="adicionarItemEstoque()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph ph-plus-circle text-lg"></i> Adicionar Item
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4">Ingrediente / Item</th>
+                                    <th class="py-3.5 px-4 w-48">Unidade de Medida</th>
+                                    <th class="py-3.5 px-4 w-52">Status no Estoque</th>
+                                    <th class="py-3.5 px-4 w-20 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-estoque-body" class="text-sm divide-y divide-gray-100 font-medium">
+                                <tr><td colspan="4" class="text-center py-8 text-gray-400">Carregando estoque...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= ABA 4: CALCULADORA DE CUSTOS & PREÇOS DA LOJA ================= -->
+            <div id="view-custos" class="space-y-8 hidden">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categoria de Produto</label>
+                        <select id="categoria-produto" onchange="mudarCategoria()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="bombom">🍫 Bombom Gourmet no Pote</option>
+                            <option value="brownie">🟫 Ficha Técnica de Brownies</option>
+                        </select>
+                    </div>
+
+                    <div id="container-select-bombom" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fruta Base</label>
+                            <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="morango">Morango</option>
+                                <option value="uva">Uva</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recheio</label>
+                            <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="ninho">Brigadeiro de Ninho</option>
+                                <option value="chocolate">Brigadeiro de Chocolate</option>
+                                <option value="maracuja">Brigadeiro de Maracujá</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cobertura</label>
+                            <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="branco">Chocolate Branco</option>
+                                <option value="preto">Chocolate Preto</option>
+                                <option value="calda">Calda Vermelha (Amor)</option>
+                                <option value="cravejado">Cravejado Especial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="container-select-brownie" class="md:col-span-2 hidden">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Selecionar Tipo de Brownie</label>
+                        <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <option value="tradicional">Brownie Tradicional (Unidade)</option>
+                            <option value="bite">Brownie Bite (Unidade Avulsa)</option>
+                            <option value="pacote8">Pacote com 8 Bites</option>
                         </select>
                     </div>
                 </div>
 
-                <form id="form-estoque" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <input type="text" id="est-item" required placeholder="Insumo / Embalagem" class="px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-medium sm:col-span-2">
-                    <select id="est-status" class="px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-semibold">
-                        <option value="Cheio">Cheio</option>
-                        <option value="Metade">Metade</option>
-                        <option value="Vazio">Vazio</option>
-                    </select>
-                    <button type="submit" class="px-4 py-2.5 rounded-xl bg-duda-brown hover:bg-duda-red text-white text-xs font-bold">Adicionar Item</button>
-                </form>
-            </div>
-
-            <div id="lista-estoque" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-        </section>
-
-        <!-- ABA: CALCULADORA & PREÇOS DA LOJA EM TEMPO REAL -->
-        <section id="aba-calculadora" class="aba-conteudo hidden space-y-6">
-            <!-- Tabela de Preços Sincronizada com index.html -->
-            <div class="bg-white rounded-2xl shadow-xs border border-gray-100 p-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                    <div>
-                        <h2 class="text-lg font-extrabold text-duda-brown">Preços da Loja (index.html) em Tempo Real</h2>
-                        <p class="text-xs text-gray-500">Salva em <code>configuracao/catalogo_loja</code> e atualiza os preços no <code>index.html</code> na hora.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                        <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                            <i class="ph ph-receipt text-duda-red"></i> Resumo de Blocos da Ficha Técnica
+                        </h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <th class="pb-3 px-2">Bloco de Insumo / Componente</th>
+                                        <th class="pb-3 px-2">Especificação</th>
+                                        <th class="pb-3 px-2">Valor Total Gasto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-ingredientes-detalhe" class="text-sm divide-y divide-gray-50 font-medium"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="restaurarPadraoCatalogo()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200">
-                            Carregar Padrão
+
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col justify-between space-y-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-currency-dollar text-duda-red"></i> Resumo de Custos
+                            </h2>
+
+                            <div class="space-y-4">
+                                <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
+                                    <span class="text-xs font-bold text-gray-500 uppercase">Custo de Ingredientes (por bombom)</span>
+                                    <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                                </div>
+                                <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
+                                    <span class="text-xs font-bold text-gray-500 uppercase">Embalagens, Adesivos & Mão de Obra</span>
+                                    <span id="resumo-custo-extras" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                                </div>
+                                <div class="bg-duda-red/10 p-5 rounded-2xl border border-duda-red/30 flex justify-between items-center">
+                                    <span class="text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total por Bombom</span>
+                                    <span id="resumo-custo-total" class="font-extrabold text-duda-red text-xl">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-duda-brown text-duda-cream p-6 rounded-2xl space-y-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Praticado</span>
+                            <div class="flex justify-between items-baseline">
+                                <h3 id="resumo-preco-sugerido" class="text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
+                                <span id="resumo-lucro-estimado" class="text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
+                            </div>
+                            <p id="resumo-margem" class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Margem de Lucro: 0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMULADOR & GESTÃO DE PREÇOS DE INSUMOS -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-sliders text-duda-red"></i> Simulador de Preços de Blocos e Insumos
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Altere o valor do bloco ou insumo base e salve para persistir no Firebase.</p>
+                        </div>
+                        <button onclick="salvarNovosPrecosInsumos()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-floppy-disk text-lg"></i> Salvar Custos
                         </button>
-                        <button type="button" onclick="adicionarLinhaPreco()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-duda-cream text-duda-brown border border-duda-pink/40 hover:bg-duda-pink/20">
-                            + Novo Item
-                        </button>
-                        <button type="button" id="btn-salvar-catalogo" onclick="salvarCatalogoLoja()" class="px-4 py-2 rounded-xl text-xs font-bold bg-duda-red text-white hover:bg-[#6b1f1f]">
-                            Salvar Preços no Banco
-                        </button>
                     </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="simulador-inputs"></div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-200 text-xs uppercase text-gray-500">
-                                <th class="py-2.5 pr-3">ID / Chave (index.html)</th>
-                                <th class="py-2.5 px-3">Produto</th>
-                                <th class="py-2.5 px-3">Preço (R$)</th>
-                                <th class="py-2.5 pl-3 text-right">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbody-precos-loja" class="divide-y divide-gray-100"></tbody>
-                    </table>
-                </div>
-            </div>
+                <!-- PREÇOS OFICIAIS DA LOJA (INDEX.HTML) EM TEMPO REAL -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-tag text-duda-red"></i> Preços da Loja (index.html) em Tempo Real
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Altere o preço de venda aqui e salve para atualizar automaticamente os preços exibidos na loja.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="adicionarProdutoCatalogo()" class="bg-duda-cream hover:bg-duda-pink/30 text-duda-brown text-sm font-semibold px-4 py-2.5 rounded-xl border border-duda-pink/40 transition-all flex items-center gap-2">
+                                <i class="ph ph-plus text-base"></i> Novo Item
+                            </button>
+                            <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph ph-floppy-disk text-lg"></i> Salvar Preços da Loja
+                            </button>
+                        </div>
+                    </div>
 
-            <!-- Calculadora de Custo e Margem -->
-            <div class="bg-white rounded-2xl shadow-xs border border-gray-100 p-6 space-y-4">
-                <h3 class="text-base font-extrabold text-duda-brown">Calculadora Rápida de Custo & Preço Sugerido</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Custo Insumos (R$)</label>
-                        <input type="number" step="0.01" id="calc-insumos" value="2.50" oninput="calcularMargem()" class="w-full px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Embalagem / Tempo (R$)</label>
-                        <input type="number" step="0.01" id="calc-embalagem" value="1.50" oninput="calcularMargem()" class="w-full px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Preço de Venda (R$)</label>
-                        <input type="number" step="0.01" id="calc-venda" value="10.00" oninput="calcularMargem()" class="w-full px-3 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-bold">
-                    </div>
-                    <div class="bg-duda-cream p-3 rounded-xl border border-duda-pink/30 flex flex-col justify-center">
-                        <span class="text-[11px] font-bold uppercase text-gray-400">Lucro / Margem</span>
-                        <span id="calc-resultado" class="text-sm font-extrabold text-emerald-600 mt-0.5">R$ 6,00 (60%)</span>
+                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 w-44">ID / Chave (index)</th>
+                                    <th class="py-3.5 px-4">Nome do Produto na Loja</th>
+                                    <th class="py-3.5 px-4 w-44">Preço Venda (R$)</th>
+                                    <th class="py-3.5 px-4 w-16 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-catalogo-body" class="text-sm divide-y divide-gray-100 font-medium"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Segurança: Alterar Senha do Painel -->
-            <div class="bg-white rounded-2xl shadow-xs border border-gray-100 p-6">
-                <h3 class="text-base font-extrabold text-duda-brown mb-1">Alterar Senha do Painel</h3>
-                <p class="text-xs text-gray-500 mb-4">Salva no documento <code>configuracao/seguranca</code> do Firestore.</p>
-                <div class="flex flex-col sm:flex-row gap-3 max-w-md">
-                    <input type="password" id="nova-senha-admin" placeholder="Nova senha" class="flex-1 px-3.5 py-2.5 rounded-xl bg-duda-cream border border-gray-200 text-xs font-medium">
-                    <button type="button" onclick="alterarSenhaAdmin()" class="px-4 py-2.5 rounded-xl bg-duda-brown hover:bg-duda-red text-white text-xs font-bold">
-                        Atualizar Senha
-                    </button>
-                </div>
-            </div>
-        </section>
+        </main>
 
-    </main>
+        <!-- Rodapé -->
+        <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75 font-medium">
+            <p>© 2026 Duda Doces • Painel Integrado em Tempo Real</p>
+        </footer>
+    </div>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden bg-duda-brown text-white text-xs font-bold px-5 py-3 rounded-full shadow-lg"></div>
+    <div id="toast" style="visibility:hidden; min-width:250px; background:#3A201E; color:#fff; text-align:center; border-radius:30px; padding:12px; position:fixed; z-index:1000; left:50%; bottom:30px; transform:translateX(-50%); font-size:14px; font-family:'Inter', sans-serif;"></div>
 
+    <!-- Script Principal Unificado -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -286,351 +569,869 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const catalogoRef = doc(db, "configuracao", "catalogo_loja");
-        const segurancaRef = doc(db, "configuracao", "seguranca");
+        // Senha padrão caso ainda não exista senha configurada no Firestore
+        const SENHA_PADRAO_ADMIN = "2909";
+        let senhaAdminAtual = SENHA_PADRAO_ADMIN;
+        let painelInicializado = false;
 
-        const fmtBRL = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        let myChart = null;
+        let listaCaixaMemoria = [];
+        let listaEstoqueMemoria = [];
+        let mapaClientesGlobal = {};
 
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            if (!t) return;
-            t.textContent = msg;
-            t.classList.remove("hidden");
-            setTimeout(() => t.classList.add("hidden"), 3000);
-        }
-        window.showToast = showToast;
-
-        // --- AUTENTICAÇÃO (configuracao/seguranca) ---
-        let senhaAtual = "duda2026";
-
-        async function carregarSenha() {
-            try {
-                const snap = await getDoc(segurancaRef);
-                if (snap.exists() && snap.data().senha) {
-                    senhaAtual = String(snap.data().senha);
-                } else {
-                    await setDoc(segurancaRef, { senha: senhaAtual }, { merge: true });
-                }
-            } catch (e) {
-                console.error("Erro ao carregar senha:", e);
-            }
-        }
-
-        if (sessionStorage.getItem("duda_admin_ok") === "1") {
-            document.getElementById("login-screen").classList.add("hidden");
-        }
-
-        document.getElementById("form-login").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            await carregarSenha();
-            const digitada = document.getElementById("input-senha-login").value;
-            if (digitada === senhaAtual) {
-                sessionStorage.setItem("duda_admin_ok", "1");
-                document.getElementById("login-screen").classList.add("hidden");
-                document.getElementById("erro-login").classList.add("hidden");
-            } else {
-                document.getElementById("erro-login").classList.remove("hidden");
-            }
-        });
-
-        window.sairAdmin = function() {
-            sessionStorage.removeItem("duda_admin_ok");
-            location.reload();
-        };
-
-        window.alterarSenhaAdmin = async function() {
-            const nova = document.getElementById("nova-senha-admin").value.trim();
-            if (nova.length < 4) {
-                showToast("Use uma senha com pelo menos 4 caracteres.");
-                return;
-            }
-            try {
-                await setDoc(segurancaRef, { senha: nova }, { merge: true });
-                senhaAtual = nova;
-                document.getElementById("nova-senha-admin").value = "";
-                showToast("Senha atualizada em configuracao/seguranca!");
-            } catch (e) {
-                console.error(e);
-                showToast("Erro ao atualizar senha.");
-            }
-        };
-
-        // --- NAVEGAÇÃO ENTRE ABAS ---
-        window.abrirAba = function(nome) {
-            document.querySelectorAll(".aba-conteudo").forEach(el => el.classList.add("hidden"));
-            const alvo = document.getElementById(`aba-${nome}`);
-            if (alvo) alvo.classList.remove("hidden");
-
-            document.querySelectorAll(".tab-btn").forEach(btn => {
-                if (btn.dataset.tab === nome) {
-                    btn.className = "tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-duda-red text-white";
-                } else {
-                    btn.className = "tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-duda-brown hover:bg-duda-cream";
-                }
-            });
-        };
-
-        // --- TABELA DE PREÇOS EM TEMPO REAL (configuracao/catalogo_loja) ---
-        const ITENS_PADRAO = [
-            { id: "brownie-tradicional", nome: "Brownie Tradicional", preco: 7.00 },
-            { id: "brownie-ninho", nome: "Brownie com Leite Ninho", preco: 12.00 },
-            { id: "brownie-chocolate", nome: "Brownie com Chocolate", preco: 12.00 },
-            { id: "brownie-bite", nome: "Pacote 8 Brownie Bites", preco: 7.00 },
-            { id: "Morango-ninho-branco", nome: "Bombom Morango + Ninho + Branco", preco: 10.00 },
-            { id: "Morango-ninho-calda", nome: "Bombom Morango + Ninho + Calda do Amor", preco: 12.00 },
-            { id: "Morango-ninho-cravejado", nome: "Bombom Morango + Ninho + Cravejado", preco: 15.00 }
+        const itensIniciaisEstoque = [
+            { nome: 'Leite Condensado', medida: '395 g', status: 'cheio' },
+            { nome: 'Creme de Leite', medida: '200 g', status: 'cheio' },
+            { nome: 'Leite Ninho', medida: '380 g', status: 'cheio' },
+            { nome: 'Manteiga', medida: '500 g', status: 'cheio' },
+            { nome: 'Cacau em pó', medida: '140 g', status: 'cheio' },
+            { nome: 'Maracujá', medida: '436 g', status: 'cheio' },
+            { nome: 'Cobertop Blend', medida: '1010 g', status: 'cheio' },
+            { nome: 'Cobertop Branco', medida: '1010 g', status: 'cheio' },
+            { nome: 'Vinagre', medida: '750 ml', status: 'cheio' },
+            { nome: 'Corante', medida: '25 ml', status: 'cheio' },
+            { nome: 'Açúcar', medida: '5000 g', status: 'cheio' },
+            { nome: 'Ovos', medida: '30 unidades', status: 'cheio' },
+            { nome: 'Farinha de Trigo', medida: '1000 g', status: 'cheio' },
+            { nome: 'Óleo', medida: '900 ml', status: 'cheio' },
+            { nome: 'Fermento Químico', medida: '100 g', status: 'cheio' },
+            { nome: 'Leite Integral', medida: '1000 ml', status: 'cheio' },
+            { nome: 'Morango', medida: '300 g', status: 'cheio' },
+            { nome: 'Uva', medida: '500 g', status: 'cheio' }
         ];
 
-        let linhasCatalogo = [...ITENS_PADRAO];
+        let insumosBase = {
+            'Fruta Morango': { valor: 0.67, desc: 'Por unidade' },
+            'Fruta Uva': { valor: 0.44, desc: 'Por unidade' },
 
-        function renderTabelaPrecos() {
-            const tbody = document.getElementById("tbody-precos-loja");
-            if (!tbody) return;
+            'Recheio Ninho': { valor: 1.11, desc: 'Brigadeiro Ninho' },
+            'Recheio Chocolate': { valor: 0.94, desc: 'Brigadeiro Chocolate' },
+            'Recheio Maracujá': { valor: 1.54, desc: 'Brigadeiro Maracujá' },
 
-            tbody.innerHTML = linhasCatalogo.map((item, idx) => `
-                <tr>
-                    <td class="py-2 pr-3">
-                        <input type="text" value="${item.id}" oninput="atualizarCampoLinha(${idx}, 'id', this.value)"
-                            class="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-mono">
-                    </td>
-                    <td class="py-2 px-3">
-                        <input type="text" value="${item.nome}" oninput="atualizarCampoLinha(${idx}, 'nome', this.value)"
-                            class="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs">
-                    </td>
-                    <td class="py-2 px-3">
-                        <input type="number" step="0.01" min="0" value="${Number(item.preco || 0).toFixed(2)}"
-                            oninput="atualizarCampoLinha(${idx}, 'preco', parseFloat(this.value) || 0)"
-                            class="w-28 px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-duda-red">
-                    </td>
-                    <td class="py-2 pl-3 text-right">
-                        <button type="button" onclick="removerLinhaPreco(${idx})"
-                            class="px-2.5 py-1 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50">
-                            Remover
-                        </button>
-                    </td>
-                </tr>
-            `).join("");
+            'Cobertura Chocolate Branco': { valor: 1.26, desc: 'Cobertop Branco' },
+            'Cobertura Chocolate Preto': { valor: 1.23, desc: 'Cobertop Blend' },
+            'Cobertura Calda do Amor': { valor: 1.58, desc: 'Calda de Açúcar' },
+            'Cobertura Cravejado': { valor: 2.11, desc: 'Cravejado Especial' },
+
+            'Embalagem (un)': { valor: 0.012, desc: 'Embalagem' },
+            'Adesivos (un)': { valor: 0.28, desc: 'Adesivo' },
+            'Mão de Obra': { valor: 4.00, desc: 'Taxa fixa por bombom' }
+        };
+
+        let catalogoLoja = [
+            { id: 'brownie-bite', nome: 'Brownie Bite (Unidade)', preco: 3.50 },
+            { id: 'brownie-pacote-8', nome: 'Pacote com 8 Brownie Bites', preco: 24.00 },
+            { id: 'brownie-tradicional', nome: 'Brownie Tradicional', preco: 7.00 },
+            { id: 'bombom-morango-ninho', nome: 'Bombom no Pote - Morango com Ninho', preco: 12.00 },
+            { id: 'morango-do-amor', nome: 'Morango do Amor', preco: 12.00 }
+        ];
+
+        // --- CONTROLE DE ACESSO ---
+        async function carregarSenhaAdmin() {
+            try {
+                const snap = await getDoc(doc(db, "configuracoes", "acesso_admin"));
+                if (snap.exists() && snap.data().senha) {
+                    senhaAdminAtual = String(snap.data().senha);
+                }
+            } catch (e) {
+                console.warn("Usando senha padrão local:", e);
+            }
         }
 
-        window.atualizarCampoLinha = function(idx, campo, valor) {
-            if (!linhasCatalogo[idx]) return;
-            linhasCatalogo[idx][campo] = valor;
+        function liberarPainel() {
+            sessionStorage.setItem("duda_admin_autenticado", "sim");
+            document.getElementById("auth-gate").classList.add("hidden");
+            document.getElementById("painel-protegido").classList.remove("hidden");
+
+            if (!painelInicializado) {
+                painelInicializado = true;
+                const abaSalva = localStorage.getItem('duda_aba_ativa') || 'dashboard';
+                mudarAba(abaSalva);
+
+                iniciarOuvinteDashboard();
+                iniciarOuvinteCaixa();
+                iniciarOuvinteEstoque();
+                carregarCustosSalvosFirebase();
+                iniciarOuvinteCatalogo();
+            }
+        }
+
+        window.bloquearPainel = function() {
+            sessionStorage.removeItem("duda_admin_autenticado");
+            document.getElementById("painel-protegido").classList.add("hidden");
+            document.getElementById("auth-gate").classList.remove("hidden");
+            document.getElementById("input-senha-painel").value = "";
+            document.getElementById("erro-login-painel").classList.add("hidden");
         };
 
-        window.adicionarLinhaPreco = function() {
-            linhasCatalogo.push({ id: "", nome: "", preco: 0 });
-            renderTabelaPrecos();
+        document.getElementById("form-login-painel").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            await carregarSenhaAdmin();
+            const digitada = document.getElementById("input-senha-painel").value;
+            if (digitada === senhaAdminAtual) {
+                document.getElementById("erro-login-painel").classList.add("hidden");
+                liberarPainel();
+            } else {
+                document.getElementById("erro-login-painel").classList.remove("hidden");
+            }
+        });
+
+        // --- HELPERS ---
+        function normalizarBusca(texto = "") {
+            return String(texto)
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        function obterChaveMes(dataStr = "") {
+            if (!dataStr || typeof dataStr !== "string") return "";
+            const match = dataStr.match(/^(\d{4}-\d{2})/);
+            return match ? match[1] : "";
+        }
+
+        function formatarNomeMes(chaveMes = "") {
+            const partes = chaveMes.split("-");
+            if (partes.length !== 2) return chaveMes;
+            const ano = parseInt(partes[0], 10);
+            const mes = parseInt(partes[1], 10) - 1;
+            if (isNaN(ano) || isNaN(mes) || mes < 0 || mes > 11) return chaveMes;
+
+            const nomeMes = new Date(ano, mes, 1).toLocaleDateString("pt-BR", { month: "long" });
+            return `${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)} de ${ano}`;
+        }
+
+        function sincronizarOpcoesMes(dados) {
+            const selectMes = document.getElementById("filtro-mes");
+            if (!selectMes) return;
+
+            const mesAtual = selectMes.value;
+            const mesesSet = new Set();
+
+            dados.forEach((item) => {
+                const chave = obterChaveMes(item.data);
+                if (chave) mesesSet.add(chave);
+            });
+
+            const mesesOrdenados = Array.from(mesesSet).sort().reverse();
+            let html = `<option value="todos">📅 Todos os meses</option>`;
+            mesesOrdenados.forEach((chave) => {
+                html += `<option value="${chave}">${formatarNomeMes(chave)}</option>`;
+            });
+
+            selectMes.innerHTML = html;
+            if (mesAtual && Array.from(selectMes.options).some(opt => opt.value === mesAtual)) {
+                selectMes.value = mesAtual;
+            } else {
+                selectMes.value = "todos";
+            }
+        }
+
+        window.mudarAba = function(aba) {
+            const views = ['dashboard', 'caixa', 'estoque', 'custos'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const btn = document.getElementById(`tab-btn-${v}`);
+                if(el) el.classList.add('hidden');
+                if(btn) btn.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+            });
+
+            const viewAtiva = document.getElementById(`view-${aba}`);
+            const btnAtivo = document.getElementById(`tab-btn-${aba}`);
+            if(viewAtiva) viewAtiva.classList.remove('hidden');
+            if(btnAtivo) btnAtivo.className = "flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
+
+            localStorage.setItem('duda_aba_ativa', aba);
+            if(aba === 'dashboard' && myChart) myChart.update();
         };
 
-        window.removerLinhaPreco = function(idx) {
-            linhasCatalogo.splice(idx, 1);
-            renderTabelaPrecos();
-        };
-
-        window.restaurarPadraoCatalogo = function() {
-            linhasCatalogo = ITENS_PADRAO.map(i => ({ ...i }));
-            renderTabelaPrecos();
-        };
-
-        window.salvarCatalogoLoja = async function() {
-            const btn = document.getElementById("btn-salvar-catalogo");
-            const itensLimpos = linhasCatalogo
-                .filter(i => String(i.id || "").trim() !== "")
-                .map(i => ({
-                    id: String(i.id).trim(),
-                    nome: String(i.nome || i.id).trim(),
-                    preco: Number(i.preco) || 0
-                }));
-
+        // --- CUSTOS & SINCRONIZAÇÃO COM FIREBASE ---
+        async function carregarCustosSalvosFirebase() {
             try {
-                btn.disabled = true;
-                btn.textContent = "Salvando...";
-                await setDoc(catalogoRef, { itens: itensLimpos }, { merge: true });
-                showToast("Preços salvos e atualizados na loja!");
+                const snap = await getDoc(doc(db, "calculo_de_custo", "matriz_custos"));
+                if (snap.exists() && snap.data().insumosBase) {
+                    const salvos = snap.data().insumosBase;
+                    for (const [chave, info] of Object.entries(salvos)) {
+                        if (insumosBase[chave] && typeof info.valor === "number") {
+                            insumosBase[chave].valor = info.valor;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao ler matriz_custos do Firebase:", e);
+            }
+            carregarSimulador();
+            calcularBombom();
+        }
+
+        window.calcularBombom = function() {
+            const frutaKey = document.getElementById('filtro-fruta').value === 'morango' ? 'Fruta Morango' : 'Fruta Uva';
+            const recheioKey = document.getElementById('filtro-recheio').value === 'ninho' ? 'Recheio Ninho' : document.getElementById('filtro-recheio').value === 'chocolate' ? 'Recheio Chocolate' : 'Recheio Maracujá';
+            const coberturaVal = document.getElementById('filtro-cobertura').value;
+            let coberturaKey = 'Cobertura Chocolate Branco';
+            if (coberturaVal === 'preto') coberturaKey = 'Cobertura Chocolate Preto';
+            if (coberturaVal === 'calda') coberturaKey = 'Cobertura Calda do Amor';
+            if (coberturaVal === 'cravejado') coberturaKey = 'Cobertura Cravejado';
+
+            const custoFruta = insumosBase[frutaKey].valor;
+            const custoRecheio = insumosBase[recheioKey].valor;
+            const custoCobertura = insumosBase[coberturaKey].valor;
+
+            const custoIngredientesTotal = custoFruta + custoRecheio + custoCobertura;
+            const embalagem = insumosBase['Embalagem (un)'].valor;
+            const adesivo = insumosBase['Adesivos (un)'].valor;
+            const maoDeObra = insumosBase['Mão de Obra'].valor;
+
+            const custoTotalProducao = custoIngredientesTotal + embalagem + adesivo + maoDeObra;
+
+            let precoVenda = 10.00;
+            if (coberturaVal === 'calda') precoVenda = 12.00;
+            if (coberturaVal === 'cravejado' || (recheioKey === 'Recheio Maracujá')) precoVenda = 15.00;
+
+            const lucroReal = precoVenda - custoTotalProducao;
+            const margemLucro = custoTotalProducao > 0 ? ((lucroReal / custoTotalProducao) * 100).toFixed(0) : 0;
+
+            document.getElementById('resumo-custo-ingredientes').innerText = custoIngredientesTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-extras').innerText = (embalagem + adesivo + maoDeObra).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-total').innerText = custoTotalProducao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-preco-sugerido').innerText = precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margemLucro}%`;
+
+            document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Fruta (${frutaKey})</td>
+                    <td class="py-3 px-2 text-gray-600">Por unidade</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoFruta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Ingrediente Recheio (${recheioKey})</td>
+                    <td class="py-3 px-2 text-gray-600">Total somado da receita</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoRecheio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Ingrediente Cobertura (${coberturaKey})</td>
+                    <td class="py-3 px-2 text-gray-600">Proporcional por bombom</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoCobertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
+                    <td class="py-3 px-2 text-gray-600">Unitário</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${(embalagem + adesivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Mão de Obra</td>
+                    <td class="py-3 px-2 text-gray-600">Taxa fixa por unidade</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${maoDeObra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+            `;
+        };
+
+        window.calcularBrownie = function() {
+            const tipo = document.getElementById('filtro-brownie')?.value || 'tradicional';
+            let custoIng = 1.67;
+            let custoExt = 0.29;
+            let preco = 7.00;
+            let spec = "80g";
+
+            if (tipo === 'bite') {
+                custoIng = 0.65;
+                custoExt = 0.15;
+                preco = 3.50;
+                spec = "1 unidade bite";
+            } else if (tipo === 'pacote8') {
+                custoIng = 5.20;
+                custoExt = 0.85;
+                preco = 24.00;
+                spec = "Pacote com 8 unidades";
+            }
+
+            const total = custoIng + custoExt;
+            const lucro = preco - total;
+            const margem = total > 0 ? ((lucro / total) * 100).toFixed(0) : 0;
+
+            document.getElementById('resumo-custo-ingredientes').innerText = custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-extras').innerText = custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-custo-total').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-preco-sugerido').innerText = preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margem}%`;
+
+            document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Massa / Produção Brownie</td>
+                    <td class="py-3 px-2 text-gray-600">${spec}</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
+                    <td class="py-3 px-2 text-gray-600">Por item/pacote</td>
+                    <td class="py-3 px-2 font-bold text-duda-brown">${custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                </tr>
+            `;
+        };
+
+        window.mudarCategoria = function() {
+            const cat = document.getElementById('categoria-produto').value;
+            if(cat === 'bombom') {
+                document.getElementById('container-select-bombom').classList.remove('hidden');
+                document.getElementById('container-select-brownie').classList.add('hidden');
+                calcularBombom();
+            } else {
+                document.getElementById('container-select-bombom').classList.add('hidden');
+                document.getElementById('container-select-brownie').classList.remove('hidden');
+                calcularBrownie();
+            }
+        };
+
+        function carregarSimulador() {
+            const container = document.getElementById('simulador-inputs');
+            if(!container) return;
+            let html = '';
+            for(let [insumo, dados] of Object.entries(insumosBase)) {
+                html += `
+                    <div class="bg-duda-cream/60 p-4 rounded-2xl border border-duda-pink/30 space-y-1">
+                        <label class="block text-xs font-bold text-gray-500 truncate" title="${insumo}">${insumo}</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-duda-brown">R$</span>
+                            <input type="number" step="0.01" id="input-${insumo}" value="${dados.valor}" onchange="atualizarSimuladorLocal()" class="w-full bg-white p-2.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-brown outline-none">
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        window.atualizarSimuladorLocal = function() {
+            for(let insumo of Object.keys(insumosBase)) {
+                const inputEl = document.getElementById(`input-${insumo}`);
+                if(inputEl) {
+                    insumosBase[insumo].valor = parseFloat(inputEl.value) || 0;
+                }
+            }
+            const cat = document.getElementById('categoria-produto').value;
+            if(cat === 'bombom') calcularBombom();
+            else calcularBrownie();
+        };
+
+        window.salvarNovosPrecosInsumos = async function() {
+            atualizarSimuladorLocal();
+            try {
+                await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
+                    insumosBase,
+                    atualizadoEm: serverTimestamp()
+                });
+                showToast("Custos salvos e sincronizados no Firebase!");
+            } catch (e) {
+                console.error("Erro ao salvar novos preços:", e);
+                showToast("Erro ao salvar custos no Firebase.");
+            }
+        };
+
+        // --- CATÁLOGO DE PREÇOS DA LOJA (INDEX.HTML) ---
+        function iniciarOuvinteCatalogo() {
+            const docRef = doc(db, "configuracoes", "catalogo_loja");
+            onSnapshot(docRef, (snap) => {
+                if (snap.exists() && Array.isArray(snap.data().itens)) {
+                    catalogoLoja = snap.data().itens;
+                }
+                renderizarTabelaCatalogo();
+            });
+        }
+
+        function renderizarTabelaCatalogo() {
+            const tbody = document.getElementById("tabela-catalogo-body");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            catalogoLoja.forEach((item, idx) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-duda-cream/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4"><input type="text" value="${item.id || ''}" onchange="atualizarItemCatalogo(${idx}, 'id', this.value)" class="font-mono text-xs text-gray-600"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-semibold text-duda-brown"></td>
+                    <td class="py-2.5 px-4"><input type="number" step="0.01" value="${item.preco ?? 0}" onchange="atualizarItemCatalogo(${idx}, 'preco', parseFloat(this.value) || 0)" class="font-bold text-duda-red"></td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="removerItemCatalogo(${idx})" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Remover item">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.atualizarItemCatalogo = function(idx, campo, valor) {
+            if (!catalogoLoja[idx]) return;
+            catalogoLoja[idx][campo] = valor;
+        };
+
+        window.adicionarProdutoCatalogo = function() {
+            catalogoLoja.push({
+                id: `produto-${Date.now().toString().slice(-4)}`,
+                nome: "Novo Produto",
+                preco: 10.00
+            });
+            renderizarTabelaCatalogo();
+        };
+
+        window.removerItemCatalogo = function(idx) {
+            catalogoLoja.splice(idx, 1);
+            renderizarTabelaCatalogo();
+        };
+
+        window.salvarPrecosCatalogoFirebase = async function() {
+            try {
+                await setDoc(doc(db, "configuracoes", "catalogo_loja"), {
+                    itens: catalogoLoja,
+                    atualizadoEm: serverTimestamp()
+                });
+                showToast("Preços da loja salvos no Firebase! A loja atualizará automaticamente.");
             } catch (e) {
                 console.error("Erro ao salvar catálogo:", e);
-                showToast("Erro ao salvar preços.");
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Salvar Preços no Banco";
+                showToast("Erro ao salvar preços da loja.");
             }
         };
 
-        onSnapshot(catalogoRef, (snap) => {
-            if (snap.exists() && Array.isArray(snap.data().itens) && snap.data().itens.length > 0) {
-                linhasCatalogo = snap.data().itens;
-            }
-            renderTabelaPrecos();
-        });
+        // --- DASHBOARD ---
+        function iniciarOuvinteDashboard() {
+            const pedidosRef = collection(db, "pedidos");
+            const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
 
-        // --- CALCULADORA DE MARGEM ---
-        window.calcularMargem = function() {
-            const ins = parseFloat(document.getElementById("calc-insumos").value) || 0;
-            const emb = parseFloat(document.getElementById("calc-embalagem").value) || 0;
-            const venda = parseFloat(document.getElementById("calc-venda").value) || 0;
-            const lucro = venda - (ins + emb);
-            const margem = venda > 0 ? ((lucro / venda) * 100).toFixed(0) : 0;
-            document.getElementById("calc-resultado").textContent = `${fmtBRL(lucro)} (${margem}%)`;
-        };
+            onSnapshot(qPedidos, (queryPedidos) => {
+                let faturamentoTotal = 0;
+                let qtdPedidos = 0;
+                let tabelaHtml = "";
+                mapaClientesGlobal = {};
 
-        // --- PEDIDOS ---
-        onSnapshot(query(collection(db, "pedidos"), orderBy("dataPedido", "desc")), (snap) => {
-            const container = document.getElementById("lista-pedidos");
-            if (!container) return;
-            if (snap.empty) {
-                container.innerHTML = `<p class="text-xs text-gray-400">Nenhum pedido encontrado.</p>`;
-                return;
-            }
-            container.innerHTML = snap.docs.map(d => {
-                const p = d.data();
-                const itensTxt = (p.itens || []).map(i => `${i.quantity || i.qtd || 1}x ${i.name || i.nome}`).join(", ");
-                return `
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-sm text-duda-brown">${p.clienteNome || "Cliente"}</span>
-                            <span class="text-sm font-extrabold text-duda-red">${fmtBRL(p.valorTotal)}</span>
-                        </div>
-                        <p class="text-xs text-gray-500">${itensTxt}</p>
-                        <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
-                            <span>${p.tipoPedido === "entrega" ? "🛵 Entrega" : "🏪 Retirada"} • ${p.formaPagamento || "-"}</span>
-                            <span>${p.clienteTelefone || ""}</span>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        });
+                queryPedidos.forEach((docSnap) => {
+                    const p = docSnap.data();
+                    qtdPedidos++;
+                    faturamentoTotal += p.valorTotal || 0;
 
-        // --- FLUXO DE CAIXA & KPIS ---
-        document.getElementById("caixa-data").value = new Date().toISOString().split("T")[0];
+                    let dataFormatada = "Data não reg.";
+                    if (p.dataPedido && p.dataPedido.toDate) {
+                        dataFormatada = p.dataPedido.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                    }
 
-        document.getElementById("form-caixa").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const data = document.getElementById("caixa-data").value;
-            const descricao = document.getElementById("caixa-desc").value.trim();
-            const tipo = document.getElementById("caixa-tipo").value;
-            const valor = parseFloat(document.getElementById("caixa-valor").value) || 0;
+                    tabelaHtml += `
+                        <tr class="hover:bg-duda-cream/40 transition-colors">
+                            <td class="py-3 px-2 font-semibold text-duda-brown">${p.clienteNome || 'Cliente'}</td>
+                            <td class="py-3 px-2 text-gray-600 font-medium">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
+                            <td class="py-3 px-2 text-gray-600 font-medium">${p.formaPagamento || 'Pix'}</td>
+                            <td class="py-3 px-2 font-bold text-duda-red">R$ ${(p.valorTotal || 0).toFixed(2).replace('.', ',')}</td>
+                            <td class="py-3 px-2 text-xs text-gray-500 font-medium">${dataFormatada}</td>
+                            <td class="py-3 px-2 text-center">
+                                <button onclick="removerPedidoCompleto('${docSnap.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido e Caixa">
+                                    <i class="ph ph-trash text-base"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
 
-            await addDoc(collection(db, "fluxo_caixa"), {
-                data,
-                descricao,
-                categoria: tipo === "entrada" ? "Vendas" : "Insumos",
-                tipo,
-                valor,
-                statusPagamento: "pago",
-                criadoEm: serverTimestamp()
-            });
-            document.getElementById("caixa-desc").value = "";
-            document.getElementById("caixa-valor").value = "";
-            showToast("Lançamento adicionado!");
-        });
+                    if (p.clienteNome && p.dataPedido && p.dataPedido.toDate) {
+                        const dataCompra = p.dataPedido.toDate();
+                        if (!mapaClientesGlobal[p.clienteNome] || dataCompra > mapaClientesGlobal[p.clienteNome].data) {
+                            mapaClientesGlobal[p.clienteNome] = {
+                                data: dataCompra,
+                                telefone: p.clienteTelefone || ''
+                            };
+                        }
+                    }
+                });
 
-        window.alternarStatusCaixa = async function(id, statusAtual) {
-            const novo = statusAtual === "pago" ? "pendente" : "pago";
-            await updateDoc(doc(db, "fluxo_caixa", id), { statusPagamento: novo });
-        };
-
-        onSnapshot(query(collection(db, "fluxo_caixa"), orderBy("data", "desc")), (snap) => {
-            let entradasPagas = 0;
-            let pendentes = 0;
-            let saidas = 0;
-
-            const tbody = document.getElementById("tbody-caixa");
-            tbody.innerHTML = snap.docs.map(d => {
-                const c = d.data();
-                const val = Number(c.valor) || 0;
-                const pago = c.statusPagamento === "pago";
-
-                if (c.tipo === "entrada") {
-                    if (pago) entradasPagas += val;
-                    else pendentes += val;
-                } else {
-                    saidas += val;
+                if (queryPedidos.empty) {
+                    tabelaHtml = `<tr><td colspan="6" class="text-center py-6 text-gray-400">Nenhum pedido registrado ainda.</td></tr>`;
                 }
 
-                return `
-                    <tr>
-                        <td class="p-3.5">${c.data || "-"}</td>
-                        <td class="p-3.5 font-semibold text-duda-brown">${c.descricao || "-"}</td>
-                        <td class="p-3.5">${c.tipo === "entrada" ? "Entrada" : "Saída"}</td>
-                        <td class="p-3.5 font-bold ${c.tipo === "entrada" ? "text-emerald-600" : "text-red-600"}">${fmtBRL(val)}</td>
-                        <td class="p-3.5">
-                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${pago ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}">
-                                ${pago ? "Pago" : "Pendente"}
-                            </span>
-                        </td>
-                        <td class="p-3.5 text-right">
-                            <button onclick="alternarStatusCaixa('${d.id}', '${c.statusPagamento || "pendente"}')" class="text-xs font-bold text-duda-red hover:underline">
-                                Alternar Status
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join("");
+                document.getElementById('orders-table-body').innerHTML = tabelaHtml;
+                document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
-            document.getElementById("kpi-entradas").textContent = fmtBRL(entradasPagas);
-            document.getElementById("kpi-pendentes").textContent = fmtBRL(pendentes);
-            document.getElementById("kpi-saidas").textContent = fmtBRL(saidas);
-        });
+                atualizarListaInativos();
+            });
 
-        // --- ACESSOS ---
-        onSnapshot(collection(db, "acessos"), (snap) => {
-            let total = 0;
-            snap.forEach(d => { total += Number(d.data().totalAcessos || 1); });
-            document.getElementById("kpi-acessos").textContent = `${snap.size} / ${total}`;
-        });
+            const acessosRef = collection(db, "acessos");
+            onSnapshot(acessosRef, (queryAcessos) => {
+                let totalVisitantesUnicos = 0;
+                let totalAcessosSoma = 0;
+                let diasContagem = {};
 
-        // --- ESTOQUE COM FILTRO ---
-        let itensEstoque = [];
+                queryAcessos.forEach((docSnap) => {
+                    const a = docSnap.data();
+                    totalVisitantesUnicos++;
+                    totalAcessosSoma += (a.totalAcessos || 1);
 
-        document.getElementById("form-estoque").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const nome = document.getElementById("est-item").value.trim();
-            const status = document.getElementById("est-status").value;
-            await addDoc(collection(db, "estoque"), { nome, status, atualizadoEm: serverTimestamp() });
-            document.getElementById("est-item").value = "";
-            showToast("Item salvo no estoque!");
-        });
+                    if (a.ultimoAcesso && a.ultimoAcesso.toDate) {
+                        const diaStr = a.ultimoAcesso.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                        diasContagem[diaStr] = (diasContagem[diaStr] || 0) + (a.totalAcessos || 1);
+                    }
+                });
 
-        window.mudarStatusEstoque = async function(id, status) {
-            await updateDoc(doc(db, "estoque", id), { status, atualizadoEm: serverTimestamp() });
+                document.getElementById('stat-visitantes').innerText = totalVisitantesUnicos;
+                document.getElementById('stat-acessos-totais').innerText = totalAcessosSoma;
+
+                const labelsDias = Object.keys(diasContagem).sort();
+                const valoresDias = labelsDias.map(dia => diasContagem[dia]);
+                renderizarGraficoAcessos(labelsDias, valoresDias);
+            });
+        }
+
+        window.atualizarListaInativos = function() {
+            const limiteDias = parseInt(document.getElementById('filtro-dias-inativos').value) || 30;
+            const containerInativos = document.getElementById('inactive-clients-container');
+            let inativosHtml = "";
+            const hoje = new Date();
+            let qtdInativos = 0;
+
+            for (let [cliente, info] of Object.entries(mapaClientesGlobal)) {
+                const diffTime = Math.abs(hoje - info.data);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays >= limiteDias) {
+                    qtdInativos++;
+                    const dataFormatada = info.data.toLocaleDateString('pt-BR');
+                    const telFormatado = info.telefone ? `55${info.telefone}` : '';
+                    const msgWpp = encodeURIComponent(`Olá ${cliente}! Sentimos sua falta aqui na Duda Doces. Que tal aproveitar nossos doces artesanais hoje? Temos novidades te esperando! 🍫✨`);
+                    const linkWpp = telFormatado ? `https://api.whatsapp.com/send?phone=${telFormatado}&text=${msgWpp}` : `https://wa.me/?text=${msgWpp}`;
+
+                    inativosHtml += `
+                        <div class="bg-duda-cream/50 p-4 rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-3">
+                            <div>
+                                <h4 class="font-bold text-duda-brown text-sm">${cliente}</h4>
+                                <p class="text-xs text-gray-500">Última compra: ${dataFormatada} (${diffDays} dias atrás)</p>
+                                <p class="text-[11px] text-gray-400">Tel: ${info.telefone || 'Não informado'}</p>
+                            </div>
+                            <a href="${linkWpp}" target="_blank" class="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-sm shrink-0" title="Enviar Mensagem no WhatsApp">
+                                <i class="ph ph-whatsapp-logo text-xl"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+            }
+
+            if (qtdInativos === 0) {
+                inativosHtml = `<div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo há mais de ${limiteDias} dias. 🎉</div>`;
+            }
+            containerInativos.innerHTML = inativosHtml;
         };
 
-        window.removerEstoque = async function(id) {
-            await deleteDoc(doc(db, "estoque", id));
+        // --- CAIXA ---
+        function iniciarOuvinteCaixa() {
+            const caixaRef = collection(db, "fluxo_caixa");
+            const q = query(caixaRef, orderBy("data", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                listaCaixaMemoria = [];
+                snapshot.forEach((docSnap) => {
+                    listaCaixaMemoria.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                sincronizarOpcoesMes(listaCaixaMemoria);
+                aplicarFiltrosCaixa();
+            });
+        }
+
+        window.aplicarFiltrosCaixa = function() {
+            const mesFiltro = document.getElementById('filtro-mes')?.value || 'todos';
+            const statusFiltro = document.getElementById('filtro-status')?.value || 'todos';
+            const tipoFiltro = document.getElementById('filtro-tipo').value;
+            const categoriaFiltro = document.getElementById('filtro-categoria').value;
+            const termoBusca = normalizarBusca(document.getElementById('busca-caixa')?.value || '');
+
+            let dadosFiltrados = listaCaixaMemoria.filter(item => {
+                const statusItem = item.statusPagamento || 'pendente';
+                const matchMes = (mesFiltro === 'todos' || obterChaveMes(item.data) === mesFiltro);
+                const matchStatus = (statusFiltro === 'todos' || statusItem === statusFiltro);
+                const matchTipo = (tipoFiltro === 'todos' || item.tipo === tipoFiltro);
+                const matchCategoria = (categoriaFiltro === 'todas' || item.categoria === categoriaFiltro);
+                const matchBusca = (!termoBusca || normalizarBusca(item.descricao || '').includes(termoBusca));
+                return matchMes && matchStatus && matchTipo && matchCategoria && matchBusca;
+            });
+
+            renderizarTabelaCaixa(dadosFiltrados, mesFiltro);
         };
 
-        window.renderEstoque = function() {
-            const filtro = document.getElementById("filtro-status-estoque").value;
-            const lista = document.getElementById("lista-estoque");
-            const filtrados = filtro === "todos" ? itensEstoque : itensEstoque.filter(i => i.status === filtro);
+        window.renderizarTabelaCaixa = function(dados, mesFiltro = 'todos') {
+            const tbody = document.getElementById('tabela-caixa-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
 
-            if (filtrados.length === 0) {
-                lista.innerHTML = `<p class="text-xs text-gray-400">Nenhum item encontrado para este filtro.</p>`;
+            if (dados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros atuais.</td></tr>`;
+                calcularTotaisCaixa(dados, mesFiltro);
                 return;
             }
 
-            lista.innerHTML = filtrados.map(item => `
-                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-sm font-bold text-duda-brown">${item.nome}</p>
-                        <select onchange="mudarStatusEstoque('${item.id}', this.value)" class="mt-1.5 px-2.5 py-1 rounded-lg bg-duda-cream border border-gray-200 text-xs font-bold">
-                            <option value="Cheio" ${item.status === "Cheio" ? "selected" : ""}>Cheio</option>
-                            <option value="Metade" ${item.status === "Metade" ? "selected" : ""}>Metade</option>
-                            <option value="Vazio" ${item.status === "Vazio" ? "selected" : ""}>Vazio</option>
+            dados.forEach((item) => {
+                const status = item.statusPagamento || 'pendente';
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-duda-cream/40 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4"><input type="date" value="${item.data || ''}" onchange="atualizarCampoCaixa('${item.id}', 'data', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onchange="atualizarCampoCaixa('${item.id}', 'descricao', this.value)"></td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarCampoCaixa('${item.id}', 'categoria', this.value)">
+                            <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
+                            <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
+                            <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>📦 Embalagens</option>
+                            <option value="Transporte" ${item.categoria === 'Transporte' ? 'selected' : ''}>🚗 Transporte</option>
+                            <option value="Marketing" ${item.categoria === 'Marketing' ? 'selected' : ''}>📢 Marketing</option>
+                            <option value="Outros" ${item.categoria === 'Outros' ? 'selected' : ''}>⚙️ Outros</option>
                         </select>
-                    </div>
-                    <button onclick="removerEstoque('${item.id}')" class="text-xs font-semibold text-red-600 hover:underline">Excluir</button>
-                </div>
-            `).join("");
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarCampoCaixa('${item.id}', 'tipo', this.value)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                            <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
+                            <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
+                        </select>
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <input type="number" step="0.01" value="${item.valor || 0}" onchange="atualizarCampoCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarCampoCaixa('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
+                            <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
+                            <option value="pago" ${status === 'pago' ? 'selected' : ''}>✅ Pago Integral</option>
+                            <option value="50porcento" ${status === '50porcento' ? 'selected' : ''}>⚡ Pago 50% (Sinal)</option>
+                        </select>
+                    </td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="removerLancamentoCaixa('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            calcularTotaisCaixa(dados, mesFiltro);
         };
 
-        onSnapshot(collection(db, "estoque"), (snap) => {
-            itensEstoque = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderEstoque();
-        });
+        function calcularTotaisCaixa(dados, mesFiltro = 'todos') {
+            let totalEntradas = 0;
+            let totalSaidas = 0;
 
-        carregarSenha();
-        calcularMargem();
+            dados.forEach(item => {
+                const val = Number(item.valor) || 0;
+                const status = item.statusPagamento || 'pendente';
+
+                if (item.tipo === 'entrada') {
+                    if (status === 'pago') {
+                        totalEntradas += val;
+                    } else if (status === '50porcento') {
+                        totalEntradas += (val / 2);
+                    }
+                } else if (item.tipo === 'saida') {
+                    totalSaidas += val;
+                }
+            });
+
+            const saldo = totalEntradas - totalSaidas;
+            const fmtBRL = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            document.getElementById('resumo-entradas').innerText = fmtBRL(totalEntradas);
+            document.getElementById('resumo-saidas').innerText = fmtBRL(totalSaidas);
+
+            const elSaldo = document.getElementById('resumo-saldo');
+            elSaldo.innerText = fmtBRL(saldo);
+            elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5 tracking-tight" : "text-2xl font-bold text-duda-brown mt-0.5 tracking-tight";
+
+            const rotuloPeriodo = mesFiltro && mesFiltro !== 'todos' ? formatarNomeMes(mesFiltro) : 'Todos os meses';
+            document.getElementById('resumo-mes-titulo').innerText = `📅 Período: ${rotuloPeriodo}`;
+            document.getElementById('resumo-mes-vendas').innerText = `Entradas: ${fmtBRL(totalEntradas)}`;
+            document.getElementById('resumo-mes-gastos').innerText = `Saídas: ${fmtBRL(totalSaidas)}`;
+            document.getElementById('resumo-mes-saldo').innerText = `Saldo: ${fmtBRL(saldo)}`;
+        }
+
+        // --- ESTOQUE ---
+        function iniciarOuvinteEstoque() {
+            const estoqueRef = collection(db, "estoque");
+
+            onSnapshot(estoqueRef, async (snapshot) => {
+                listaEstoqueMemoria = [];
+                snapshot.forEach((docSnap) => {
+                    listaEstoqueMemoria.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                if (listaEstoqueMemoria.length === 0) {
+                    for (let item of itensIniciaisEstoque) {
+                        await addDoc(collection(db, "estoque"), item);
+                    }
+                    return;
+                }
+
+                renderizarTabelaEstoque(listaEstoqueMemoria);
+            });
+        }
+
+        window.renderizarTabelaEstoque = function(dados) {
+            const tbody = document.getElementById('tabela-estoque-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            dados.forEach((item) => {
+                const st = item.status || 'cheio';
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-duda-cream/40 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarCampoEstoque('${item.id}', 'nome', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.medida || ''}" onchange="atualizarCampoEstoque('${item.id}', 'medida', this.value)"></td>
+                    <td class="py-2.5 px-4">
+                        <select onchange="atualizarCampoEstoque('${item.id}', 'status', this.value)" class="font-semibold text-xs py-2 px-3 rounded-xl border border-gray-200 ${st === 'cheio' ? 'bg-green-50 text-green-700' : st === 'metade' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}">
+                            <option value="cheio" ${st === 'cheio' ? 'selected' : ''}>🟢 Cheio</option>
+                            <option value="metade" ${st === 'metade' ? 'selected' : ''}>🟡 Metade</option>
+                            <option value="vazio" ${st === 'vazio' ? 'selected' : ''}>🔴 Vazio (Comprar)</option>
+                        </select>
+                    </td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="removerItemEstoque('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.adicionarLancamentoFirebase = async function() {
+            const hoje = new Date().toISOString().split('T')[0];
+            try {
+                await addDoc(collection(db, "fluxo_caixa"), {
+                    data: hoje,
+                    descricao: 'Novo Lançamento',
+                    categoria: 'Ingredientes',
+                    tipo: 'saida',
+                    valor: 0.00,
+                    statusPagamento: 'pago',
+                    criadoEm: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Erro ao adicionar:", e);
+            }
+        };
+
+        window.atualizarCampoCaixa = async function(id, campo, valor) {
+            try {
+                await updateDoc(doc(db, "fluxo_caixa", id), { [campo]: valor });
+            } catch (e) {
+                console.error("Erro ao atualizar:", e);
+            }
+        };
+
+        window.removerLancamentoCaixa = async function(id) {
+            if (confirm("Deseja realmente excluir?")) {
+                try {
+                    await deleteDoc(doc(db, "fluxo_caixa", id));
+                } catch (e) {
+                    console.error("Erro ao excluir:", e);
+                }
+            }
+        };
+
+        window.removerPedidoCompleto = async function(pedidoId) {
+            if (confirm("Tem certeza que deseja excluir este pedido? O registro financeiro correspondente no Fluxo de Caixa também será apagado.")) {
+                try {
+                    await deleteDoc(doc(db, "pedidos", pedidoId));
+
+                    const caixaRef = collection(db, "fluxo_caixa");
+                    const qCaixa = query(caixaRef, where("pedidoId", "==", pedidoId));
+                    const snapshotCaixa = await getDocs(qCaixa);
+
+                    snapshotCaixa.forEach(async (docCaixa) => {
+                        await deleteDoc(doc(db, "fluxo_caixa", docCaixa.id));
+                    });
+
+                    showToast("Pedido e caixa excluídos com sucesso!");
+                } catch (e) {
+                    console.error("Erro ao excluir pedido vinculado:", e);
+                }
+            }
+        };
+
+        window.adicionarItemEstoque = async function() {
+            try {
+                await addDoc(collection(db, "estoque"), {
+                    nome: 'Novo Ingrediente',
+                    medida: '1 un',
+                    status: 'cheio',
+                    criadoEm: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Erro ao adicionar item no estoque:", e);
+            }
+        };
+
+        window.atualizarCampoEstoque = async function(id, campo, valor) {
+            try {
+                await updateDoc(doc(db, "estoque", id), { [campo]: valor });
+            } catch (e) {
+                console.error("Erro ao atualizar estoque:", e);
+            }
+        };
+
+        window.removerItemEstoque = async function(id) {
+            if (confirm("Deseja remover este item do estoque?")) {
+                try {
+                    await deleteDoc(doc(db, "estoque", id));
+                } catch (e) {
+                    console.error("Erro ao excluir do estoque:", e);
+                }
+            }
+        };
+
+        function renderizarGraficoAcessos(labels, data) {
+            const ctx = document.getElementById('accessChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Hoje'],
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Volume Diário',
+                            data: data.length > 0 ? data : [0],
+                            backgroundColor: 'rgba(138, 43, 43, 0.85)',
+                            borderRadius: 6,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Tendência',
+                            data: data.length > 0 ? data : [0],
+                            borderColor: '#B38B59',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            tension: 0.3,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'top' } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            toast.innerText = text;
+            toast.style.visibility = "visible";
+            setTimeout(() => { toast.style.visibility = "hidden"; }, 3000);
+        }
+
+        window.addEventListener('load', async () => {
+            await carregarSenhaAdmin();
+            if (sessionStorage.getItem("duda_admin_autenticado") === "sim") {
+                liberarPainel();
+            }
+        });
     </script>
 </body>
 </html>
