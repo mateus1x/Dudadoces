@@ -569,7 +569,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Senha padrão caso ainda não exista senha configurada no Firestore
         const SENHA_PADRAO_ADMIN = "2909";
         let senhaAdminAtual = SENHA_PADRAO_ADMIN;
         let painelInicializado = false;
@@ -619,17 +618,17 @@
         };
 
         let catalogoLoja = [
-            { id: 'brownie-bite', nome: 'Brownie Bite (Unidade)', preco: 3.50 },
-            { id: 'brownie-pacote-8', nome: 'Pacote com 8 Brownie Bites', preco: 24.00 },
             { id: 'brownie-tradicional', nome: 'Brownie Tradicional', preco: 7.00 },
-            { id: 'bombom-morango-ninho', nome: 'Bombom no Pote - Morango com Ninho', preco: 12.00 },
-            { id: 'morango-do-amor', nome: 'Morango do Amor', preco: 12.00 }
+            { id: 'brownie-ninho', nome: 'Brownie com Leite Ninho', preco: 12.00 },
+            { id: 'brownie-chocolate', nome: 'Brownie com Chocolate', preco: 12.00 },
+            { id: 'brownie-bite', nome: 'Pacote 8 Brownie Bites', preco: 7.00 },
+            { id: 'Morango-ninho-branco', nome: 'Bombom Morango + Ninho + Branco', preco: 10.00 }
         ];
 
         // --- CONTROLE DE ACESSO ---
         async function carregarSenhaAdmin() {
             try {
-                const snap = await getDoc(doc(db, "configuracoes", "acesso_admin"));
+                const snap = await getDoc(doc(db, "configuracao", "acesso_admin"));
                 if (snap.exists() && snap.data().senha) {
                     senhaAdminAtual = String(snap.data().senha);
                 }
@@ -931,7 +930,7 @@
 
         // --- CATÁLOGO DE PREÇOS DA LOJA (INDEX.HTML) ---
         function iniciarOuvinteCatalogo() {
-            const docRef = doc(db, "configuracoes", "catalogo_loja");
+            const docRef = doc(db, "configuracao", "catalogo_loja");
             onSnapshot(docRef, (snap) => {
                 if (snap.exists() && Array.isArray(snap.data().itens)) {
                     catalogoLoja = snap.data().itens;
@@ -983,11 +982,11 @@
 
         window.salvarPrecosCatalogoFirebase = async function() {
             try {
-                await setDoc(doc(db, "configuracoes", "catalogo_loja"), {
+                await setDoc(doc(db, "configuracao", "catalogo_loja"), {
                     itens: catalogoLoja,
                     atualizadoEm: serverTimestamp()
                 });
-                showToast("Preços da loja salvos no Firebase! A loja atualizará automaticamente.");
+                showToast("Preços da loja salvos em configuracao/catalogo_loja! A loja atualizará automaticamente.");
             } catch (e) {
                 console.error("Erro ao salvar catálogo:", e);
                 showToast("Erro ao salvar preços da loja.");
