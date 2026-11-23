@@ -388,9 +388,7 @@
                 <!-- Responsivo no Mobile -->
                 <div class="mb-8 bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-duda-pink/30 text-center shadow-sm relative z-10 max-w-2xl mx-auto">
                     <span class="text-xs font-bold uppercase tracking-widest text-duda-red block mb-3">✨ Acompanhe seu Bombom Sendo Montado:</span>
-                    <div id="assembly-animation-box" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 py-2 transition-all duration-300">
-                        <!-- Injetado dinamicamente via JS -->
-                    </div>
+                    <div id="assembly-animation-box" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 py-2 transition-all duration-300"></div>
                     <p id="assembly-text" class="text-sm font-serif italic text-duda-brown mt-3">Bombom de Morango com Ninho e Cobertura de Chocolate Branco</p>
                 </div>
 
@@ -415,9 +413,7 @@
                 <p class="text-lg text-gray-600 font-light max-w-2xl mx-auto">Casquinha crocante por fora, massa úmida e recheios incrivelmente cremosos.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" id="products-container">
-                <!-- Injetado via JS -->
-            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" id="products-container"></div>
         </section>
 
         <!-- SEÇÃO: FESTAS E EVENTOS -->
@@ -576,7 +572,7 @@
 
     <div id="toast">Item adicionado com sucesso!</div>
 
-    <!-- FUNÇÕES AUXILIARES DA LOJA -->
+    <!-- FUNÇÕES DA LOJA -->
     <script>
         const cursorDot = document.getElementById('cursorDot');
         let lastTrailTime = 0;
@@ -1173,7 +1169,7 @@
         }
 
         function escutarCatalogoLoja() {
-            onSnapshot(doc(db, "configuracoes", "catalogo_loja"), (snap) => {
+            onSnapshot(doc(db, "configuracao", "catalogo_loja"), (snap) => {
                 if (snap.exists() && Array.isArray(snap.data().itens)) {
                     window.aplicarCatalogoFirebase(snap.data().itens);
                 }
@@ -1218,10 +1214,10 @@
                 }
             }
 
-            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            let taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
-            let total = subtotal + taxaEntrega;
-            let dataHoje = new Date().toISOString().split('T')[0];
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
+            const total = subtotal + taxaEntrega;
+            const dataHoje = new Date().toISOString().split('T')[0];
 
             const dadosPedido = {
                 clienteNome: name,
