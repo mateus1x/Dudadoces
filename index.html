@@ -2,7 +2,7 @@
 <html lang="pt-BR" class="scroll-smooth">
 <head>
     <link rel="icon" type="image/png" href="Morango.png">
-    <link rel="apple-touch-icon" href="Morango.png">
+<link rel="apple-touch-icon" href="Morango.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duda Doces - Doces Artesanais</title>
@@ -576,13 +576,203 @@
 
     <div id="toast">Item adicionado com sucesso!</div>
 
-    <!-- DADOS E FUNÇÕES PRINCIPAIS DA LOJA -->
+    <!-- SCRIPT DO FIREBASE E APLICAÇÃO -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
+            authDomain: "dudadoces.firebaseapp.com",
+            projectId: "dudadoces",
+            storageBucket: "dudadoces.firebasestorage.app",
+            messagingSenderId: "616273504505",
+            appId: "1:616273504505:web:492fb9185a1cc0d1b5da28",
+            measurementId: "G-9NZ8YG2YD4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.query = query;
+        window.where = where;
+        window.getDocs = getDocs;
+        window.serverTimestamp = serverTimestamp;
+
+        async function registrarAcesso() {
+            try {
+                let visitanteId = localStorage.getItem('duda_visitante_id');
+
+                if (!visitanteId) {
+                    visitanteId = 'user_' + Math.random().toString(36).substring(2) + Date.now();
+                    localStorage.setItem('duda_visitante_id', visitanteId);
+
+                    await addDoc(collection(db, "acessos"), {
+                        visitanteId: visitanteId,
+                        totalAcessos: 1,
+                        primeiroAcesso: serverTimestamp(),
+                        ultimoAcesso: serverTimestamp(),
+                        dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
+                    });
+                } else {
+                    const q = query(collection(db, "acessos"), where("visitanteId", "==", visitanteId));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        querySnapshot.forEach(async (documento) => {
+                            const docRef = doc(db, "acessos", documento.id);
+                            const qtdAtual = documento.data().totalAcessos || 1;
+
+                            await updateDoc(docRef, {
+                                totalAcessos: qtdAtual + 1,
+                                ultimoAcesso: serverTimestamp()
+                            });
+                        });
+                    } else {
+                        await addDoc(collection(db, "acessos"), {
+                            visitanteId: visitanteId,
+                            totalAcessos: 1,
+                            primeiroAcesso: serverTimestamp(),
+                            ultimoAcesso: serverTimestamp(),
+                            dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao gerenciar acesso inteligente: ", e);
+            }
+        }
+
+       window.finalizeOrderWpp = async function() {
+            const name = document.getElementById('client-name').value.trim();
+            const phoneInput = document.getElementById('client-phone').value.trim();
+            const phone = phoneInput.replace(/\D/g, '');
+            const deliveryType = document.getElementById('delivery-type').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+
+            if (!name) {
+                showToast("Por favor, preencha seu nome completo.");
+                document.getElementById('client-name').focus();
+                return;
+            }
+
+            if (!phone || phone.length < 10) {
+                showToast("Por favor, preencha um número de WhatsApp válido.");
+                document.getElementById('client-phone').focus();
+                return;
+            }
+
+            if (!paymentMethod) {
+                showToast("Por favor, selecione a forma de pagamento.");
+                document.getElementById('payment-method').focus();
+                return;
+            }
+
+            let rua = '', numero = '', bairro = '', cep = '';
+            if (deliveryType === 'entrega') {
+                rua = document.getElementById('client-rua').value.trim();
+                numero = document.getElementById('client-numero').value.trim();
+                bairro = document.getElementById('client-bairro').value.trim();
+                cep = document.getElementById('client-cep').value.trim();
+
+                if (!rua || !numero || !bairro) {
+                    showToast("Por favor, preencha todos os campos do endereço.");
+                    return;
+                }
+            }
+
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            let taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
+            let total = subtotal + taxaEntrega;
+            let dataHoje = new Date().toISOString().split('T')[0];
+
+            const dadosPedido = {
+                clienteNome: name,
+                clienteTelefone: phone,
+                tipoPedido: deliveryType,
+                endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
+                formaPagamento: paymentMethod,
+                itens: cart,
+                subtotal: subtotal,
+                taxaEntrega: taxaEntrega,
+                valorTotal: total,
+                dataPedido: serverTimestamp()
+            };
+
+            try {
+                const pedidoRef = await addDoc(collection(db, "pedidos"), dadosPedido);
+                const pedidoId = pedidoRef.id;
+
+                await addDoc(collection(db, "fluxo_caixa"), {
+                    pedidoId: pedidoId,
+                    data: dataHoje,
+                    descricao: `Venda p/ ${name} (${deliveryType === 'entrega' ? 'Entrega' : 'Retirada'})`,
+                    categoria: 'Vendas',
+                    tipo: 'entrada',
+                    valor: total,
+                    statusPagamento: 'pendente',
+                    criadoEm: serverTimestamp()
+<!-- Exemplo nos cards/elementos de preço do index.html -->
+<span data-preco-id="brownie-bite">R$ 3,50</span>
+
+@@ -34,11 +753,520 @@
+                    style: "currency",
+                    currency: "BRL"
+                });
+            } catch (e) {
+                console.error("Erro ao salvar pedido no Firebase: ", e);
+            }
+
+            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
+            message += `👤 *Cliente:* ${name}\n`;
+            message += `📱 *Telefone:* ${phoneInput}\n`;
+            message += `🛍️ *Itens do Pedido:*\n`;
+
+            cart.forEach(item => {
+                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
+            });
+
+            message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
+            if (deliveryType === 'entrega') {
+                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
+                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
+            }
+            message += `💳 *Pagamento:* ${paymentMethod}\n`;
+            message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
+            message += `Aguardando confirmação! ✨`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
+            
+            cart = [];
+            backToCartItems();
+            updateCartUI();
+            toggleCart();
+
+            window.location.href = wppUrl;
+        };
+
+        window.addEventListener('load', () => {
+            renderProducts();
+            initCarousel();
+            updateCustomBombomAnimation();
+            updateCustomBombomTotal();
+            registrarAcesso();
+        });
+    </script>
+
+    <!-- Funções auxiliares -->
     <script>
         const cursorDot = document.getElementById('cursorDot');
         let lastTrailTime = 0;
 
         window.addEventListener('mousemove', (e) => {
-            if (cursorDot) {
+            if(cursorDot) {
                 cursorDot.style.left = `${e.clientX}px`;
                 cursorDot.style.top = `${e.clientY}px`;
             }
@@ -608,18 +798,17 @@
             }, 800);
         }
 
-        // O slug (`slug`) liga cada card ao ID usado na tabela "Preços da Loja" do admin.html
         const products = [
-            { id: 4, slug: "brownie-tradicional", name: "Brownie Tradicional", description: "Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.", price: 7.00, category: "Brownies", image: "Brownie.png" },
-            { id: 5, slug: "brownie-ninho", name: "Brownie com Leite Ninho", description: "O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.", price: 12.00, category: "Brownies Recheados", image: "Brownie Ninho.png" },
-            { id: 6, slug: "brownie-chocolate", name: "Brownie com Chocolate", description: "Brownie artesanal recheado com ganache cremosa de chocolate nobre.", price: 12.00, category: "Brownies Recheados", image: "Brownie Chocolate.png" },
-            { id: 7, slug: "brownie-bite", name: "Pacote 8 Brownie Bites", description: "Pacotinho com 8 mini quadradinhos do nosso brownie tradicional. A porção perfeita para matar a vontade!", price: 7.00, category: "Porções", image: "Brownie Bite.png" }
+            { id: 4, name: "Brownie Tradicional", description: "Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.", price: 7.00, category: "Brownies", image: "Brownie.png" },
+            { id: 5, name: "Brownie com Leite Ninho", description: "O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.", price: 12.00, category: "Brownies Recheados", image: "Brownie Ninho.png" },
+            { id: 6, name: "Brownie com Chocolate", description: "Brownie artesanal recheado com ganache cremosa de chocolate nobre.", price: 12.00, category: "Brownies Recheados", image: "Brownie Chocolate.png" },
+            { id: 7, name: "Pacote 8 Brownie Bites", description: "Pacotinho com 8 mini quadradinhos do nosso brownie tradicional. A porção perfeita para matar a vontade!", price: 7.00, category: "Porções", image: "Brownie Bite.png" }
         ];
 
         let cart = [];
         const DELIVERY_FEE = 8.00;
         const WPP_NUMBER = "5531983087045";
-
+        
         let customBombom = { fruta: 'Morango', recheio: 'ninho', cobertura: 'branco' };
 
         const bombomPrices = {
@@ -631,6 +820,7 @@
             "Uva-maracujá-branco": 12.00, "Uva-maracujá-chocolate": 12.00, "Uva-maracujá-calda": 15.00, "Uva-maracujá-cravejado": 15.00
         };
 
+        // Mapa de fotos (.jpeg) por combinação: fruta -> recheio -> cobertura
         const FOTOS_BOMBOM = {
             "morango-ninho-branco": "Morango Ninho Ninho.jpeg",
             "morango-ninho-chocolate": "Morango Ninho Chocolate.jpeg",
@@ -661,48 +851,6 @@
             "uva-maracujá-chocolate": "Uva Maracujá Chocolate.jpeg",
             "uva-maracujá-calda": "Uva Maracujá Amor.jpeg",
             "uva-maracujá-cravejado": "Uva Maracujá Cravejado.jpeg"
-        };
-
-        // Aplica preços vindos de configuracoes/catalogo_loja no admin.html
-        window.aplicarCatalogoFirebase = function(itensCatalogo) {
-            if (!Array.isArray(itensCatalogo)) return;
-
-            const mapaPrecos = {};
-            itensCatalogo.forEach((item) => {
-                if (!item || !item.id) return;
-                const valor = Number(item.preco);
-                if (!Number.isNaN(valor)) {
-                    mapaPrecos[String(item.id).trim()] = valor;
-                    mapaPrecos[String(item.id).trim().toLowerCase()] = valor;
-                }
-            });
-
-            products.forEach((prod) => {
-                const chaveExata = mapaPrecos[prod.slug] ?? mapaPrecos[String(prod.id)];
-                if (chaveExata !== undefined) {
-                    prod.price = chaveExata;
-                }
-            });
-
-            Object.keys(bombomPrices).forEach((chave) => {
-                if (mapaPrecos[chave] !== undefined) {
-                    bombomPrices[chave] = mapaPrecos[chave];
-                } else if (mapaPrecos[chave.toLowerCase()] !== undefined) {
-                    bombomPrices[chave] = mapaPrecos[chave.toLowerCase()];
-                }
-            });
-
-            cart.forEach((item) => {
-                if (item.slug && mapaPrecos[item.slug] !== undefined) {
-                    item.price = mapaPrecos[item.slug];
-                } else if (item.bombomKey && (mapaPrecos[item.bombomKey] !== undefined || mapaPrecos[item.bombomKey.toLowerCase()] !== undefined)) {
-                    item.price = mapaPrecos[item.bombomKey] ?? mapaPrecos[item.bombomKey.toLowerCase()];
-                }
-            });
-
-            renderProducts();
-            updateCustomBombomTotal();
-            updateCartUI();
         };
 
         function getCustomBombomImage(fruta, recheio, cobertura) {
@@ -756,7 +904,7 @@
         function showSlide(index) {
             const inner = document.getElementById('carouselInner');
             const indicators = document.querySelectorAll('.indicator');
-            if (!inner) return;
+            if(!inner) return;
             
             if (index >= 3) currentSlide = 0;
             else if (index < 0) currentSlide = 2;
@@ -765,7 +913,7 @@
             inner.style.transform = `translateX(-${currentSlide * 100}vw)`;
             
             indicators.forEach((ind, i) => {
-                if (i === currentSlide) ind.classList.add('active');
+                if(i === currentSlide) ind.classList.add('active');
                 else ind.classList.remove('active');
             });
         }
@@ -777,7 +925,6 @@
         }
 
         function startSlideTimer() {
-            clearInterval(slideInterval);
             slideInterval = setInterval(() => {
                 showSlide(currentSlide + 1);
             }, 6000);
@@ -792,7 +939,7 @@
             });
             
             const selectedBtn = document.getElementById(`btn-${category}-${value}`);
-            if (selectedBtn) {
+            if(selectedBtn) {
                 selectedBtn.classList.remove('border-gray-100', 'bg-white', 'font-semibold', 'text-gray-600');
                 selectedBtn.classList.add('border-duda-red', 'bg-duda-pink/20', 'font-bold', 'text-duda-brown');
             }
@@ -804,7 +951,7 @@
         function updateCustomBombomAnimation() {
             const box = document.getElementById('assembly-animation-box');
             const desc = document.getElementById('assembly-text');
-            if (!box || !desc) return;
+            if(!box || !desc) return;
 
             const frutaIcon = customBombom.fruta === 'Morango' ? '🍓' : '🍇';
             const frutaName = customBombom.fruta === 'Morango' ? 'Morango' : 'Uva';
@@ -835,34 +982,32 @@
 
         function getCustomBombomPrice() {
             const key = `${customBombom.fruta}-${customBombom.recheio}-${customBombom.cobertura}`;
-            return bombomPrices[key] ?? 10.00;
+            return bombomPrices[key] || 10.00;
         }
 
         function updateCustomBombomTotal() {
             const price = getCustomBombomPrice();
             const display = document.getElementById('custom-bombom-price-display');
-            if (display) display.innerText = formatMoney(price);
+            if(display) display.innerText = formatMoney(price);
             return price;
         }
 
         function addCustomBombomToCart() {
             const price = updateCustomBombomTotal();
-            const bombomKey = `${customBombom.fruta}-${customBombom.recheio}-${customBombom.cobertura}`;
-            const id = `custom-${bombomKey}`;
+            const id = `custom-${customBombom.fruta}-${customBombom.recheio}-${customBombom.cobertura}`;
             const name = `Bombom Personalizado (${customBombom.fruta} + ${customBombom.recheio} + ${customBombom.cobertura})`;
             const image = getCustomBombomImage(customBombom.fruta, customBombom.recheio, customBombom.cobertura);
 
             const existingItem = cart.find(item => item.id === id);
             if (existingItem) {
                 existingItem.quantity += 1;
-                existingItem.price = price;
             } else {
-                cart.push({ id, bombomKey, name, price, image, quantity: 1 });
+                cart.push({ id: id, name: name, price: price, image: image, quantity: 1 });
             }
             updateCartUI();
             
             const sidebar = document.getElementById('cart-sidebar');
-            if (cart.length === 1 && sidebar && sidebar.classList.contains('translate-x-full')) {
+            if(cart.length === 1 && sidebar && sidebar.classList.contains('translate-x-full')) {
                 toggleCart();
             } else {
                 showToast("✨ Bombom adicionado à sacola!");
@@ -872,7 +1017,7 @@
         function toggleCart() {
             const sidebar = document.getElementById('cart-sidebar');
             const overlay = document.getElementById('cart-overlay');
-            if (!sidebar || !overlay) return;
+            if(!sidebar || !overlay) return;
 
             if (sidebar.classList.contains('translate-x-full')) {
                 sidebar.classList.remove('translate-x-full');
@@ -892,7 +1037,6 @@
             const existingItem = cart.find(item => item.id === productId);
             if (existingItem) {
                 existingItem.quantity += 1;
-                existingItem.price = product.price;
             } else {
                 cart.push({ ...product, quantity: 1 });
             }
@@ -915,7 +1059,7 @@
                 cart = cart.filter(i => i.id != id);
             }
             updateCartUI();
-        };
+        }
 
         function updateCartUI() {
             const cartItemsContainer = document.getElementById('cart-items');
@@ -925,7 +1069,7 @@
             const btnNextStep = document.getElementById('btn-next-step');
 
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            if (cartCount) cartCount.innerText = totalItems;
+            if(cartCount) cartCount.innerText = totalItems;
 
             if (!cartItemsContainer) return;
 
@@ -937,9 +1081,9 @@
                         <p class="text-sm mt-1 text-gray-500">Que tal escolher algumas delícias agora?</p>
                     </div>
                 `;
-                if (cartSubtotal) cartSubtotal.innerText = formatMoney(0);
-                if (cartTotal) cartTotal.innerText = formatMoney(0);
-                if (btnNextStep) {
+                if(cartSubtotal) cartSubtotal.innerText = formatMoney(0);
+                if(cartTotal) cartTotal.innerText = formatMoney(0);
+                if(btnNextStep) {
                     btnNextStep.disabled = true;
                     btnNextStep.classList.add('opacity-50', 'cursor-not-allowed');
                 }
@@ -972,7 +1116,7 @@
             });
 
             cartItemsContainer.innerHTML = html;
-            if (cartSubtotal) cartSubtotal.innerText = formatMoney(subtotal);
+            if(cartSubtotal) cartSubtotal.innerText = formatMoney(subtotal);
 
             const deliveryType = document.getElementById('delivery-type')?.value || 'retirada';
             let total = subtotal;
@@ -980,8 +1124,8 @@
                 total += DELIVERY_FEE;
             }
 
-            if (cartTotal) cartTotal.innerText = formatMoney(total);
-            if (btnNextStep) {
+            if(cartTotal) cartTotal.innerText = formatMoney(total);
+            if(btnNextStep) {
                 btnNextStep.disabled = false;
                 btnNextStep.classList.remove('opacity-50', 'cursor-not-allowed');
             }
@@ -1037,12 +1181,12 @@
             if (cleanCep.length !== 8) return;
 
             const loading = document.getElementById('cep-loading');
-            if (loading) loading.classList.remove('hidden');
+            if(loading) loading.classList.remove('hidden');
 
             fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
                 .then(res => res.json())
                 .then(data => {
-                    if (loading) loading.classList.add('hidden');
+                    if(loading) loading.classList.add('hidden');
                     if (!data.erro) {
                         document.getElementById('client-rua').value = data.logradouro || '';
                         document.getElementById('client-bairro').value = data.bairro || '';
@@ -1050,7 +1194,7 @@
                     }
                 })
                 .catch(() => {
-                    if (loading) loading.classList.add('hidden');
+                    if(loading) loading.classList.add('hidden');
                 });
         }
 
@@ -1060,23 +1204,18 @@
         }
 
         function formatMoney(value) {
-            return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
         function showToast(text) {
             const toast = document.getElementById('toast');
-            if (!toast) return;
+            if(!toast) return;
             toast.innerText = text;
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderProducts();
-            initCarousel();
-            updateCustomBombomAnimation();
-            updateCustomBombomTotal();
-
             const inputPhone = document.getElementById('client-phone');
             if (inputPhone) {
                 inputPhone.addEventListener('input', (e) => {
@@ -1097,185 +1236,6 @@
                     e.target.value = value;
                 });
             }
-        });
-    </script>
-
-    <!-- SCRIPT DO FIREBASE (ACESSOS, CATÁLOGO EM TEMPO REAL E PEDIDOS) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
-            authDomain: "dudadoces.firebaseapp.com",
-            projectId: "dudadoces",
-            storageBucket: "dudadoces.firebasestorage.app",
-            messagingSenderId: "616273504505",
-            appId: "1:616273504505:web:492fb9185a1cc0d1b5da28",
-            measurementId: "G-9NZ8YG2YD4"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        async function registrarAcesso() {
-            try {
-                let visitanteId = localStorage.getItem('duda_visitante_id');
-
-                if (!visitanteId) {
-                    visitanteId = 'user_' + Math.random().toString(36).substring(2) + Date.now();
-                    localStorage.setItem('duda_visitante_id', visitanteId);
-
-                    await addDoc(collection(db, "acessos"), {
-                        visitanteId: visitanteId,
-                        totalAcessos: 1,
-                        primeiroAcesso: serverTimestamp(),
-                        ultimoAcesso: serverTimestamp(),
-                        dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
-                    });
-                } else {
-                    const q = query(collection(db, "acessos"), where("visitanteId", "==", visitanteId));
-                    const querySnapshot = await getDocs(q);
-
-                    if (!querySnapshot.empty) {
-                        querySnapshot.forEach(async (documento) => {
-                            const docRef = doc(db, "acessos", documento.id);
-                            const qtdAtual = documento.data().totalAcessos || 1;
-
-                            await updateDoc(docRef, {
-                                totalAcessos: qtdAtual + 1,
-                                ultimoAcesso: serverTimestamp()
-                            });
-                        });
-                    } else {
-                        await addDoc(collection(db, "acessos"), {
-                            visitanteId: visitanteId,
-                            totalAcessos: 1,
-                            primeiroAcesso: serverTimestamp(),
-                            ultimoAcesso: serverTimestamp(),
-                            dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
-                        });
-                    }
-                }
-            } catch (e) {
-                console.error("Erro ao gerenciar acesso inteligente: ", e);
-            }
-        }
-
-        function escutarCatalogoLoja() {
-            onSnapshot(doc(db, "configuracoes", "catalogo_loja"), (snap) => {
-                if (snap.exists() && Array.isArray(snap.data().itens)) {
-                    window.aplicarCatalogoFirebase(snap.data().itens);
-                }
-            });
-        }
-
-        window.finalizeOrderWpp = async function() {
-            const name = document.getElementById('client-name').value.trim();
-            const phoneInput = document.getElementById('client-phone').value.trim();
-            const phone = phoneInput.replace(/\D/g, '');
-            const deliveryType = document.getElementById('delivery-type').value;
-            const paymentMethod = document.getElementById('payment-method').value;
-
-            if (!name) {
-                showToast("Por favor, preencha seu nome completo.");
-                document.getElementById('client-name').focus();
-                return;
-            }
-
-            if (!phone || phone.length < 10) {
-                showToast("Por favor, preencha um número de WhatsApp válido.");
-                document.getElementById('client-phone').focus();
-                return;
-            }
-
-            if (!paymentMethod) {
-                showToast("Por favor, selecione a forma de pagamento.");
-                document.getElementById('payment-method').focus();
-                return;
-            }
-
-            let rua = '', numero = '', bairro = '', cep = '';
-            if (deliveryType === 'entrega') {
-                rua = document.getElementById('client-rua').value.trim();
-                numero = document.getElementById('client-numero').value.trim();
-                bairro = document.getElementById('client-bairro').value.trim();
-                cep = document.getElementById('client-cep').value.trim();
-
-                if (!rua || !numero || !bairro) {
-                    showToast("Por favor, preencha todos os campos do endereço.");
-                    return;
-                }
-            }
-
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
-            const total = subtotal + taxaEntrega;
-            const dataHoje = new Date().toISOString().split('T')[0];
-
-            const dadosPedido = {
-                clienteNome: name,
-                clienteTelefone: phone,
-                tipoPedido: deliveryType,
-                endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
-                formaPagamento: paymentMethod,
-                itens: cart,
-                subtotal: subtotal,
-                taxaEntrega: taxaEntrega,
-                valorTotal: total,
-                dataPedido: serverTimestamp()
-            };
-
-            try {
-                const pedidoRef = await addDoc(collection(db, "pedidos"), dadosPedido);
-                const pedidoId = pedidoRef.id;
-
-                await addDoc(collection(db, "fluxo_caixa"), {
-                    pedidoId: pedidoId,
-                    data: dataHoje,
-                    descricao: `Venda p/ ${name} (${deliveryType === 'entrega' ? 'Entrega' : 'Retirada'})`,
-                    categoria: 'Vendas',
-                    tipo: 'entrada',
-                    valor: total,
-                    statusPagamento: 'pendente',
-                    criadoEm: serverTimestamp()
-                });
-            } catch (e) {
-                console.error("Erro ao salvar pedido no Firebase: ", e);
-            }
-
-            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
-            message += `👤 *Cliente:* ${name}\n`;
-            message += `📱 *Telefone:* ${phoneInput}\n`;
-            message += `🛍️ *Itens do Pedido:*\n`;
-
-            cart.forEach(item => {
-                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
-            });
-
-            message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
-            if (deliveryType === 'entrega') {
-                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
-                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
-            }
-            message += `💳 *Pagamento:* ${paymentMethod}\n`;
-            message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
-            message += `Aguardando confirmação! ✨`;
-
-            const encodedMessage = encodeURIComponent(message);
-            const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
-            
-            cart = [];
-            backToCartItems();
-            updateCartUI();
-            toggleCart();
-
-            window.location.href = wppUrl;
-        };
-
-        window.addEventListener('load', () => {
-            registrarAcesso();
-            escutarCatalogoLoja();
         });
     </script>
 </body>
