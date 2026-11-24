@@ -385,7 +385,6 @@
                     </div>
                 </div>
                 
-                <!-- Responsivo no Mobile -->
                 <div class="mb-8 bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-duda-pink/30 text-center shadow-sm relative z-10 max-w-2xl mx-auto">
                     <span class="text-xs font-bold uppercase tracking-widest text-duda-red block mb-3">✨ Acompanhe seu Bombom Sendo Montado:</span>
                     <div id="assembly-animation-box" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 py-2 transition-all duration-300"></div>
@@ -604,12 +603,14 @@
             }, 800);
         }
 
-        const products = [
-            { id: 4, slug: "brownie-tradicional", name: "Brownie Tradicional", description: "Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.", price: 7.00, category: "Brownies", image: "Brownie.png" },
-            { id: 5, slug: "brownie-ninho", name: "Brownie com Leite Ninho", description: "O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.", price: 12.00, category: "Brownies Recheados", image: "Brownie Ninho.png" },
-            { id: 6, slug: "brownie-chocolate", name: "Brownie com Chocolate", description: "Brownie artesanal recheado com ganache cremosa de chocolate nobre.", price: 12.00, category: "Brownies Recheados", image: "Brownie Chocolate.png" },
-            { id: 7, slug: "brownie-bite", name: "Pacote 8 Brownie Bites", description: "Pacotinho com 8 mini quadradinhos do nosso brownie tradicional. A porção perfeita para matar a vontade!", price: 7.00, category: "Porções", image: "Brownie Bite.png" }
+        const baseProducts = [
+            { id: "brownie-tradicional", slug: "brownie-tradicional", name: "Brownie Tradicional", description: "Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.", price: 7.00, category: "Brownies", image: "Brownie.png" },
+            { id: "brownie-ninho", slug: "brownie-ninho", name: "Brownie com Leite Ninho", description: "O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.", price: 12.00, category: "Brownies Recheados", image: "Brownie Ninho.png" },
+            { id: "brownie-chocolate", slug: "brownie-chocolate", name: "Brownie com Chocolate", description: "Brownie artesanal recheado com ganache cremosa de chocolate nobre.", price: 12.00, category: "Brownies Recheados", image: "Brownie Chocolate.png" },
+            { id: "brownie-bite", slug: "brownie-bite", name: "Pacote 8 Brownie Bites", description: "Pacotinho com 8 mini quadradinhos do nosso brownie tradicional. A porção perfeita para matar a vontade!", price: 7.00, category: "Porções", image: "Brownie Bite.png" }
         ];
+
+        let products = baseProducts.map(p => ({ ...p }));
 
         let cart = [];
         const DELIVERY_FEE = 8.00;
@@ -662,6 +663,8 @@
             if (!Array.isArray(itensCatalogo)) return;
 
             const mapaPrecos = {};
+            const listaCatalogo = [];
+
             itensCatalogo.forEach((item) => {
                 if (!item || !item.id) return;
                 const valor = Number(item.preco);
@@ -670,14 +673,30 @@
                     mapaPrecos[chave] = valor;
                     mapaPrecos[chave.toLowerCase()] = valor;
                 }
-            });
-
-            products.forEach((prod) => {
-                const novoPreco = mapaPrecos[prod.slug] ?? mapaPrecos[prod.slug.toLowerCase()] ?? mapaPrecos[String(prod.id)];
-                if (novoPreco !== undefined) {
-                    prod.price = novoPreco;
+                if (item.nome && item.descricao !== undefined) {
+                    listaCatalogo.push({
+                        id: String(item.id).trim(),
+                        slug: String(item.id).trim(),
+                        name: item.nome,
+                        description: item.descricao,
+                        price: Number(item.preco) || 0,
+                        category: item.category || "Brownies",
+                        image: item.image || "Brownie.png"
+                    });
                 }
             });
+
+            if (listaCatalogo.length > 0) {
+                products = listaCatalogo;
+            } else {
+                products = baseProducts.map(p => ({ ...p }));
+                products.forEach((prod) => {
+                    const novoPreco = mapaPrecos[prod.slug] ?? mapaPrecos[prod.slug.toLowerCase()] ?? mapaPrecos[String(prod.id)];
+                    if (novoPreco !== undefined) {
+                        prod.price = novoPreco;
+                    }
+                });
+            }
 
             Object.keys(bombomPrices).forEach((chave) => {
                 const novoPreco = mapaPrecos[chave] ?? mapaPrecos[chave.toLowerCase()];
@@ -687,9 +706,11 @@
             });
 
             cart.forEach((item) => {
-                if (item.slug) {
-                    const novoPreco = mapaPrecos[item.slug] ?? mapaPrecos[item.slug.toLowerCase()];
-                    if (novoPreco !== undefined) item.price = novoPreco;
+                const produtoAtual = products.find(p => String(p.id) === String(item.id) || (item.slug && p.slug === item.slug));
+                if (produtoAtual) {
+                    item.name = produtoAtual.name;
+                    item.price = produtoAtual.price;
+                    item.image = produtoAtual.image;
                 } else if (item.bombomKey) {
                     const novoPreco = mapaPrecos[item.bombomKey] ?? mapaPrecos[item.bombomKey.toLowerCase()];
                     if (novoPreco !== undefined) item.price = novoPreco;
@@ -735,7 +756,7 @@
                         </div>
                         <div class="flex items-center justify-between pt-4 border-t border-gray-100">
                             <span class="text-2xl font-bold text-duda-red">${formatMoney(product.price)}</span>
-                            <button onclick="addToCart(${product.id})" class="btn-glow bg-duda-brown hover:bg-duda-red text-white p-3.5 rounded-2xl transition-all shadow-sm hover:shadow-lg flex items-center justify-center hover:scale-110 active:scale-95">
+                            <button onclick="addToCart('${product.id}')" class="btn-glow bg-duda-brown hover:bg-duda-red text-white p-3.5 rounded-2xl transition-all shadow-sm hover:shadow-lg flex items-center justify-center hover:scale-110 active:scale-95">
                                 <i class="ph ph-shopping-bag text-xl"></i>
                             </button>
                         </div>
@@ -882,13 +903,15 @@
         }
 
         function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
+            const product = products.find(p => String(p.id) === String(productId));
             if (!product) return;
 
-            const existingItem = cart.find(item => item.id === productId);
+            const existingItem = cart.find(item => String(item.id) === String(productId));
             if (existingItem) {
                 existingItem.quantity += 1;
                 existingItem.price = product.price;
+                existingItem.name = product.name;
+                existingItem.image = product.image;
             } else {
                 cart.push({ ...product, quantity: 1 });
             }
@@ -1250,22 +1273,35 @@
                 console.error("Erro ao salvar pedido no Firebase: ", e);
             }
 
-            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
-            message += `👤 *Cliente:* ${name}\n`;
-            message += `📱 *Telefone:* ${phoneInput}\n`;
-            message += `🛍️ *Itens do Pedido:*\n`;
+            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫
+
+`;
+            message += `👤 *Cliente:* ${name}
+`;
+            message += `📱 *Telefone:* ${phoneInput}
+`;
+            message += `🛍️ *Itens do Pedido:*
+`;
 
             cart.forEach(item => {
-                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
+                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})
+`;
             });
 
-            message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
+            message += `
+📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}
+`;
             if (deliveryType === 'entrega') {
-                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
-                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
+                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})
+`;
+                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}
+`;
             }
-            message += `💳 *Pagamento:* ${paymentMethod}\n`;
-            message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
+            message += `💳 *Pagamento:* ${paymentMethod}
+`;
+            message += `💰 *Total a Pagar:* *${formatMoney(total)}*
+
+`;
             message += `Aguardando confirmação! ✨`;
 
             const encodedMessage = encodeURIComponent(message);
