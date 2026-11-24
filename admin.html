@@ -207,9 +207,15 @@
                 <!-- Tabela de Pedidos e Inativos -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
-                        <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes
-                        </h2>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes
+                            </h2>
+                            <div class="relative w-full sm:w-64">
+                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                <input type="search" id="busca-pedidos" oninput="renderizarTabelaPedidos()" placeholder="Buscar cliente ou pagamento..." class="w-full bg-duda-cream pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                            </div>
+                        </div>
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -366,7 +372,17 @@
                             </h2>
                             <p class="text-xs text-gray-500 font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-56">
+                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
+                                <input type="search" id="busca-estoque" oninput="aplicarFiltrosEstoque()" placeholder="Buscar ingrediente..." class="w-full bg-duda-cream pl-10 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                            </div>
+                            <select id="filtro-status-estoque" onchange="aplicarFiltrosEstoque()" class="bg-duda-cream p-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">📦 Todos os status</option>
+                                <option value="vazio">🔴 Vazio (Comprar)</option>
+                                <option value="metade">🟡 Metade</option>
+                                <option value="cheio">🟢 Cheio</option>
+                            </select>
                             <button onclick="adicionarItemEstoque()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
                                 <i class="ph ph-plus-circle text-lg"></i> Adicionar Item
                             </button>
@@ -399,14 +415,14 @@
                             <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-cookie text-duda-red"></i> Produtos e Preços da Loja (index.html)
                             </h2>
-                            <p class="text-xs text-gray-500 font-medium">Adicione novos produtos no catálogo ou altere nome, descrição e valor diretamente aqui.</p>
+                            <p class="text-xs text-gray-500 font-medium">Edite direto na tabela (salva automaticamente ao sair do campo) ou adicione novos produtos.</p>
                         </div>
                         <div class="flex items-center gap-3 flex-wrap">
                             <button onclick="abrirModalProduto()" class="bg-duda-red hover:bg-[#6b1f1f] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
                                 <i class="ph ph-plus-circle text-lg"></i> Adicionar Produto
                             </button>
                             <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                                <i class="ph ph-floppy-disk text-lg"></i> Salvar Alterações na Loja
+                                <i class="ph ph-floppy-disk text-lg"></i> Forçar Sincronização
                             </button>
                         </div>
                     </div>
@@ -425,6 +441,23 @@
                             <tbody id="tabela-produtos-loja-body" class="text-sm divide-y divide-gray-100 font-medium"></tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Tabela de Preços do Monte seu Bombom -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-magic-wand text-duda-red"></i> Tabela de Preços — Monte seu Bombom
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Altere o valor de cada combinação (Fruta + Recheio + Cobertura). Atualiza a loja em tempo real.</p>
+                        </div>
+                        <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-floppy-disk text-lg"></i> Salvar Tabela de Bombons
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="tabela-precos-bombom-grid"></div>
                 </div>
             </div>
 
@@ -554,7 +587,7 @@
         </footer>
     </div>
 
-    <!-- Modal: Adicionar / Editar Produto no Catálogo (Responsivo na Vertical + Rodapé Fixo) -->
+    <!-- Modal: Adicionar / Editar Produto no Catálogo -->
     <div id="modal-produto" onclick="if(event.target === this) fecharModalProduto()" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white max-w-lg w-full max-h-[92dvh] sm:max-h-[90dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border border-duda-pink/40 flex flex-col overflow-hidden">
             
@@ -644,16 +677,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const SENHA_PADRAO_ADMIN = "2909";
-        let senhaAdminAtual = SENHA_PADRAO_ADMIN;
+        // Hash SHA-256 do PIN padrão para evitar exposição direta em texto puro no código
+        const HASH_SENHA_PADRAO = "4a782bd63547be5e4139137817f6cc10b59c871952972409f74f9e205b3a66f3";
+        let hashSenhaAdminAtual = HASH_SENHA_PADRAO;
         let painelInicializado = false;
 
         let myChart = null;
         let listaCaixaMemoria = [];
+        let listaPedidosMemoria = [];
         let listaEstoqueMemoria = [];
         let mapaClientesGlobal = {};
         let arquivoImagemSelecionado = null;
+        let urlPreviewTemporaria = null;
         let timerPreviewManual = null;
+        let campoCaixaEmEdicao = null;
+
+        async function gerarHashSha256(texto) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(String(texto));
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+        }
+
+        function limparUrlPreviewTemporaria() {
+            if (urlPreviewTemporaria) {
+                URL.revokeObjectURL(urlPreviewTemporaria);
+                urlPreviewTemporaria = null;
+            }
+        }
 
         const itensIniciaisEstoque = [
             { nome: 'Leite Condensado', medida: '395 g', status: 'cheio' },
@@ -729,11 +781,20 @@
             }
         ];
 
+        let precosBombomCatalogo = {
+            "Morango-ninho-branco": 10.00, "Morango-ninho-chocolate": 10.00, "Morango-ninho-calda": 12.00, "Morango-ninho-cravejado": 15.00,
+            "Morango-chocolate-branco": 10.00, "Morango-chocolate-chocolate": 10.00, "Morango-chocolate-calda": 12.00, "Morango-chocolate-cravejado": 15.00,
+            "Morango-maracujá-branco": 12.00, "Morango-maracujá-chocolate": 12.00, "Morango-maracujá-calda": 15.00, "Morango-maracujá-cravejado": 15.00,
+            "Uva-ninho-branco": 10.00, "Uva-ninho-chocolate": 10.00, "Uva-ninho-calda": 12.00, "Uva-ninho-cravejado": 15.00,
+            "Uva-chocolate-branco": 10.00, "Uva-chocolate-chocolate": 10.00, "Uva-chocolate-calda": 12.00, "Uva-chocolate-cravejado": 15.00,
+            "Uva-maracujá-branco": 12.00, "Uva-maracujá-chocolate": 12.00, "Uva-maracujá-calda": 15.00, "Uva-maracujá-cravejado": 15.00
+        };
+
         function gerarSlugId(nome = "") {
             const base = String(nome)
                 .toLowerCase()
                 .normalize("NFD")
-                .replace(/[̀-ͯ]/g, "")
+                .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[^a-z0-9]+/g, "-")
                 .replace(/^-+|-+$/g, "");
             return base || `produto-${Date.now().toString().slice(-4)}`;
@@ -773,11 +834,16 @@
         async function carregarSenhaAdmin() {
             try {
                 const snap = await getDoc(doc(db, "configuracao", "acesso_admin"));
-                if (snap.exists() && snap.data().senha) {
-                    senhaAdminAtual = String(snap.data().senha);
+                if (snap.exists()) {
+                    const dados = snap.data();
+                    if (dados.senhaHash) {
+                        hashSenhaAdminAtual = String(dados.senhaHash).toLowerCase();
+                    } else if (dados.senha) {
+                        hashSenhaAdminAtual = await gerarHashSha256(String(dados.senha));
+                    }
                 }
             } catch (e) {
-                console.warn("Usando senha padrão local:", e);
+                console.warn("Usando autenticação local padrão:", e);
             }
         }
 
@@ -811,7 +877,8 @@
             event.preventDefault();
             await carregarSenhaAdmin();
             const digitada = document.getElementById("input-senha-painel").value;
-            if (digitada === senhaAdminAtual) {
+            const hashDigitada = await gerarHashSha256(digitada);
+            if (hashDigitada === hashSenhaAdminAtual) {
                 document.getElementById("erro-login-painel").classList.add("hidden");
                 liberarPainel();
             } else {
@@ -823,7 +890,7 @@
             return String(texto)
                 .toLowerCase()
                 .normalize("NFD")
-                .replace(/[̀-ͯ]/g, "")
+                .replace(/[\u0300-\u036f]/g, "")
                 .trim();
         }
 
@@ -926,9 +993,12 @@
 
             const custoTotalProducao = custoIngredientesTotal + embalagem + adesivo + maoDeObra;
 
-            let precoVenda = 10.00;
-            if (coberturaVal === 'calda') precoVenda = 12.00;
-            if (coberturaVal === 'cravejado' || (recheioKey === 'Recheio Maracujá')) precoVenda = 15.00;
+            const frutaCombo = document.getElementById('filtro-fruta').value === 'morango' ? 'Morango' : 'Uva';
+            const recheioCombo = document.getElementById('filtro-recheio').value === 'maracuja' ? 'maracujá' : document.getElementById('filtro-recheio').value;
+            const coberturaCombo = coberturaVal === 'preto' ? 'chocolate' : coberturaVal;
+            const chaveCombo = `${frutaCombo}-${recheioCombo}-${coberturaCombo}`;
+
+            let precoVenda = precosBombomCatalogo[chaveCombo] ?? 10.00;
 
             const lucroReal = precoVenda - custoTotalProducao;
             const margemLucro = custoTotalProducao > 0 ? ((lucroReal / custoTotalProducao) * 100).toFixed(0) : 0;
@@ -1070,13 +1140,53 @@
             }
         };
 
+        function formatarRotuloComboBombom(chave) {
+            const [fruta, recheio, cobertura] = chave.split("-");
+            const mapaRecheio = { ninho: "Ninho", chocolate: "Chocolate", "maracujá": "Maracujá" };
+            const mapaCobertura = { branco: "Choc. Branco", chocolate: "Choc. Preto", calda: "Calda do Amor", cravejado: "Cravejado" };
+            return `${fruta} + ${mapaRecheio[recheio] || recheio} + ${mapaCobertura[cobertura] || cobertura}`;
+        }
+
+        function renderizarPrecosBombomGrid() {
+            const grid = document.getElementById("tabela-precos-bombom-grid");
+            if (!grid) return;
+            let html = "";
+            for (const [chave, valor] of Object.entries(precosBombomCatalogo)) {
+                html += `
+                    <div class="bg-duda-cream/60 p-3.5 rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-3">
+                        <span class="text-xs font-bold text-duda-brown leading-snug">${formatarRotuloComboBombom(chave)}</span>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <span class="text-xs font-bold text-gray-500">R$</span>
+                            <input type="number" step="0.50" value="${Number(valor).toFixed(2)}" onchange="atualizarPrecoBombomCatalogo('${chave}', parseFloat(this.value) || 0)" class="w-20 bg-white px-2.5 py-1.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-red text-right outline-none focus:border-duda-red">
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        window.atualizarPrecoBombomCatalogo = async function(chave, novoValor) {
+            precosBombomCatalogo[chave] = novoValor;
+            if (document.getElementById('categoria-produto')?.value === 'bombom') {
+                calcularBombom();
+            }
+            await salvarPrecosCatalogoFirebase(true);
+        };
+
         function iniciarOuvinteCatalogo() {
             const docRef = doc(db, "configuracao", "catalogo_loja");
             onSnapshot(docRef, (snap) => {
-                if (snap.exists() && Array.isArray(snap.data().itens)) {
-                    catalogoLoja = snap.data().itens;
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (Array.isArray(data.itens)) {
+                        catalogoLoja = data.itens;
+                    }
+                    if (data.precosBombom && typeof data.precosBombom === "object") {
+                        precosBombomCatalogo = { ...precosBombomCatalogo, ...data.precosBombom };
+                    }
                 }
                 renderizarTabelaProdutosLoja();
+                renderizarPrecosBombomGrid();
             });
         }
 
@@ -1117,6 +1227,7 @@
         }
 
         window.abrirModalProduto = function(idx = -1) {
+            limparUrlPreviewTemporaria();
             arquivoImagemSelecionado = null;
             document.getElementById("prod-edit-index").value = idx;
             document.getElementById("prod-imagem-arquivo").value = "";
@@ -1146,6 +1257,7 @@
         };
 
         window.fecharModalProduto = function() {
+            limparUrlPreviewTemporaria();
             arquivoImagemSelecionado = null;
             const modal = document.getElementById("modal-produto");
             modal.classList.add("hidden");
@@ -1165,9 +1277,10 @@
         window.previsualizarImagemProduto = function(event) {
             const file = event.target.files?.[0];
             if (!file) return;
+            limparUrlPreviewTemporaria();
             arquivoImagemSelecionado = file;
-            const tempUrl = URL.createObjectURL(file);
-            document.getElementById("prod-imagem-preview").src = tempUrl;
+            urlPreviewTemporaria = URL.createObjectURL(file);
+            document.getElementById("prod-imagem-preview").src = urlPreviewTemporaria;
             document.getElementById("prod-status-upload").innerText = `Arquivo selecionado: ${file.name}`;
         };
 
@@ -1235,7 +1348,7 @@
                     listaAtualizada.push(novoItem);
                 }
 
-                const tamanhoEstimadoBytes = new Blob([JSON.stringify(listaAtualizada)]).size;
+                const tamanhoEstimadoBytes = new Blob([JSON.stringify({ itens: listaAtualizada, precosBombom: precosBombomCatalogo })]).size;
                 if (tamanhoEstimadoBytes > 900000) {
                     showToast("Limite de armazenamento do catálogo atingido. Use imagens menores ou links.");
                     btnSalvar.disabled = false;
@@ -1245,6 +1358,7 @@
 
                 await setDoc(doc(db, "configuracao", "catalogo_loja"), {
                     itens: listaAtualizada,
+                    precosBombom: precosBombomCatalogo,
                     atualizadoEm: serverTimestamp()
                 });
 
@@ -1263,9 +1377,10 @@
 
         document.getElementById("form-produto-catalogo").addEventListener("submit", salvarProdutoCatalogoHandler);
 
-        window.atualizarItemCatalogo = function(idx, campo, valor) {
+        window.atualizarItemCatalogo = async function(idx, campo, valor) {
             if (!catalogoLoja[idx]) return;
             catalogoLoja[idx][campo] = valor;
+            await salvarPrecosCatalogoFirebase(true);
         };
 
         window.removerItemCatalogo = async function(idx) {
@@ -1275,6 +1390,7 @@
             try {
                 await setDoc(doc(db, "configuracao", "catalogo_loja"), {
                     itens: catalogoLoja,
+                    precosBombom: precosBombomCatalogo,
                     atualizadoEm: serverTimestamp()
                 });
                 showToast("Produto removido do catálogo!");
@@ -1283,13 +1399,14 @@
             }
         };
 
-        window.salvarPrecosCatalogoFirebase = async function() {
+        window.salvarPrecosCatalogoFirebase = async function(silencioso = false) {
             try {
                 await setDoc(doc(db, "configuracao", "catalogo_loja"), {
                     itens: catalogoLoja,
+                    precosBombom: precosBombomCatalogo,
                     atualizadoEm: serverTimestamp()
                 });
-                showToast("Produtos e preços salvos em configuracao/catalogo_loja!");
+                showToast(silencioso ? "Alteração salva automaticamente na loja!" : "Produtos e preços sincronizados com a loja!");
             } catch (e) {
                 console.error("Erro ao salvar catálogo:", e);
                 showToast("Erro ao salvar alterações da loja.");
@@ -1303,7 +1420,7 @@
             onSnapshot(qPedidos, (queryPedidos) => {
                 let faturamentoTotal = 0;
                 let qtdPedidos = 0;
-                let tabelaHtml = "";
+                listaPedidosMemoria = [];
                 mapaClientesGlobal = {};
 
                 queryPedidos.forEach((docSnap) => {
@@ -1316,20 +1433,14 @@
                         dataFormatada = p.dataPedido.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
                     }
 
-                    tabelaHtml += `
-                        <tr class="hover:bg-duda-cream/40 transition-colors">
-                            <td class="py-3 px-2 font-semibold text-duda-brown">${p.clienteNome || 'Cliente'}</td>
-                            <td class="py-3 px-2 text-gray-600 font-medium">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
-                            <td class="py-3 px-2 text-gray-600 font-medium">${p.formaPagamento || 'Pix'}</td>
-                            <td class="py-3 px-2 font-bold text-duda-red">R$ ${(p.valorTotal || 0).toFixed(2).replace('.', ',')}</td>
-                            <td class="py-3 px-2 text-xs text-gray-500 font-medium">${dataFormatada}</td>
-                            <td class="py-3 px-2 text-center">
-                                <button onclick="removerPedidoCompleto('${docSnap.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido e Caixa">
-                                    <i class="ph ph-trash text-base"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
+                    listaPedidosMemoria.push({
+                        id: docSnap.id,
+                        clienteNome: p.clienteNome || 'Cliente',
+                        tipoPedido: p.tipoPedido || 'retirada',
+                        formaPagamento: p.formaPagamento || 'Pix',
+                        valorTotal: p.valorTotal || 0,
+                        dataFormatada
+                    });
 
                     if (p.clienteNome && p.dataPedido && p.dataPedido.toDate) {
                         const dataCompra = p.dataPedido.toDate();
@@ -1342,14 +1453,10 @@
                     }
                 });
 
-                if (queryPedidos.empty) {
-                    tabelaHtml = `<tr><td colspan="6" class="text-center py-6 text-gray-400">Nenhum pedido registrado ainda.</td></tr>`;
-                }
-
-                document.getElementById('orders-table-body').innerHTML = tabelaHtml;
                 document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
+                renderizarTabelaPedidos();
                 atualizarListaInativos();
             });
 
@@ -1365,19 +1472,60 @@
                     totalAcessosSoma += (a.totalAcessos || 1);
 
                     if (a.ultimoAcesso && a.ultimoAcesso.toDate) {
-                        const diaStr = a.ultimoAcesso.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                        diasContagem[diaStr] = (diasContagem[diaStr] || 0) + (a.totalAcessos || 1);
+                        const dt = a.ultimoAcesso.toDate();
+                        const chaveIso = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+                        const rotuloBr = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                        if (!diasContagem[chaveIso]) {
+                            diasContagem[chaveIso] = { rotulo: rotuloBr, total: 0 };
+                        }
+                        diasContagem[chaveIso].total += (a.totalAcessos || 1);
                     }
                 });
 
                 document.getElementById('stat-visitantes').innerText = totalVisitantesUnicos;
                 document.getElementById('stat-acessos-totais').innerText = totalAcessosSoma;
 
-                const labelsDias = Object.keys(diasContagem).sort();
-                const valoresDias = labelsDias.map(dia => diasContagem[dia]);
+                const chavesOrdenadas = Object.keys(diasContagem).sort();
+                const labelsDias = chavesOrdenadas.map(k => diasContagem[k].rotulo);
+                const valoresDias = chavesOrdenadas.map(k => diasContagem[k].total);
                 renderizarGraficoAcessos(labelsDias, valoresDias);
             });
         }
+
+        window.renderizarTabelaPedidos = function() {
+            const tbody = document.getElementById('orders-table-body');
+            if (!tbody) return;
+
+            const termo = normalizarBusca(document.getElementById('busca-pedidos')?.value || '');
+            const filtrados = listaPedidosMemoria.filter(p => {
+                if (!termo) return true;
+                return (
+                    normalizarBusca(p.clienteNome).includes(termo) ||
+                    normalizarBusca(p.formaPagamento).includes(termo) ||
+                    normalizarBusca(p.tipoPedido).includes(termo)
+                );
+            });
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400">Nenhum pedido encontrado.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtrados.map(p => `
+                <tr class="hover:bg-duda-cream/40 transition-colors">
+                    <td class="py-3 px-2 font-semibold text-duda-brown">${p.clienteNome}</td>
+                    <td class="py-3 px-2 text-gray-600 font-medium">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
+                    <td class="py-3 px-2 text-gray-600 font-medium">${p.formaPagamento}</td>
+                    <td class="py-3 px-2 font-bold text-duda-red">R$ ${p.valorTotal.toFixed(2).replace('.', ',')}</td>
+                    <td class="py-3 px-2 text-xs text-gray-500 font-medium">${p.dataFormatada}</td>
+                    <td class="py-3 px-2 text-center">
+                        <button onclick="removerPedidoCompleto('${p.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido e Caixa">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        };
 
         window.atualizarListaInativos = function() {
             const limiteDias = parseInt(document.getElementById('filtro-dias-inativos').value) || 30;
@@ -1432,14 +1580,14 @@
             });
         }
 
-        window.aplicarFiltrosCaixa = function() {
+        function obterDadosCaixaFiltrados() {
             const mesFiltro = document.getElementById('filtro-mes')?.value || 'todos';
             const statusFiltro = document.getElementById('filtro-status')?.value || 'todos';
             const tipoFiltro = document.getElementById('filtro-tipo').value;
             const categoriaFiltro = document.getElementById('filtro-categoria').value;
             const termoBusca = normalizarBusca(document.getElementById('busca-caixa')?.value || '');
 
-            let dadosFiltrados = listaCaixaMemoria.filter(item => {
+            const dadosFiltrados = listaCaixaMemoria.filter(item => {
                 const statusItem = item.statusPagamento || 'pendente';
                 const matchMes = (mesFiltro === 'todos' || obterChaveMes(item.data) === mesFiltro);
                 const matchStatus = (statusFiltro === 'todos' || statusItem === statusFiltro);
@@ -1449,6 +1597,25 @@
                 return matchMes && matchStatus && matchTipo && matchCategoria && matchBusca;
             });
 
+            return { dadosFiltrados, mesFiltro };
+        }
+
+        window.aplicarFiltrosCaixa = function() {
+            const { dadosFiltrados, mesFiltro } = obterDadosCaixaFiltrados();
+            if (campoCaixaEmEdicao) {
+                calcularTotaisCaixa(dadosFiltrados, mesFiltro);
+                return;
+            }
+            renderizarTabelaCaixa(dadosFiltrados, mesFiltro);
+        };
+
+        window.marcarEdicaoCaixa = function(id, campo) {
+            campoCaixaEmEdicao = `${id}:${campo}`;
+        };
+
+        window.encerrarEdicaoCaixa = function() {
+            campoCaixaEmEdicao = null;
+            const { dadosFiltrados, mesFiltro } = obterDadosCaixaFiltrados();
             renderizarTabelaCaixa(dadosFiltrados, mesFiltro);
         };
 
@@ -1468,10 +1635,10 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-duda-cream/40 transition-colors';
                 tr.innerHTML = `
-                    <td class="py-2.5 px-4"><input type="date" value="${item.data || ''}" onchange="atualizarCampoCaixa('${item.id}', 'data', this.value)"></td>
-                    <td class="py-2.5 px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onchange="atualizarCampoCaixa('${item.id}', 'descricao', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="date" value="${item.data || ''}" onfocus="marcarEdicaoCaixa('${item.id}', 'data')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'data', this.value)"></td>
+                    <td class="py-2.5 px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="marcarEdicaoCaixa('${item.id}', 'descricao')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'descricao', this.value)"></td>
                     <td class="py-2.5 px-4">
-                        <select onchange="atualizarCampoCaixa('${item.id}', 'categoria', this.value)">
+                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'categoria')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'categoria', this.value)">
                             <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
                             <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
                             <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>📦 Embalagens</option>
@@ -1481,16 +1648,16 @@
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
-                        <select onchange="atualizarCampoCaixa('${item.id}', 'tipo', this.value)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'tipo')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'tipo', this.value)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                             <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
                             <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
                         </select>
                     </td>
                     <td class="py-2.5 px-4">
-                        <input type="number" step="0.01" value="${item.valor || 0}" onchange="atualizarCampoCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                        <input type="number" step="0.01" value="${item.valor || 0}" onfocus="marcarEdicaoCaixa('${item.id}', 'valor')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                     </td>
                     <td class="py-2.5 px-4">
-                        <select onchange="atualizarCampoCaixa('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
+                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'statusPagamento')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
                             <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
                             <option value="pago" ${status === 'pago' ? 'selected' : ''}>✅ Pago Integral</option>
                             <option value="50porcento" ${status === '50porcento' ? 'selected' : ''}>⚡ Pago 50% (Sinal)</option>
@@ -1560,14 +1727,33 @@
                     return;
                 }
 
-                renderizarTabelaEstoque(listaEstoqueMemoria);
+                aplicarFiltrosEstoque();
             });
         }
+
+        window.aplicarFiltrosEstoque = function() {
+            const termo = normalizarBusca(document.getElementById('busca-estoque')?.value || '');
+            const statusFiltro = document.getElementById('filtro-status-estoque')?.value || 'todos';
+
+            const filtrados = listaEstoqueMemoria.filter(item => {
+                const st = item.status || 'cheio';
+                const matchStatus = (statusFiltro === 'todos' || st === statusFiltro);
+                const matchBusca = (!termo || normalizarBusca(item.nome || '').includes(termo));
+                return matchStatus && matchBusca;
+            });
+
+            renderizarTabelaEstoque(filtrados);
+        };
 
         window.renderizarTabelaEstoque = function(dados) {
             const tbody = document.getElementById('tabela-estoque-body');
             if(!tbody) return;
             tbody.innerHTML = '';
+
+            if (dados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-400">Nenhum ingrediente encontrado para os filtros selecionados.</td></tr>`;
+                return;
+            }
 
             dados.forEach((item) => {
                 const st = item.status || 'cheio';
@@ -1611,6 +1797,11 @@
         };
 
         window.atualizarCampoCaixa = async function(id, campo, valor) {
+            const itemLocal = listaCaixaMemoria.find(i => i.id === id);
+            if (itemLocal) itemLocal[campo] = valor;
+            const { dadosFiltrados, mesFiltro } = obterDadosCaixaFiltrados();
+            calcularTotaisCaixa(dadosFiltrados, mesFiltro);
+
             try {
                 await updateDoc(doc(db, "fluxo_caixa", id), { [campo]: valor });
             } catch (e) {
