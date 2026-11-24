@@ -1324,6 +1324,8 @@
         window.getDocs = getDocs;
         window.serverTimestamp = serverTimestamp;
 
+        let enviandoPedido = false;
+
         async function registrarAcesso() {
             try {
                 let visitanteId = localStorage.getItem('duda_visitante_id');
@@ -1373,6 +1375,8 @@
         }
 
         window.finalizeOrderWpp = async function() {
+            if (enviandoPedido) return;
+
             const name = document.getElementById('client-name').value.trim();
             const phoneInput = document.getElementById('client-phone').value.trim();
             const phone = phoneInput.replace(/\D/g, '');
@@ -1408,26 +1412,41 @@
                 }
             }
 
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
-            const total = subtotal + taxaEntrega;
-            const dataHoje = new Date().toISOString().split('T')[0];
+            if (!Array.isArray(cart) || cart.length === 0) {
+                showToast("Sua sacola está vazia.");
+                return;
+            }
 
-            const dadosPedido = {
-                clienteNome: name,
-                clienteTelefone: phone,
-                tipoPedido: deliveryType,
-                endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
-                formaPagamento: paymentMethod,
-                itens: cart,
-                subtotal: subtotal,
-                taxaEntrega: taxaEntrega,
-                valorTotal: total,
-                statusPedido: 'pendente',
-                dataPedido: serverTimestamp()
-            };
+            enviandoPedido = true;
+            const btnNext = document.getElementById('btn-next-step');
+            const textoOriginalBtn = btnNext ? btnNext.innerHTML : '';
+            if (btnNext) {
+                btnNext.disabled = true;
+                btnNext.classList.add('opacity-50', 'cursor-not-allowed');
+                btnNext.innerHTML = `<span>Enviando pedido...</span>`;
+            }
 
             try {
+                const itensSnapshot = cart.map(item => ({ ...item }));
+                const subtotal = itensSnapshot.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
+                const total = subtotal + taxaEntrega;
+                const dataHoje = new Date().toISOString().split('T')[0];
+
+                const dadosPedido = {
+                    clienteNome: name,
+                    clienteTelefone: phone,
+                    tipoPedido: deliveryType,
+                    endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
+                    formaPagamento: paymentMethod,
+                    itens: itensSnapshot,
+                    subtotal: subtotal,
+                    taxaEntrega: taxaEntrega,
+                    valorTotal: total,
+                    statusPedido: 'pendente',
+                    dataPedido: serverTimestamp()
+                };
+
                 const pedidoRef = await addDoc(collection(db, "pedidos"), dadosPedido);
                 const pedidoId = pedidoRef.id;
 
@@ -1441,39 +1460,47 @@
                     statusPagamento: 'pendente',
                     criadoEm: serverTimestamp()
                 });
+
+                let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
+                message += `👤 *Cliente:* ${name}\n`;
+                message += `📱 *Telefone:* ${phoneInput}\n`;
+                message += `🛍️ *Itens do Pedido:*\n`;
+                itensSnapshot.forEach(item => {
+                    message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
+                });
+                message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
+                if (deliveryType === 'entrega') {
+                    message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
+                    message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
+                }
+                message += `💳 *Pagamento:* ${paymentMethod}\n`;
+                message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
+                message += `Aguardando confirmação! ✨`;
+
+                const encodedMessage = encodeURIComponent(message);
+                const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
+
+                cart = [];
+                backToCartItems();
+                updateCartUI();
+                toggleCart();
+
+                showToast("✅ Pedido registrado! Abrindo WhatsApp...");
+
+                const novaAbaWpp = window.open(wppUrl, '_blank', 'noopener,noreferrer');
+                if (!novaAbaWpp) {
+                    window.location.href = wppUrl;
+                }
             } catch (e) {
                 console.error("Erro ao salvar pedido no Firebase: ", e);
-            }
-
-            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
-            message += `👤 *Cliente:* ${name}\n`;
-            message += `📱 *Telefone:* ${phoneInput}\n`;
-            message += `🛍️ *Itens do Pedido:*\n`;
-            cart.forEach(item => {
-                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
-            });
-            message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
-            if (deliveryType === 'entrega') {
-                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
-                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
-            }
-            message += `💳 *Pagamento:* ${paymentMethod}\n`;
-            message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
-            message += `Aguardando confirmação! ✨`;
-
-            const encodedMessage = encodeURIComponent(message);
-            const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
-
-            cart = [];
-            backToCartItems();
-            updateCartUI();
-            toggleCart();
-
-            showToast("✅ Pedido registrado! Abrindo WhatsApp...");
-
-            const novaAbaWpp = window.open(wppUrl, '_blank', 'noopener,noreferrer');
-            if (!novaAbaWpp) {
-                window.location.href = wppUrl;
+                showToast("Erro ao registrar pedido. Tente novamente.");
+            } finally {
+                enviandoPedido = false;
+                const btnAtual = document.getElementById('btn-next-step');
+                if (btnAtual && currentCartStep === 'checkout') {
+                    btnAtual.disabled = cart.length === 0;
+                    btnAtual.innerHTML = textoOriginalBtn;
+                }
             }
         };
 
