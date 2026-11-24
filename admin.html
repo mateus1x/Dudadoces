@@ -655,6 +655,7 @@
         let listaEstoqueMemoria = [];
         let mapaClientesGlobal = {};
         let arquivoImagemSelecionado = null;
+        let timerPreviewManual = null;
 
         const itensIniciaisEstoque = [
             { nome: 'Leite Condensado', medida: '395 g', status: 'cheio' },
@@ -734,7 +735,7 @@
             const base = String(nome)
                 .toLowerCase()
                 .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[̀-ͯ]/g, "")
                 .replace(/[^a-z0-9]+/g, "-")
                 .replace(/^-+|-+$/g, "");
             return base || `produto-${Date.now().toString().slice(-4)}`;
@@ -824,7 +825,7 @@
             return String(texto)
                 .toLowerCase()
                 .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[̀-ͯ]/g, "")
                 .trim();
         }
 
@@ -1174,8 +1175,16 @@
 
         window.atualizarPreviewManual = function() {
             if (arquivoImagemSelecionado) return;
-            const val = document.getElementById("prod-imagem-url").value.trim() || "Brownie.png";
-            document.getElementById("prod-imagem-preview").src = val;
+            clearTimeout(timerPreviewManual);
+            timerPreviewManual = setTimeout(() => {
+                const val = document.getElementById("prod-imagem-url").value.trim() || "Brownie.png";
+                const imgPreview = document.getElementById("prod-imagem-preview");
+                imgPreview.onerror = () => {
+                    imgPreview.onerror = null;
+                    imgPreview.src = "Brownie.png";
+                };
+                imgPreview.src = val;
+            }, 400);
         };
 
         async function salvarProdutoCatalogoHandler(e) {
@@ -1207,14 +1216,16 @@
 
             try {
                 if (arquivoImagemSelecionado) {
-                    document.getElementById("prod-status-upload").innerText = "Enviando imagem...";
+                    document.getElementById("prod-status-upload").innerText = "Processando imagem...";
                     try {
                         const nomeSeguro = arquivoImagemSelecionado.name.replace(/[^a-zA-Z0-9._-]/g, "_");
                         const storageRef = ref(storage, `catalogo_produtos/${Date.now()}_${nomeSeguro}`);
-                        await uploadBytes(storageRef, arquivoImagemSelecionado);
+                        await Promise.race([
+                            uploadBytes(storageRef, arquivoImagemSelecionado),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout Storage")), 4000))
+                        ]);
                         imagemFinal = await getDownloadURL(storageRef);
-                    } catch (uploadErr) {
-                        console.warn("Storage indisponível, salvando imagem otimizada localmente:", uploadErr);
+                    } catch (_) {
                         imagemFinal = await converterImagemParaDataUrlLeve(arquivoImagemSelecionado);
                     }
                 }
@@ -1244,10 +1255,10 @@
                 catalogoLoja = listaAtualizada;
                 renderizarTabelaProdutosLoja();
                 fecharModalProduto();
-                showToast("Produto salvo no banco e sincronizado na loja!");
+                showToast("Produto salvo e catálogo atualizado!");
             } catch (err) {
                 console.error("Erro ao salvar produto:", err);
-                showToast("Erro ao salvar produto. Verifique sua conexão ou permissões.");
+                showToast("Erro ao salvar no banco.");
             } finally {
                 btnSalvar.disabled = false;
                 if (btnTexto) btnTexto.innerText = "Salvar Produto";
