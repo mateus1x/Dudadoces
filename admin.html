@@ -1618,12 +1618,47 @@
             }
         };
 
+        async function excluirPedidoVinculadoSeExistir(pedidoId) {
+            if (!pedidoId) return;
+            try {
+                await deleteDoc(doc(db, "pedidos", pedidoId));
+            } catch (e) {
+                console.warn("Pedido já removido ou inexistente:", e);
+            }
+        }
+
+        async function excluirLancamentosCaixaVinculados(pedidoId) {
+            if (!pedidoId) return;
+            const caixaRef = collection(db, "fluxo_caixa");
+            const qCaixa = query(caixaRef, where("pedidoId", "==", pedidoId));
+            const snapshotCaixa = await getDocs(qCaixa);
+
+            const exclusoes = [];
+            snapshotCaixa.forEach((docCaixa) => {
+                exclusoes.push(deleteDoc(doc(db, "fluxo_caixa", docCaixa.id)));
+            });
+            await Promise.all(exclusoes);
+        }
+
         window.removerLancamentoCaixa = async function(id) {
-            if (confirm("Deseja realmente excluir?")) {
+            const lancamento = listaCaixaMemoria.find(item => item.id === id);
+            const temPedidoVinculado = Boolean(lancamento && lancamento.pedidoId);
+            const mensagem = temPedidoVinculado
+                ? "Deseja realmente excluir este lançamento? O pedido correspondente no Dashboard também será excluído."
+                : "Deseja realmente excluir este lançamento do Fluxo de Caixa?";
+
+            if (confirm(mensagem)) {
                 try {
                     await deleteDoc(doc(db, "fluxo_caixa", id));
+                    if (temPedidoVinculado) {
+                        await excluirPedidoVinculadoSeExistir(lancamento.pedidoId);
+                        showToast("Lançamento e pedido no Dashboard excluídos!");
+                    } else {
+                        showToast("Lançamento excluído do Fluxo de Caixa!");
+                    }
                 } catch (e) {
-                    console.error("Erro ao excluir:", e);
+                    console.error("Erro ao excluir lançamento:", e);
+                    showToast("Erro ao excluir lançamento.");
                 }
             }
         };
@@ -1632,18 +1667,11 @@
             if (confirm("Tem certeza que deseja excluir este pedido? O registro financeiro correspondente no Fluxo de Caixa também será apagado.")) {
                 try {
                     await deleteDoc(doc(db, "pedidos", pedidoId));
-
-                    const caixaRef = collection(db, "fluxo_caixa");
-                    const qCaixa = query(caixaRef, where("pedidoId", "==", pedidoId));
-                    const snapshotCaixa = await getDocs(qCaixa);
-
-                    snapshotCaixa.forEach(async (docCaixa) => {
-                        await deleteDoc(doc(db, "fluxo_caixa", docCaixa.id));
-                    });
-
+                    await excluirLancamentosCaixaVinculados(pedidoId);
                     showToast("Pedido e caixa excluídos com sucesso!");
                 } catch (e) {
                     console.error("Erro ao excluir pedido vinculado:", e);
+                    showToast("Erro ao excluir pedido e lançamento.");
                 }
             }
         };
