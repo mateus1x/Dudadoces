@@ -100,7 +100,7 @@
     <!-- Conteúdo Principal (Oculto até autenticar) -->
     <div id="painel-protegido" class="hidden flex-1 flex flex-col">
 
-        <!-- Header do Painel com 4 Abas -->
+        <!-- Header do Painel com 5 Abas -->
         <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
@@ -122,6 +122,9 @@
                         </button>
                         <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
                             <i class="ph ph-package text-base"></i> Estoque
+                        </button>
+                        <button onclick="mudarAba('produtos')" id="tab-btn-produtos" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
+                            <i class="ph ph-cookie text-base"></i> Produtos
                         </button>
                         <button onclick="mudarAba('custos')" id="tab-btn-custos" class="flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
                             <i class="ph ph-calculator text-base"></i> Calculadora
@@ -323,7 +326,6 @@
                         </button>
                     </div>
 
-                    <!-- Resumo Mensal Rápido -->
                     <div id="resumo-mensal-bar" class="bg-duda-cream/70 border border-duda-pink/30 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-duda-brown">
                         <span id="resumo-mes-titulo" class="font-bold text-duda-red">📅 Período: Todos os meses</span>
                         <div class="flex flex-wrap items-center gap-4">
@@ -389,7 +391,44 @@
                 </div>
             </div>
 
-            <!-- ================= ABA 4: CALCULADORA DE CUSTOS & PREÇOS DA LOJA ================= -->
+            <!-- ================= ABA 4: GERENCIAR PRODUTOS & PREÇOS DA LOJA ================= -->
+            <div id="view-produtos" class="space-y-8 hidden">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-cookie text-duda-red"></i> Produtos e Preços da Loja (index.html)
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Adicione novos produtos no catálogo ou altere nome, descrição e valor diretamente aqui.</p>
+                        </div>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <button onclick="abrirModalProduto()" class="bg-duda-red hover:bg-[#6b1f1f] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph ph-plus-circle text-lg"></i> Adicionar Produto
+                            </button>
+                            <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph ph-floppy-disk text-lg"></i> Salvar Alterações na Loja
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 w-20">Foto</th>
+                                    <th class="py-3.5 px-4 w-48">Nome do Produto</th>
+                                    <th class="py-3.5 px-4">Descrição</th>
+                                    <th class="py-3.5 px-4 w-36">Valor Venda (R$)</th>
+                                    <th class="py-3.5 px-4 w-28 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-produtos-loja-body" class="text-sm divide-y divide-gray-100 font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= ABA 5: CALCULADORA DE CUSTOS ================= -->
             <div id="view-custos" class="space-y-8 hidden">
                 <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
@@ -505,40 +544,6 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="simulador-inputs"></div>
                 </div>
-
-                <!-- PREÇOS OFICIAIS DA LOJA (INDEX.HTML) EM TEMPO REAL -->
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                                <i class="ph ph-tag text-duda-red"></i> Preços da Loja (index.html) em Tempo Real
-                            </h2>
-                            <p class="text-xs text-gray-500 font-medium">Altere o preço de venda aqui e salve para atualizar automaticamente os preços exibidos na loja.</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <button onclick="adicionarProdutoCatalogo()" class="bg-duda-cream hover:bg-duda-pink/30 text-duda-brown text-sm font-semibold px-4 py-2.5 rounded-xl border border-duda-pink/40 transition-all flex items-center gap-2">
-                                <i class="ph ph-plus text-base"></i> Novo Item
-                            </button>
-                            <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                                <i class="ph ph-floppy-disk text-lg"></i> Salvar Preços da Loja
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    <th class="py-3.5 px-4 w-44">ID / Chave (index)</th>
-                                    <th class="py-3.5 px-4">Nome do Produto na Loja</th>
-                                    <th class="py-3.5 px-4 w-44">Preço Venda (R$)</th>
-                                    <th class="py-3.5 px-4 w-16 text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-catalogo-body" class="text-sm divide-y divide-gray-100 font-medium"></tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
 
         </main>
@@ -549,12 +554,76 @@
         </footer>
     </div>
 
+    <!-- Modal: Adicionar / Editar Produto no Catálogo -->
+    <div id="modal-produto" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full rounded-3xl shadow-premium border border-duda-pink/40 p-6 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                <div>
+                    <h3 id="modal-produto-titulo" class="text-xl font-extrabold text-duda-brown">Adicionar Novo Produto</h3>
+                    <p class="text-xs text-gray-500 font-medium">Salvo diretamente no catálogo da loja junto com os brownies.</p>
+                </div>
+                <button onclick="fecharModalProduto()" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500 hover:bg-duda-red hover:text-white transition-all flex items-center justify-center">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <form id="form-produto-catalogo" class="space-y-4">
+                <input type="hidden" id="prod-edit-index" value="-1">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Nome do Produto *</label>
+                    <input type="text" id="prod-nome" required placeholder="Ex: Brownie com Pistache" class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Descrição *</label>
+                    <textarea id="prod-descricao" rows="3" required placeholder="Descreva o doce, recheio ou tamanho..." class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Valor (R$) *</label>
+                        <input type="number" step="0.01" min="0" id="prod-preco" required placeholder="12.00" class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-sm font-bold text-duda-red outline-none focus:border-duda-red focus:bg-white transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Imagem do Produto</label>
+                        <input type="file" id="prod-imagem-arquivo" accept="image/*" onchange="previsualizarImagemProduto(event)" class="w-full bg-duda-cream px-3 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none focus:border-duda-red">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Ou URL / Nome do arquivo da imagem</label>
+                    <input type="text" id="prod-imagem-url" placeholder="Ex: Brownie.png ou https://..." oninput="atualizarPreviewManual()" class="w-full bg-duda-cream px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 outline-none focus:border-duda-red focus:bg-white transition-all">
+                </div>
+
+                <div class="flex items-center gap-4 bg-duda-cream/60 p-3 rounded-2xl border border-duda-pink/30">
+                    <img id="prod-imagem-preview" src="Brownie.png" alt="Prévia do produto" class="w-16 h-16 rounded-xl object-cover border border-gray-200 bg-white">
+                    <div class="text-xs text-gray-600">
+                        <p class="font-bold text-duda-brown">Prévia na Loja</p>
+                        <p id="prod-status-upload" class="text-gray-500">Selecione uma imagem ou informe o caminho/URL.</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="fecharModalProduto()" class="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-salvar-produto-modal" class="px-6 py-2.5 rounded-xl bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold transition-all shadow-sm flex items-center gap-2">
+                        <i class="ph ph-check-circle text-lg"></i> Salvar Produto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="toast" style="visibility:hidden; min-width:250px; background:#3A201E; color:#fff; text-align:center; border-radius:30px; padding:12px; position:fixed; z-index:1000; left:50%; bottom:30px; transform:translateX(-50%); font-size:14px; font-family:'Inter', sans-serif;"></div>
 
     <!-- Script Principal Unificado -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -568,6 +637,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         const SENHA_PADRAO_ADMIN = "2909";
         let senhaAdminAtual = SENHA_PADRAO_ADMIN;
@@ -577,6 +647,7 @@
         let listaCaixaMemoria = [];
         let listaEstoqueMemoria = [];
         let mapaClientesGlobal = {};
+        let arquivoImagemSelecionado = null;
 
         const itensIniciaisEstoque = [
             { nome: 'Leite Condensado', medida: '395 g', status: 'cheio' },
@@ -618,14 +689,50 @@
         };
 
         let catalogoLoja = [
-            { id: 'brownie-tradicional', nome: 'Brownie Tradicional', preco: 7.00 },
-            { id: 'brownie-ninho', nome: 'Brownie com Leite Ninho', preco: 12.00 },
-            { id: 'brownie-chocolate', nome: 'Brownie com Chocolate', preco: 12.00 },
-            { id: 'brownie-bite', nome: 'Pacote 8 Brownie Bites', preco: 7.00 },
-            { id: 'Morango-ninho-branco', nome: 'Bombom Morango + Ninho + Branco', preco: 10.00 }
+            {
+                id: 'brownie-tradicional',
+                nome: 'Brownie Tradicional',
+                descricao: 'Nosso famoso brownie (80g): casquinha super crocante por fora e muito cremoso e úmido por dentro.',
+                category: 'Brownies',
+                image: 'Brownie.png',
+                preco: 7.00
+            },
+            {
+                id: 'brownie-ninho',
+                nome: 'Brownie com Leite Ninho',
+                descricao: 'O clássico brownie tradicional generosamente recheado com o nosso creme especial de Leite Ninho.',
+                category: 'Brownies Recheados',
+                image: 'Brownie Ninho.png',
+                preco: 12.00
+            },
+            {
+                id: 'brownie-chocolate',
+                nome: 'Brownie com Chocolate',
+                descricao: 'Brownie artesanal recheado com ganache cremosa de chocolate nobre.',
+                category: 'Brownies Recheados',
+                image: 'Brownie Chocolate.png',
+                preco: 12.00
+            },
+            {
+                id: 'brownie-bite',
+                nome: 'Pacote 8 Brownie Bites',
+                descricao: 'Pacotinho com 8 mini quadradinhos do nosso brownie tradicional. A porção perfeita para matar a vontade!',
+                category: 'Porções',
+                image: 'Brownie Bite.png',
+                preco: 7.00
+            }
         ];
 
-        // --- CONTROLE DE ACESSO ---
+        function gerarSlugId(nome = "") {
+            const base = String(nome)
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[̀-ͯ]/g, "")
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "");
+            return base || `produto-${Date.now().toString().slice(-4)}`;
+        }
+
         async function carregarSenhaAdmin() {
             try {
                 const snap = await getDoc(doc(db, "configuracao", "acesso_admin"));
@@ -675,12 +782,11 @@
             }
         });
 
-        // --- HELPERS ---
         function normalizarBusca(texto = "") {
             return String(texto)
                 .toLowerCase()
                 .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[̀-ͯ]/g, "")
                 .trim();
         }
 
@@ -728,7 +834,7 @@
         }
 
         window.mudarAba = function(aba) {
-            const views = ['dashboard', 'caixa', 'estoque', 'custos'];
+            const views = ['dashboard', 'caixa', 'estoque', 'produtos', 'custos'];
             views.forEach(v => {
                 const el = document.getElementById(`view-${v}`);
                 const btn = document.getElementById(`tab-btn-${v}`);
@@ -745,7 +851,6 @@
             if(aba === 'dashboard' && myChart) myChart.update();
         };
 
-        // --- CUSTOS & SINCRONIZAÇÃO COM FIREBASE ---
         async function carregarCustosSalvosFirebase() {
             try {
                 const snap = await getDoc(doc(db, "calculo_de_custo", "matriz_custos"));
@@ -928,19 +1033,18 @@
             }
         };
 
-        // --- CATÁLOGO DE PREÇOS DA LOJA (INDEX.HTML) ---
         function iniciarOuvinteCatalogo() {
             const docRef = doc(db, "configuracao", "catalogo_loja");
             onSnapshot(docRef, (snap) => {
                 if (snap.exists() && Array.isArray(snap.data().itens)) {
                     catalogoLoja = snap.data().itens;
                 }
-                renderizarTabelaCatalogo();
+                renderizarTabelaProdutosLoja();
             });
         }
 
-        function renderizarTabelaCatalogo() {
-            const tbody = document.getElementById("tabela-catalogo-body");
+        function renderizarTabelaProdutosLoja() {
+            const tbody = document.getElementById("tabela-produtos-loja-body");
             if (!tbody) return;
             tbody.innerHTML = "";
 
@@ -948,36 +1052,155 @@
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-duda-cream/40 transition-colors";
                 tr.innerHTML = `
-                    <td class="py-2.5 px-4"><input type="text" value="${item.id || ''}" onchange="atualizarItemCatalogo(${idx}, 'id', this.value)" class="font-mono text-xs text-gray-600"></td>
-                    <td class="py-2.5 px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-semibold text-duda-brown"></td>
-                    <td class="py-2.5 px-4"><input type="number" step="0.01" value="${item.preco ?? 0}" onchange="atualizarItemCatalogo(${idx}, 'preco', parseFloat(this.value) || 0)" class="font-bold text-duda-red"></td>
+                    <td class="py-2.5 px-4">
+                        <img src="${item.image || 'Brownie.png'}" alt="${item.nome || 'Produto'}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 bg-duda-cream">
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-bold text-duda-brown">
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <input type="text" value="${item.descricao || ''}" placeholder="Descrição do produto..." onchange="atualizarItemCatalogo(${idx}, 'descricao', this.value)" class="text-xs text-gray-600">
+                    </td>
+                    <td class="py-2.5 px-4">
+                        <input type="number" step="0.01" value="${item.preco ?? 0}" onchange="atualizarItemCatalogo(${idx}, 'preco', parseFloat(this.value) || 0)" class="font-bold text-duda-red">
+                    </td>
                     <td class="py-2.5 px-4 text-center">
-                        <button onclick="removerItemCatalogo(${idx})" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Remover item">
-                            <i class="ph ph-trash text-base"></i>
-                        </button>
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="abrirModalProduto(${idx})" class="w-8 h-8 rounded-lg bg-duda-cream text-duda-brown hover:bg-duda-pink/40 transition-all flex items-center justify-center" title="Editar produto e imagem">
+                                <i class="ph ph-pencil-simple text-base"></i>
+                            </button>
+                            <button onclick="removerItemCatalogo(${idx})" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center" title="Remover item">
+                                <i class="ph ph-trash text-base"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        window.abrirModalProduto = function(idx = -1) {
+            arquivoImagemSelecionado = null;
+            document.getElementById("prod-edit-index").value = idx;
+            document.getElementById("prod-imagem-arquivo").value = "";
+            document.getElementById("prod-status-upload").innerText = "Selecione uma imagem ou informe o caminho/URL.";
+
+            if (idx >= 0 && catalogoLoja[idx]) {
+                const item = catalogoLoja[idx];
+                document.getElementById("modal-produto-titulo").innerText = "Editar Produto do Catálogo";
+                document.getElementById("prod-nome").value = item.nome || "";
+                document.getElementById("prod-descricao").value = item.descricao || "";
+                document.getElementById("prod-preco").value = item.preco ?? 0;
+                document.getElementById("prod-imagem-url").value = item.image || "Brownie.png";
+                document.getElementById("prod-imagem-preview").src = item.image || "Brownie.png";
+            } else {
+                document.getElementById("modal-produto-titulo").innerText = "Adicionar Novo Produto";
+                document.getElementById("prod-nome").value = "";
+                document.getElementById("prod-descricao").value = "";
+                document.getElementById("prod-preco").value = "";
+                document.getElementById("prod-imagem-url").value = "Brownie.png";
+                document.getElementById("prod-imagem-preview").src = "Brownie.png";
+            }
+
+            document.getElementById("modal-produto").classList.remove("hidden");
+        };
+
+        window.fecharModalProduto = function() {
+            arquivoImagemSelecionado = null;
+            document.getElementById("modal-produto").classList.add("hidden");
+        };
+
+        window.previsualizarImagemProduto = function(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            arquivoImagemSelecionado = file;
+            const tempUrl = URL.createObjectURL(file);
+            document.getElementById("prod-imagem-preview").src = tempUrl;
+            document.getElementById("prod-status-upload").innerText = `Arquivo selecionado: ${file.name}`;
+        };
+
+        window.atualizarPreviewManual = function() {
+            if (arquivoImagemSelecionado) return;
+            const val = document.getElementById("prod-imagem-url").value.trim() || "Brownie.png";
+            document.getElementById("prod-imagem-preview").src = val;
+        };
+
+        document.getElementById("form-produto-catalogo").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btnSalvar = document.getElementById("btn-salvar-produto-modal");
+            btnSalvar.disabled = true;
+
+            try {
+                const idx = parseInt(document.getElementById("prod-edit-index").value, 10);
+                const nome = document.getElementById("prod-nome").value.trim();
+                const descricao = document.getElementById("prod-descricao").value.trim();
+                const preco = parseFloat(document.getElementById("prod-preco").value) || 0;
+                let imagemFinal = document.getElementById("prod-imagem-url").value.trim() || "Brownie.png";
+
+                if (!nome || !descricao) {
+                    showToast("Preencha o nome e a descrição do produto.");
+                    btnSalvar.disabled = false;
+                    return;
+                }
+
+                if (arquivoImagemSelecionado) {
+                    document.getElementById("prod-status-upload").innerText = "Enviando imagem...";
+                    const nomeSeguro = arquivoImagemSelecionado.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+                    const storageRef = ref(storage, `catalogo_produtos/${Date.now()}_${nomeSeguro}`);
+                    await uploadBytes(storageRef, arquivoImagemSelecionado);
+                    imagemFinal = await getDownloadURL(storageRef);
+                }
+
+                const existente = idx >= 0 ? catalogoLoja[idx] : null;
+                const novoItem = {
+                    id: existente?.id || gerarSlugId(nome),
+                    nome,
+                    descricao,
+                    category: existente?.category || "Brownies",
+                    image: imagemFinal,
+                    preco
+                };
+
+                if (idx >= 0 && catalogoLoja[idx]) {
+                    catalogoLoja[idx] = novoItem;
+                } else {
+                    catalogoLoja.push(novoItem);
+                }
+
+                await setDoc(doc(db, "configuracao", "catalogo_loja"), {
+                    itens: catalogoLoja,
+                    atualizadoEm: serverTimestamp()
+                });
+
+                renderizarTabelaProdutosLoja();
+                fecharModalProduto();
+                showToast("Produto salvo no banco e sincronizado na loja!");
+            } catch (err) {
+                console.error("Erro ao salvar produto:", err);
+                showToast("Erro ao salvar produto. Verifique sua conexão ou permissões.");
+            } finally {
+                btnSalvar.disabled = false;
+            }
+        });
+
         window.atualizarItemCatalogo = function(idx, campo, valor) {
             if (!catalogoLoja[idx]) return;
             catalogoLoja[idx][campo] = valor;
         };
 
-        window.adicionarProdutoCatalogo = function() {
-            catalogoLoja.push({
-                id: `produto-${Date.now().toString().slice(-4)}`,
-                nome: "Novo Produto",
-                preco: 10.00
-            });
-            renderizarTabelaCatalogo();
-        };
-
-        window.removerItemCatalogo = function(idx) {
+        window.removerItemCatalogo = async function(idx) {
+            if (!confirm("Deseja remover este produto do catálogo da loja?")) return;
             catalogoLoja.splice(idx, 1);
-            renderizarTabelaCatalogo();
+            renderizarTabelaProdutosLoja();
+            try {
+                await setDoc(doc(db, "configuracao", "catalogo_loja"), {
+                    itens: catalogoLoja,
+                    atualizadoEm: serverTimestamp()
+                });
+                showToast("Produto removido do catálogo!");
+            } catch (e) {
+                console.error("Erro ao remover item:", e);
+            }
         };
 
         window.salvarPrecosCatalogoFirebase = async function() {
@@ -986,14 +1209,13 @@
                     itens: catalogoLoja,
                     atualizadoEm: serverTimestamp()
                 });
-                showToast("Preços da loja salvos em configuracao/catalogo_loja! A loja atualizará automaticamente.");
+                showToast("Produtos e preços salvos em configuracao/catalogo_loja!");
             } catch (e) {
                 console.error("Erro ao salvar catálogo:", e);
-                showToast("Erro ao salvar preços da loja.");
+                showToast("Erro ao salvar alterações da loja.");
             }
         };
 
-        // --- DASHBOARD ---
         function iniciarOuvinteDashboard() {
             const pedidosRef = collection(db, "pedidos");
             const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
@@ -1116,7 +1338,6 @@
             containerInativos.innerHTML = inativosHtml;
         };
 
-        // --- CAIXA ---
         function iniciarOuvinteCaixa() {
             const caixaRef = collection(db, "fluxo_caixa");
             const q = query(caixaRef, orderBy("data", "desc"));
@@ -1243,7 +1464,6 @@
             document.getElementById('resumo-mes-saldo').innerText = `Saldo: ${fmtBRL(saldo)}`;
         }
 
-        // --- ESTOQUE ---
         function iniciarOuvinteEstoque() {
             const estoqueRef = collection(db, "estoque");
 
