@@ -306,7 +306,7 @@
                     <img src="Banner 3.png" alt="Duda Doces Logo Banner">
                     <div class="carousel-overlay"></div>
                     <div class="carousel-content space-y-4">
-                        <span class="text-duda-pink text-xs sm:text-sm font-semibold tracking-widest uppercase bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full inline-block border border-white/20">Belo Horizonte - MG</span>
+                        <span class="text-duda-pink text-xs sm:text-sm font-semibold tracking-widest uppercase bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full inline-block border border-white/20">Estoril • Belo Horizonte - MG</span>
                         <h1 class="text-4xl sm:text-6xl font-serif font-bold leading-tight">Duda Doces Artesanais</h1>
                         <p class="text-gray-200 text-sm sm:text-lg font-light max-w-xl mx-auto">O verdadeiro sabor artesanal combinado com o melhor chocolate da cidade.</p>
                         <div class="pt-4">
@@ -344,7 +344,7 @@
                         Monte o Seu Bombom dos Sonhos
                         <i class="ph ph-magic-wand text-duda-red text-4xl animate-bounce"></i>
                     </h3>
-                    <p class="text-gray-600 text-base sm:text-lg">Escolha fruta, recheio e cobertura. O preço é calculado na hora conforme nossa tabela oficial!</p>
+                    <p class="text-gray-600 text-base sm:text-lg">Escolha fruta, recheio e cobertura. Veja a prévia da combinação e o valor atualizado na hora!</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 relative z-10">
@@ -406,11 +406,21 @@
                     </div>
                 </div>
 
-                <!-- Resumo Visual da Montagem -->
-                <div class="mb-8 bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-duda-pink/30 text-center shadow-sm relative z-10 max-w-2xl mx-auto">
-                    <span class="text-xs font-bold uppercase tracking-widest text-duda-red block mb-3">✨ Acompanhe seu Bombom Sendo Montado:</span>
-                    <div id="assembly-animation-box" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 py-2 transition-all duration-300"></div>
-                    <p id="assembly-text" class="text-sm font-serif italic text-duda-brown mt-3">Bombom de Morango com Ninho e Cobertura de Chocolate Branco</p>
+                <!-- Prévia Visual da Combinação com Foto + Tag de Preço -->
+                <div class="mb-8 bg-white/95 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-duda-pink/40 shadow-sm relative z-10 max-w-2xl mx-auto">
+                    <span class="text-xs font-bold uppercase tracking-widest text-duda-red block text-center mb-4">✨ Prévia da Sua Combinação:</span>
+                    <div class="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
+                        <div class="relative w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-2 border-duda-pink/50 shadow-md shrink-0 bg-duda-cream">
+                            <img id="bombom-preview-img" src="Morango Ninho Ninho.jpeg" alt="Prévia do Bombom" class="w-full h-full object-cover transition-all duration-300">
+                            <span id="bombom-preview-price-tag" class="absolute top-2 right-2 bg-duda-red text-white text-xs font-extrabold px-2.5 py-1 rounded-full shadow-md">R$ 10,00</span>
+                        </div>
+
+                        <div class="flex-1 text-center sm:text-left space-y-2">
+                            <div id="assembly-animation-box" class="flex flex-wrap items-center justify-center sm:justify-start gap-2 transition-all duration-300"></div>
+                            <p id="assembly-text" class="text-sm sm:text-base font-serif italic text-duda-brown">Bombom de Morango com recheio de Leite Ninho e cobertura de Chocolate Branco</p>
+                            <p class="text-[11px] text-gray-500 font-medium">Preparado sob encomenda com ingredientes frescos.</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Valor e Botão Adicionar -->
@@ -479,7 +489,7 @@
                 </a>
             </div>
             <p class="text-xs font-light opacity-60 tracking-wider text-center">
-                © 2026 DUDA DOCES. BELO HORIZONTE, MG. TODOS OS DIREITOS RESERVADOS.
+                © 2026 DUDA DOCES. ESTORIL • BELO HORIZONTE, MG. TODOS OS DIREITOS RESERVADOS.
             </p>
         </div>
     </footer>
@@ -534,11 +544,22 @@
 
         <!-- Formulário de Checkout -->
         <div id="checkout-form-container" class="hidden flex-1 overflow-y-auto p-6 space-y-4 bg-duda-cream/30">
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center justify-between mb-1">
                 <h3 class="font-serif font-bold text-lg text-duda-brown">Dados para Entrega / Retirada</h3>
                 <button type="button" onclick="backToCartItems()" class="text-xs text-duda-red font-semibold hover:underline flex items-center gap-1">
                     <i class="ph ph-arrow-left"></i> Voltar aos itens
                 </button>
+            </div>
+
+            <!-- Informação Clara de Retirada e Prazo -->
+            <div class="bg-white p-3.5 rounded-2xl border border-duda-pink/40 text-xs text-gray-600 space-y-1 shadow-2xs">
+                <p class="font-bold text-duda-brown flex items-center gap-1.5">
+                    <i class="ph ph-map-pin text-duda-red text-sm"></i>
+                    Retirada: <span id="checkout-pickup-region">Rua Cordelina Silveira Mattos, Estoril - BH</span>
+                </p>
+                <p id="checkout-estimated-time" class="text-[11px] text-gray-500">
+                    ⏱️ Frete calculado automaticamente a partir do Estoril (BH) assim que você informar o endereço.
+                </p>
             </div>
 
             <div>
@@ -554,34 +575,38 @@
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Tipo de Pedido *</label>
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" id="btn-retirada" onclick="setDelivery('retirada')" class="p-3.5 border-2 border-duda-red bg-duda-red/5 text-duda-red font-semibold rounded-xl text-sm transition-all shadow-xs">Retirada</button>
-                    <button type="button" id="btn-entrega" onclick="setDelivery('entrega')" class="p-3.5 border-2 border-gray-200 text-gray-500 font-semibold rounded-xl text-sm transition-all shadow-xs">Entrega</button>
+                    <button type="button" id="btn-retirada" onclick="setDelivery('retirada')" class="p-3.5 border-2 border-duda-red bg-duda-red/5 text-duda-red font-semibold rounded-xl text-sm transition-all shadow-xs">Retirada (Grátis)</button>
+                    <button type="button" id="btn-entrega" onclick="setDelivery('entrega')" class="p-3.5 border-2 border-gray-200 text-gray-500 font-semibold rounded-xl text-sm transition-all shadow-xs">Entrega (<span id="btn-entrega-taxa">R$ 8,00</span>)</button>
                 </div>
                 <input type="hidden" id="delivery-type" value="retirada">
             </div>
 
             <div id="address-fields" class="space-y-3 hidden bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-1 text-[11px] bg-duda-cream/70 px-3 py-2 rounded-xl text-duda-brown font-semibold">
+                    <span>Frete estimado: <strong id="address-fee-hint" class="text-duda-red">R$ 8,00</strong></span>
+                    <span id="cep-status-badge" class="text-gray-500">Digite o CEP ou endereço</span>
+                </div>
                 <div class="flex gap-2">
                     <div class="flex-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">CEP *</label>
-                        <input type="text" id="client-cep" placeholder="00000-000" maxlength="9" onblur="searchCep(this.value)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
+                        <input type="text" id="client-cep" placeholder="00000-000" maxlength="9" oninput="handleAddressInputChange(true)" onblur="searchCep(this.value)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
                     </div>
                     <div class="flex items-end">
-                        <span id="cep-loading" class="text-xs text-duda-red pb-3 hidden font-medium animate-pulse">Buscando...</span>
+                        <span id="cep-loading" class="text-xs text-duda-red pb-3 hidden font-medium animate-pulse">Calculando...</span>
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Rua / Logradouro *</label>
-                    <input type="text" id="client-rua" placeholder="Nome da rua" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
+                    <input type="text" id="client-rua" placeholder="Nome da rua" oninput="handleAddressInputChange(false)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Número *</label>
-                        <input type="text" id="client-numero" placeholder="Nº" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
+                        <input type="text" id="client-numero" placeholder="Nº" oninput="handleAddressInputChange(false)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Bairro *</label>
-                        <input type="text" id="client-bairro" placeholder="Bairro" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
+                        <input type="text" id="client-bairro" placeholder="Bairro" oninput="handleAddressInputChange(false)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
                     </div>
                 </div>
             </div>
@@ -617,7 +642,7 @@
                     <span id="cart-subtotal" class="text-gray-800">R$ 0,00</span>
                 </div>
                 <div id="delivery-fee-row" class="flex justify-between hidden">
-                    <span>Taxa de Entrega</span>
+                    <span id="delivery-fee-label">Taxa de Entrega</span>
                     <span id="cart-delivery-fee" class="text-gray-800">R$ 8,00</span>
                 </div>
                 <div class="flex justify-between font-bold text-2xl text-duda-brown pt-4 border-t border-gray-100">
@@ -704,9 +729,21 @@
             }
         ];
 
+        // Origem fixa do frete: Rua Cordelina Silveira Mattos, Estoril, Belo Horizonte - MG
+        const ORIGEM_FRETE_ENDERECO = "Rua Cordelina Silveira Mattos, Estoril, Belo Horizonte, MG, Brasil";
+        let origemCoords = { lat: -19.9585, lon: -43.9798 };
+
         let products = baseProducts.map(p => ({ ...p }));
         let cart = [];
-        const DELIVERY_FEE = 8.00;
+        let DELIVERY_FEE = 8.00;
+        let distanciaEstimadaKm = null;
+        let freteCalculadoAtivo = false;
+        let debounceFreteTimer = null;
+        let ultimoCepConsultado = "";
+        let ultimaChaveGeocodificada = "";
+
+        let PICKUP_REGION = "Rua Cordelina Silveira Mattos, Estoril - BH";
+        let ESTIMATED_TIME = "⏱️ Frete calculado automaticamente a partir do Estoril (BH) ao informar o endereço.";
         const WPP_NUMBER = "5531983087045";
 
         let customBombom = {
@@ -769,11 +806,189 @@
             "uva-maracujá-cravejado": "Uva Maracujá Cravejado.jpeg"
         };
 
+        function calcularDistanciaLinhaRetaKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function calcularValorFretePorKm(kmRota) {
+            const km = Math.max(0.5, Number(kmRota) || 1);
+            // Fórmula: R$ 6,00 base + R$ 1,50 por km de rota, mínimo R$ 8,00, arredondado para R$ 0,50
+            const bruto = Math.max(8.00, 6.00 + (km * 1.50));
+            return Math.round(bruto * 2) / 2;
+        }
+
+        async function geocodificarEnderecoNominatim(consultaTexto) {
+            const queryLimpa = String(consultaTexto || "").trim();
+            if (!queryLimpa) return null;
+
+            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(queryLimpa)}`;
+            const resp = await fetch(url, {
+                headers: { "Accept": "application/json" }
+            });
+            if (!resp.ok) return null;
+            const resultados = await resp.json();
+            if (!Array.isArray(resultados) || resultados.length === 0) return null;
+
+            const lat = parseFloat(resultados[0].lat);
+            const lon = parseFloat(resultados[0].lon);
+            if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
+            return { lat, lon };
+        }
+
+        async function garantirCoordenadasOrigem() {
+            try {
+                const coords = await geocodificarEnderecoNominatim(ORIGEM_FRETE_ENDERECO);
+                if (coords) {
+                    origemCoords = coords;
+                }
+            } catch (_) {
+                // Mantém coordenadas padrão do Estoril - BH
+            }
+        }
+
+        async function calcularFreteAutomaticoPorEndereco() {
+            const rua = document.getElementById('client-rua')?.value.trim() || '';
+            const numero = document.getElementById('client-numero')?.value.trim() || '';
+            const bairro = document.getElementById('client-bairro')?.value.trim() || '';
+            const cepLimpo = (document.getElementById('client-cep')?.value || '').replace(/\D/g, '');
+
+            const loading = document.getElementById('cep-loading');
+            const statusBadge = document.getElementById('cep-status-badge');
+
+            const partesEndereco = [];
+            if (rua) partesEndereco.push(numero ? `${rua}, ${numero}` : rua);
+            if (bairro) partesEndereco.push(bairro);
+            if (!partesEndereco.some(p => p.toLowerCase().includes('belo horizonte'))) {
+                partesEndereco.push('Belo Horizonte, MG');
+            }
+
+            const consultaDestino = partesEndereco.join(', ');
+            if (!rua && !bairro && cepLimpo.length !== 8) {
+                freteCalculadoAtivo = false;
+                distanciaEstimadaKm = null;
+                if (statusBadge) statusBadge.innerText = "Digite o CEP ou endereço";
+                updateCartUI();
+                return;
+            }
+
+            const chaveBusca = `${consultaDestino.toLowerCase()}|${cepLimpo}`;
+            if (chaveBusca === ultimaChaveGeocodificada && freteCalculadoAtivo) {
+                updateCartUI();
+                return;
+            }
+
+            if (loading) loading.classList.remove('hidden');
+            if (statusBadge) statusBadge.innerText = "Calculando frete...";
+
+            try {
+                let destinoCoords = await geocodificarEnderecoNominatim(consultaDestino);
+                if (!destinoCoords && bairro) {
+                    destinoCoords = await geocodificarEnderecoNominatim(`${bairro}, Belo Horizonte, MG, Brasil`);
+                }
+
+                if (destinoCoords) {
+                    const kmLinhaReta = calcularDistanciaLinhaRetaKm(
+                        origemCoords.lat,
+                        origemCoords.lon,
+                        destinoCoords.lat,
+                        destinoCoords.lon
+                    );
+                    const kmRotaEstimada = Math.max(0.8, Number((kmLinhaReta * 1.35).toFixed(1)));
+                    DELIVERY_FEE = calcularValorFretePorKm(kmRotaEstimada);
+                    distanciaEstimadaKm = kmRotaEstimada;
+                    freteCalculadoAtivo = true;
+                    ultimaChaveGeocodificada = chaveBusca;
+
+                    if (statusBadge) {
+                        statusBadge.innerText = `~${kmRotaEstimada} km do Estoril • ${formatMoney(DELIVERY_FEE)}`;
+                    }
+                } else {
+                    freteCalculadoAtivo = true;
+                    distanciaEstimadaKm = null;
+                    if (statusBadge) {
+                        statusBadge.innerText = `Taxa estimada: ${formatMoney(DELIVERY_FEE)}`;
+                    }
+                }
+            } catch (_) {
+                freteCalculadoAtivo = true;
+                if (statusBadge) {
+                    statusBadge.innerText = `Taxa estimada: ${formatMoney(DELIVERY_FEE)}`;
+                }
+            } finally {
+                if (loading) loading.classList.add('hidden');
+                updateCartUI();
+            }
+        }
+
+        function handleAddressInputChange(ehCep = false) {
+            const cepInput = document.getElementById('client-cep');
+            if (ehCep && cepInput) {
+                let v = cepInput.value.replace(/\D/g, '').substring(0, 8);
+                if (v.length > 5) {
+                    v = v.replace(/^(\d{5})(\d{0,3})/, '$1-$2');
+                }
+                cepInput.value = v;
+                const clean = v.replace(/\D/g, '');
+                if (clean.length === 8 && clean !== ultimoCepConsultado) {
+                    searchCep(v);
+                    return;
+                }
+            }
+
+            clearTimeout(debounceFreteTimer);
+            debounceFreteTimer = setTimeout(() => {
+                calcularFreteAutomaticoPorEndereco();
+            }, 650);
+        }
+
+        function atualizarInfoEntregaCheckout() {
+            const feeFormatted = formatMoney(DELIVERY_FEE);
+            const btnTaxaEl = document.getElementById('btn-entrega-taxa');
+            const feeRowEl = document.getElementById('cart-delivery-fee');
+            const feeLabelEl = document.getElementById('delivery-fee-label');
+            const hintEl = document.getElementById('address-fee-hint');
+            const regionEl = document.getElementById('checkout-pickup-region');
+            const timeEl = document.getElementById('checkout-estimated-time');
+
+            if (btnTaxaEl) {
+                btnTaxaEl.innerText = freteCalculadoAtivo ? feeFormatted : `a partir de ${feeFormatted}`;
+            }
+            if (feeRowEl) feeRowEl.innerText = feeFormatted;
+            if (feeLabelEl) {
+                feeLabelEl.innerText = distanciaEstimadaKm
+                    ? `Taxa de Entrega (~${distanciaEstimadaKm} km)`
+                    : 'Taxa de Entrega';
+            }
+            if (hintEl) hintEl.innerText = feeFormatted;
+            if (regionEl) regionEl.innerText = PICKUP_REGION;
+            if (timeEl) timeEl.innerText = ESTIMATED_TIME;
+        }
+
         window.aplicarCatalogoFirebase = function(dadosCatalogo) {
             const itensCatalogo = Array.isArray(dadosCatalogo) ? dadosCatalogo : dadosCatalogo?.itens;
             const precosBombomRemotos = !Array.isArray(dadosCatalogo) ? dadosCatalogo?.precosBombom : null;
             const mapaPrecos = {};
             const listaCatalogo = [];
+
+            if (!Array.isArray(dadosCatalogo) && dadosCatalogo) {
+                if (!freteCalculadoAtivo && typeof dadosCatalogo.taxaEntrega === "number" && !Number.isNaN(dadosCatalogo.taxaEntrega)) {
+                    DELIVERY_FEE = Math.max(0, dadosCatalogo.taxaEntrega);
+                }
+                if (typeof dadosCatalogo.regiaoRetirada === "string" && dadosCatalogo.regiaoRetirada.trim()) {
+                    PICKUP_REGION = dadosCatalogo.regiaoRetirada.trim();
+                }
+                if (typeof dadosCatalogo.prazoEstimado === "string" && dadosCatalogo.prazoEstimado.trim()) {
+                    ESTIMATED_TIME = dadosCatalogo.prazoEstimado.trim();
+                }
+            }
 
             if (Array.isArray(itensCatalogo)) {
                 itensCatalogo.forEach((item) => {
@@ -844,7 +1059,9 @@
                 }
             });
 
+            atualizarInfoEntregaCheckout();
             renderProducts();
+            updateCustomBombomAnimation();
             updateCustomBombomTotal();
             updateCartUI();
         };
@@ -990,6 +1207,8 @@
         function updateCustomBombomAnimation() {
             const box = document.getElementById('assembly-animation-box');
             const desc = document.getElementById('assembly-text');
+            const previewImg = document.getElementById('bombom-preview-img');
+            const previewPriceTag = document.getElementById('bombom-preview-price-tag');
             if (!box || !desc) return;
 
             const frutaIcon = customBombom.fruta === 'Morango' ? '🍓' : '🍇';
@@ -1000,23 +1219,32 @@
             const coberturaNames = { 'branco': 'Chocolate Branco', 'chocolate': 'Chocolate ao Leite', 'calda': 'Calda do Amor', 'cravejado': 'Cravejado Crocante' };
 
             box.innerHTML = `
-                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 shadow-xs">
-                    <span class="text-2xl">${frutaIcon}</span>
-                    <span class="text-xs sm:text-sm font-bold text-duda-brown">${frutaName}</span>
-                </div>
-                <span class="text-duda-red font-bold text-lg">+</span>
-                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 shadow-xs">
-                    <span class="text-2xl">${recheioIcons[customBombom.recheio]}</span>
-                    <span class="text-xs sm:text-sm font-bold text-duda-brown">${recheioNames[customBombom.recheio]}</span>
-                </div>
-                <span class="text-duda-red font-bold text-lg">+</span>
-                <div class="flex items-center gap-2 bg-duda-pink/20 px-4 py-2.5 rounded-xl border border-duda-pink/40 shadow-xs">
-                    <span class="text-2xl">${coberturaIcons[customBombom.cobertura]}</span>
-                    <span class="text-xs sm:text-sm font-bold text-duda-brown">${coberturaNames[customBombom.cobertura]}</span>
-                </div>
+                <span class="inline-flex items-center gap-1.5 bg-duda-pink/25 px-3 py-1 rounded-full border border-duda-pink/40 text-xs font-bold text-duda-brown">
+                    <span>${frutaIcon}</span> ${frutaName}
+                </span>
+                <span class="inline-flex items-center gap-1.5 bg-duda-pink/25 px-3 py-1 rounded-full border border-duda-pink/40 text-xs font-bold text-duda-brown">
+                    <span>${recheioIcons[customBombom.recheio]}</span> ${recheioNames[customBombom.recheio]}
+                </span>
+                <span class="inline-flex items-center gap-1.5 bg-duda-pink/25 px-3 py-1 rounded-full border border-duda-pink/40 text-xs font-bold text-duda-brown">
+                    <span>${coberturaIcons[customBombom.cobertura]}</span> ${coberturaNames[customBombom.cobertura]}
+                </span>
             `;
 
             desc.innerText = `Bombom de ${frutaName} com recheio de ${recheioNames[customBombom.recheio]} e cobertura de ${coberturaNames[customBombom.cobertura]}`;
+
+            if (previewImg) {
+                const fotoEscolhida = getCustomBombomImage(customBombom.fruta, customBombom.recheio, customBombom.cobertura);
+                previewImg.onerror = () => {
+                    previewImg.onerror = null;
+                    previewImg.src = "logo.png";
+                };
+                previewImg.src = fotoEscolhida;
+                previewImg.alt = `Bombom de ${frutaName} com ${recheioNames[customBombom.recheio]} e ${coberturaNames[customBombom.cobertura]}`;
+            }
+
+            if (previewPriceTag) {
+                previewPriceTag.innerText = formatMoney(getCustomBombomPrice());
+            }
         }
 
         function getCustomBombomPrice() {
@@ -1027,7 +1255,10 @@
         function updateCustomBombomTotal() {
             const price = getCustomBombomPrice();
             const display = document.getElementById('custom-bombom-price-display');
-            if (display) display.innerText = formatMoney(price);
+            const previewPriceTag = document.getElementById('bombom-preview-price-tag');
+            const formatted = formatMoney(price);
+            if (display) display.innerText = formatted;
+            if (previewPriceTag) previewPriceTag.innerText = formatted;
             return price;
         }
 
@@ -1042,6 +1273,7 @@
             if (existingItem) {
                 existingItem.quantity += 1;
                 existingItem.price = price;
+                existingItem.image = image;
             } else {
                 cart.push({ id, bombomKey, name, price, image, quantity: 1 });
             }
@@ -1112,6 +1344,8 @@
             const cartSubtotal = document.getElementById('cart-subtotal');
             const cartTotal = document.getElementById('cart-total');
             const btnNextStep = document.getElementById('btn-next-step');
+
+            atualizarInfoEntregaCheckout();
 
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             if (cartCount) cartCount.innerText = totalItems;
@@ -1199,6 +1433,7 @@
                 btnRetirada.className = "p-3.5 border-2 border-gray-200 text-gray-500 font-semibold rounded-xl text-sm transition-all shadow-xs";
                 addressFields.classList.remove('hidden');
                 deliveryFeeRow.classList.remove('hidden');
+                calcularFreteAutomaticoPorEndereco();
             }
 
             updateCartUI();
@@ -1230,23 +1465,38 @@
 
         function searchCep(cep) {
             const cleanCep = cep.replace(/\D/g, '');
-            if (cleanCep.length !== 8) return;
+            const statusBadge = document.getElementById('cep-status-badge');
+            if (cleanCep.length !== 8) {
+                if (statusBadge) statusBadge.innerText = "CEP incompleto";
+                return;
+            }
 
+            ultimoCepConsultado = cleanCep;
             const loading = document.getElementById('cep-loading');
             if (loading) loading.classList.remove('hidden');
+            if (statusBadge) statusBadge.innerText = "Buscando CEP e calculando...";
 
             fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
                 .then(res => res.json())
-                .then(data => {
-                    if (loading) loading.classList.add('hidden');
+                .then(async (data) => {
                     if (!data.erro) {
-                        document.getElementById('client-rua').value = data.logradouro || '';
-                        document.getElementById('client-bairro').value = data.bairro || '';
-                        document.getElementById('client-numero').focus();
+                        const ruaInput = document.getElementById('client-rua');
+                        const bairroInput = document.getElementById('client-bairro');
+                        if (ruaInput && !ruaInput.value.trim()) {
+                            ruaInput.value = data.logradouro || '';
+                        }
+                        if (bairroInput && !bairroInput.value.trim()) {
+                            bairroInput.value = data.bairro || '';
+                        }
+                        await calcularFreteAutomaticoPorEndereco();
+                        document.getElementById('client-numero')?.focus();
+                    } else {
+                        if (loading) loading.classList.add('hidden');
+                        if (statusBadge) statusBadge.innerText = "CEP não encontrado";
                     }
                 })
-                .catch(() => {
-                    if (loading) loading.classList.add('hidden');
+                .catch(async () => {
+                    await calcularFreteAutomaticoPorEndereco();
                 });
         }
 
@@ -1270,6 +1520,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            garantirCoordenadasOrigem();
             renderProducts();
             initCarousel();
             updateCustomBombomAnimation();
@@ -1413,6 +1664,10 @@
                     showToast("Por favor, preencha todos os campos do endereço.");
                     return;
                 }
+
+                if (!freteCalculadoAtivo) {
+                    await calcularFreteAutomaticoPorEndereco();
+                }
             }
 
             if (!Array.isArray(cart) || cart.length === 0) {
@@ -1443,7 +1698,7 @@
                     clienteNome: name,
                     clienteTelefone: phone,
                     tipoPedido: deliveryType,
-                    endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep } : 'Retirada na Loja',
+                    endereco: deliveryType === 'entrega' ? { rua, numero, bairro, cep, distanciaEstimadaKm } : `Retirada (${PICKUP_REGION})`,
                     formaPagamento: paymentMethod,
                     itens: itensSnapshot,
                     subtotal: subtotal,
@@ -1473,10 +1728,10 @@
                 itensSnapshot.forEach(item => {
                     message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
                 });
-                message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
+                message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : `Retirada (${PICKUP_REGION}) 🏪`}\n`;
                 if (deliveryType === 'entrega') {
                     message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
-                    message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
+                    message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}${distanciaEstimadaKm ? ` (~${distanciaEstimadaKm} km do Estoril)` : ''}\n`;
                 }
                 message += `💳 *Pagamento:* ${paymentMethod}\n`;
                 message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
