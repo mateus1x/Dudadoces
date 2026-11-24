@@ -329,10 +329,14 @@
                             <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-list-checks text-duda-red"></i> Fila de Pedidos e Produção
                             </h2>
-                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Pedidos feitos na loja entram aqui na hora com produtos, quantidades e controle de preparo.</p>
+                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Pedidos da loja ou adicionados manualmente entram aqui e sincronizam com Dashboard e Fluxo de Caixa.</p>
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+                            <button type="button" onclick="abrirModalNovoPedido()" class="justify-center bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0">
+                                <i class="ph ph-plus-circle text-base sm:text-lg"></i> Novo Pedido
+                            </button>
+
                             <div class="relative sm:min-w-[200px]">
                                 <i class="ph ph-magnifying-glass text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
                                 <input type="search" id="busca-fila-pedidos" oninput="renderizarFilaPedidos()" placeholder="Buscar cliente ou doce..." class="w-full bg-duda-cream pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
@@ -691,6 +695,201 @@
         </footer>
     </div>
 
+    <!-- Modal: Adicionar Novo Pedido Manualmente -->
+    <div id="modal-novo-pedido" onclick="if(event.target === this) fecharModalNovoPedido()" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white max-w-2xl w-full max-h-[94dvh] sm:max-h-[92dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border border-duda-pink/40 flex flex-col overflow-hidden">
+            
+            <!-- Cabeçalho Fixo -->
+            <div class="flex items-center justify-between border-b border-gray-100 px-5 py-3.5 sm:px-7 sm:py-4 shrink-0 bg-white">
+                <div>
+                    <h3 class="text-base sm:text-xl font-extrabold text-duda-brown flex items-center gap-2">
+                        <i class="ph ph-plus-circle text-duda-red"></i> Registrar Pedido Manual
+                    </h3>
+                    <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Salva na fila de Pedidos, no Dashboard e no Fluxo de Caixa.</p>
+                </div>
+                <button type="button" onclick="fecharModalNovoPedido()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-100 text-gray-500 hover:bg-duda-red hover:text-white transition-all flex items-center justify-center shrink-0">
+                    <i class="ph ph-x text-base sm:text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Formulário Rolável -->
+            <form id="form-novo-pedido-manual" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <div class="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-7 sm:py-5 space-y-4">
+                    
+                    <!-- Dados do Cliente -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nome Completo do Cliente *</label>
+                            <input type="text" id="manual-cliente-nome" required placeholder="Ex: Maria Silva" class="w-full bg-duda-cream px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">WhatsApp (com DDD) *</label>
+                            <input type="text" id="manual-cliente-telefone" required placeholder="Ex: (31) 99999-8888" class="w-full bg-duda-cream px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Pedido e Pagamento -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tipo de Pedido *</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" id="btn-manual-retirada" onclick="setTipoPedidoManual('retirada')" class="py-2.5 px-2 border-2 border-duda-red bg-duda-red/10 text-duda-red font-bold rounded-xl text-xs transition-all">🏪 Retirada</button>
+                                <button type="button" id="btn-manual-entrega" onclick="setTipoPedidoManual('entrega')" class="py-2.5 px-2 border-2 border-gray-200 text-gray-500 font-bold rounded-xl text-xs transition-all">🛵 Entrega</button>
+                            </div>
+                            <input type="hidden" id="manual-tipo-pedido" value="retirada">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Forma de Pagamento *</label>
+                            <select id="manual-forma-pagamento" required class="w-full bg-duda-cream px-3 py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none focus:border-duda-red focus:bg-white">
+                                <option value="Pix">Pix</option>
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="Cartão Débito">Cartão Débito</option>
+                                <option value="Cartão Crédito">Cartão Crédito</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Status no Caixa</label>
+                            <select id="manual-status-caixa" class="w-full bg-duda-cream px-3 py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none focus:border-duda-red focus:bg-white">
+                                <option value="pendente">⏳ Pendente</option>
+                                <option value="pago">✅ Pago Integral</option>
+                                <option value="50porcento">⚡ Pago 50%</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Endereço (Exibido apenas se Entrega) -->
+                    <div id="manual-endereco-box" class="hidden bg-duda-cream/70 p-3.5 sm:p-4 rounded-2xl border border-duda-pink/40 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-duda-red uppercase tracking-wider">📍 Dados de Entrega</span>
+                            <div class="flex items-center gap-1.5">
+                                <label class="text-[11px] font-bold text-gray-600">Taxa Entrega (R$):</label>
+                                <input type="number" step="0.50" id="manual-taxa-entrega" value="8.00" oninput="recalcularTotalPedidoManual()" class="w-20 bg-white px-2 py-1 rounded-lg border border-gray-200 text-xs font-bold text-duda-red text-right outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">CEP</label>
+                                <input type="text" id="manual-cep" placeholder="00000-000" maxlength="9" onblur="buscarCepManual(this.value)" class="w-full bg-white px-3 py-2 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none focus:border-duda-red">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Rua / Logradouro *</label>
+                                <input type="text" id="manual-rua" placeholder="Nome da rua" class="w-full bg-white px-3 py-2 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none focus:border-duda-red">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Número *</label>
+                                <input type="text" id="manual-numero" placeholder="Nº" class="w-full bg-white px-3 py-2 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none focus:border-duda-red">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Bairro *</label>
+                                <input type="text" id="manual-bairro" placeholder="Bairro" class="w-full bg-white px-3 py-2 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none focus:border-duda-red">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Adicionar Itens ao Pedido -->
+                    <div class="bg-duda-cream/50 p-3.5 sm:p-4 rounded-2xl border border-gray-200 space-y-3">
+                        <p class="text-xs font-extrabold text-duda-brown uppercase tracking-wider">🛍️ Adicionar Itens do Pedido</p>
+
+                        <!-- Atalho Catálogo -->
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+                            <div class="sm:col-span-7">
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Produto do Catálogo</label>
+                                <select id="manual-select-produto" class="w-full bg-white px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown outline-none focus:border-duda-red"></select>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Qtd</label>
+                                <input type="number" id="manual-qtd-produto" min="1" value="1" class="w-full bg-white px-2.5 py-2 rounded-xl border border-gray-200 text-xs font-bold text-center text-duda-brown outline-none">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <button type="button" onclick="adicionarProdutoCatalogoManual()" class="w-full bg-duda-brown hover:bg-duda-red text-white text-xs font-bold py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1">
+                                    <i class="ph ph-plus"></i> Incluir
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Atalho Bombom Personalizado -->
+                        <div class="pt-2 border-t border-gray-200/80 space-y-2">
+                            <label class="block text-[10px] font-bold text-duda-red uppercase">🍫 Adicionar Bombom Personalizado</label>
+                            <div class="grid grid-cols-3 sm:grid-cols-12 gap-2 items-end">
+                                <div class="sm:col-span-3">
+                                    <select id="manual-bombom-fruta" class="w-full bg-white px-2.5 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown outline-none">
+                                        <option value="Morango">🍓 Morango</option>
+                                        <option value="Uva">🍇 Uva</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <select id="manual-bombom-recheio" class="w-full bg-white px-2.5 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown outline-none">
+                                        <option value="ninho">Ninho</option>
+                                        <option value="chocolate">Chocolate</option>
+                                        <option value="maracujá">Maracujá</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <select id="manual-bombom-cobertura" class="w-full bg-white px-2.5 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown outline-none">
+                                        <option value="branco">Choc. Branco</option>
+                                        <option value="chocolate">Choc. Leite</option>
+                                        <option value="calda">Calda Amor</option>
+                                        <option value="cravejado">Cravejado</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-3 sm:col-span-3 flex gap-1.5">
+                                    <input type="number" id="manual-bombom-qtd" min="1" value="1" class="w-14 bg-white px-2 py-2 rounded-xl border border-gray-200 text-xs font-bold text-center text-duda-brown outline-none">
+                                    <button type="button" onclick="adicionarBombomPersonalizadoManual()" class="flex-1 bg-duda-red hover:bg-[#6b1f1f] text-white text-xs font-bold py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1">
+                                        <i class="ph ph-plus"></i> Bombom
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item Avulso / Personalizado -->
+                        <div class="pt-2 border-t border-gray-200/80 space-y-1.5">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase">✨ Ou Item Avulso / Encomenda Especial</label>
+                            <div class="grid grid-cols-12 gap-2 items-center">
+                                <input type="text" id="manual-avulso-nome" placeholder="Ex: Caixa 20 doces festa" class="col-span-6 bg-white px-2.5 py-2 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none">
+                                <input type="number" id="manual-avulso-qtd" min="1" value="1" class="col-span-2 bg-white px-2 py-2 rounded-xl border border-gray-200 text-xs font-bold text-center text-duda-brown outline-none">
+                                <input type="number" step="0.01" id="manual-avulso-preco" placeholder="R$" class="col-span-2 bg-white px-2 py-2 rounded-xl border border-gray-200 text-xs font-bold text-duda-red outline-none">
+                                <button type="button" onclick="adicionarItemAvulsoManual()" class="col-span-2 bg-gray-800 hover:bg-duda-red text-white text-xs font-bold py-2 rounded-xl transition-all">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Itens Selecionados -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-duda-brown uppercase tracking-wider">Itens Adicionados (<span id="manual-qtd-total-itens">0</span>)</span>
+                            <span id="manual-subtotal-label" class="text-xs font-semibold text-gray-500">Subtotal: R$ 0,00</span>
+                        </div>
+                        <div id="manual-itens-lista" class="space-y-1.5 max-h-40 overflow-y-auto">
+                            <p class="text-xs text-gray-400 italic text-center py-3 bg-gray-50 rounded-xl">Nenhum item adicionado ainda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rodapé Fixo -->
+                <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 sm:px-7 border-t border-gray-100 bg-white shrink-0">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase text-gray-400 block">Total do Pedido</span>
+                        <span id="manual-total-geral" class="text-lg sm:text-xl font-extrabold text-duda-red">R$ 0,00</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="fecharModalNovoPedido()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs sm:text-sm font-semibold transition-all">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-salvar-pedido-manual" class="px-5 py-2.5 rounded-xl bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-60">
+                            <i class="ph ph-check-circle text-base sm:text-lg"></i> <span id="btn-salvar-pedido-manual-texto">Registrar Pedido</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal: Adicionar / Editar Produto no Catálogo -->
     <div id="modal-produto" onclick="if(event.target === this) fecharModalProduto()" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white max-w-lg w-full max-h-[92dvh] sm:max-h-[90dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border border-duda-pink/40 flex flex-col overflow-hidden">
@@ -781,7 +980,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const HASH_SENHA_PADRAO = "69e62ea6ec1e1e35959c97f5631d02c93286c13410c20895fb8b5118cf644ef";
+        const HASH_SENHA_PADRAO = "4a782bd63547be5e4139137817f6cc10b59c871952972409f74f9e205b3a66f3";
         let hashSenhaAdminAtual = HASH_SENHA_PADRAO;
         let painelInicializado = false;
 
@@ -795,6 +994,8 @@
         let timerPreviewManual = null;
         let campoCaixaEmEdicao = null;
         let filtroStatusPedidoAtual = 'todos';
+        let itensPedidoManual = [];
+        let salvandoPedidoManual = false;
 
         const NOMES_ABAS = {
             dashboard: 'Dashboard',
@@ -1331,6 +1532,7 @@
                 }
                 renderizarTabelaProdutosLoja();
                 renderizarPrecosBombomGrid();
+                popularSelectProdutosPedidoManual();
             });
         }
 
@@ -1370,6 +1572,301 @@
             });
         }
 
+        // ================= PEDIDO MANUAL (WHATSAPP / INSTAGRAM) =================
+        function popularSelectProdutosPedidoManual() {
+            const sel = document.getElementById("manual-select-produto");
+            if (!sel) return;
+            sel.innerHTML = catalogoLoja.map((item, idx) => `
+                <option value="${idx}">${item.nome} — R$ ${Number(item.preco || 0).toFixed(2).replace(".", ",")}</option>
+            `).join("");
+        }
+
+        window.abrirModalNovoPedido = function() {
+            itensPedidoManual = [];
+            document.getElementById("form-novo-pedido-manual").reset();
+            document.getElementById("manual-taxa-entrega").value = "8.00";
+            setTipoPedidoManual("retirada");
+            popularSelectProdutosPedidoManual();
+            renderizarItensPedidoManual();
+
+            const modal = document.getElementById("modal-novo-pedido");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            document.body.style.overflow = "hidden";
+        };
+
+        window.fecharModalNovoPedido = function() {
+            const modal = document.getElementById("modal-novo-pedido");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            document.body.style.overflow = "";
+        };
+
+        window.setTipoPedidoManual = function(tipo) {
+            document.getElementById("manual-tipo-pedido").value = tipo;
+            const btnRet = document.getElementById("btn-manual-retirada");
+            const btnEnt = document.getElementById("btn-manual-entrega");
+            const boxEnd = document.getElementById("manual-endereco-box");
+
+            if (tipo === "retirada") {
+                btnRet.className = "py-2.5 px-2 border-2 border-duda-red bg-duda-red/10 text-duda-red font-bold rounded-xl text-xs transition-all";
+                btnEnt.className = "py-2.5 px-2 border-2 border-gray-200 text-gray-500 font-bold rounded-xl text-xs transition-all";
+                boxEnd.classList.add("hidden");
+            } else {
+                btnEnt.className = "py-2.5 px-2 border-2 border-duda-red bg-duda-red/10 text-duda-red font-bold rounded-xl text-xs transition-all";
+                btnRet.className = "py-2.5 px-2 border-2 border-gray-200 text-gray-500 font-bold rounded-xl text-xs transition-all";
+                boxEnd.classList.remove("hidden");
+            }
+            recalcularTotalPedidoManual();
+        };
+
+        window.buscarCepManual = function(cep) {
+            const cleanCep = String(cep || "").replace(/\D/g, "");
+            if (cleanCep.length !== 8) return;
+            fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.erro) {
+                        document.getElementById("manual-rua").value = data.logradouro || "";
+                        document.getElementById("manual-bairro").value = data.bairro || "";
+                        document.getElementById("manual-numero").focus();
+                    }
+                })
+                .catch(() => {});
+        };
+
+        window.adicionarProdutoCatalogoManual = function() {
+            const idx = parseInt(document.getElementById("manual-select-produto").value, 10);
+            const qtd = Math.max(1, parseInt(document.getElementById("manual-qtd-produto").value, 10) || 1);
+            const prod = catalogoLoja[idx];
+            if (!prod) return;
+
+            const existente = itensPedidoManual.find(i => i.id === prod.id);
+            if (existente) {
+                existente.quantity += qtd;
+            } else {
+                itensPedidoManual.push({
+                    id: prod.id,
+                    name: prod.nome,
+                    price: Number(prod.preco) || 0,
+                    image: prod.image || "Brownie.png",
+                    quantity: qtd
+                });
+            }
+            document.getElementById("manual-qtd-produto").value = 1;
+            renderizarItensPedidoManual();
+        };
+
+        window.adicionarBombomPersonalizadoManual = function() {
+            const fruta = document.getElementById("manual-bombom-fruta").value;
+            const recheio = document.getElementById("manual-bombom-recheio").value;
+            const cobertura = document.getElementById("manual-bombom-cobertura").value;
+            const qtd = Math.max(1, parseInt(document.getElementById("manual-bombom-qtd").value, 10) || 1);
+
+            const key = `${fruta}-${recheio}-${cobertura}`;
+            const preco = precosBombomCatalogo[key] ?? 10.00;
+            const id = `custom-${key}`;
+            const name = `Bombom Personalizado (${fruta} + ${recheio} + ${cobertura})`;
+
+            const existente = itensPedidoManual.find(i => i.id === id);
+            if (existente) {
+                existente.quantity += qtd;
+            } else {
+                itensPedidoManual.push({
+                    id,
+                    bombomKey: key,
+                    name,
+                    price: Number(preco) || 10.00,
+                    image: "logo.png",
+                    quantity: qtd
+                });
+            }
+            document.getElementById("manual-bombom-qtd").value = 1;
+            renderizarItensPedidoManual();
+        };
+
+        window.adicionarItemAvulsoManual = function() {
+            const nome = document.getElementById("manual-avulso-nome").value.trim();
+            const qtd = Math.max(1, parseInt(document.getElementById("manual-avulso-qtd").value, 10) || 1);
+            const preco = parseFloat(document.getElementById("manual-avulso-preco").value) || 0;
+
+            if (!nome) {
+                showToast("Informe o nome do item avulso.");
+                document.getElementById("manual-avulso-nome").focus();
+                return;
+            }
+            if (preco <= 0) {
+                showToast("Informe o valor unitário do item.");
+                document.getElementById("manual-avulso-preco").focus();
+                return;
+            }
+
+            itensPedidoManual.push({
+                id: `avulso-${Date.now()}`,
+                name: nome,
+                price: preco,
+                image: "logo.png",
+                quantity: qtd
+            });
+
+            document.getElementById("manual-avulso-nome").value = "";
+            document.getElementById("manual-avulso-qtd").value = 1;
+            document.getElementById("manual-avulso-preco").value = "";
+            renderizarItensPedidoManual();
+        };
+
+        window.alterarQtdItemManual = function(index, delta) {
+            if (!itensPedidoManual[index]) return;
+            itensPedidoManual[index].quantity += delta;
+            if (itensPedidoManual[index].quantity <= 0) {
+                itensPedidoManual.splice(index, 1);
+            }
+            renderizarItensPedidoManual();
+        };
+
+        function recalcularTotalPedidoManual() {
+            const subtotal = itensPedidoManual.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            const tipo = document.getElementById("manual-tipo-pedido").value;
+            const taxa = tipo === "entrega" ? (parseFloat(document.getElementById("manual-taxa-entrega").value) || 0) : 0;
+            const total = subtotal + taxa;
+            const qtdTotal = itensPedidoManual.reduce((acc, item) => acc + item.quantity, 0);
+
+            document.getElementById("manual-qtd-total-itens").innerText = qtdTotal;
+            document.getElementById("manual-subtotal-label").innerText = `Subtotal: ${subtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById("manual-total-geral").innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            return { subtotal, taxa, total };
+        }
+
+        function renderizarItensPedidoManual() {
+            const lista = document.getElementById("manual-itens-lista");
+            if (!lista) return;
+
+            if (itensPedidoManual.length === 0) {
+                lista.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-3 bg-gray-50 rounded-xl">Nenhum item adicionado ainda.</p>`;
+                recalcularTotalPedidoManual();
+                return;
+            }
+
+            lista.innerHTML = itensPedidoManual.map((item, idx) => `
+                <div class="flex items-center justify-between gap-2 bg-duda-cream/60 px-3 py-2 rounded-xl border border-duda-pink/30 text-xs">
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold text-duda-brown truncate">${item.quantity}x ${item.name}</p>
+                        <span class="text-[11px] text-gray-500">Unit: R$ ${item.price.toFixed(2).replace(".", ",")}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <span class="font-extrabold text-duda-red mr-1">R$ ${(item.price * item.quantity).toFixed(2).replace(".", ",")}</span>
+                        <button type="button" onclick="alterarQtdItemManual(${idx}, -1)" class="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-duda-red hover:text-white flex items-center justify-center font-bold">-</button>
+                        <button type="button" onclick="alterarQtdItemManual(${idx}, 1)" class="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-duda-red hover:text-white flex items-center justify-center font-bold">+</button>
+                    </div>
+                </div>
+            `).join("");
+
+            recalcularTotalPedidoManual();
+        }
+
+        document.getElementById("manual-cliente-telefone")?.addEventListener("input", (e) => {
+            let value = e.target.value.replace(/\D/g, "");
+            if (value.length > 11) value = value.substring(0, 11);
+            if (value.length > 6) {
+                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
+            } else if (value.length > 2) {
+                value = value.replace(/^(\d{2})(\d{0,5})/, "($1) $2");
+            } else if (value.length > 0) {
+                value = value.replace(/^(\d*)/, "($1");
+            }
+            e.target.value = value;
+        });
+
+        document.getElementById("form-novo-pedido-manual")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (salvandoPedidoManual) return;
+
+            const nome = document.getElementById("manual-cliente-nome").value.trim();
+            const telInput = document.getElementById("manual-cliente-telefone").value.trim();
+            const phone = telInput.replace(/\D/g, "");
+            const tipoPedido = document.getElementById("manual-tipo-pedido").value;
+            const formaPagamento = document.getElementById("manual-forma-pagamento").value;
+            const statusCaixa = document.getElementById("manual-status-caixa").value || "pendente";
+
+            if (!nome) {
+                showToast("Informe o nome do cliente.");
+                return;
+            }
+            if (!phone || phone.length < 10) {
+                showToast("Informe um telefone/WhatsApp válido com DDD.");
+                return;
+            }
+            if (itensPedidoManual.length === 0) {
+                showToast("Adicione pelo menos 1 item ao pedido.");
+                return;
+            }
+
+            let enderecoObj = "Retirada na Loja";
+            if (tipoPedido === "entrega") {
+                const cep = document.getElementById("manual-cep").value.trim();
+                const rua = document.getElementById("manual-rua").value.trim();
+                const numero = document.getElementById("manual-numero").value.trim();
+                const bairro = document.getElementById("manual-bairro").value.trim();
+                if (!rua || !numero || !bairro) {
+                    showToast("Preencha rua, número e bairro para entrega.");
+                    return;
+                }
+                enderecoObj = { rua, numero, bairro, cep };
+            }
+
+            const { subtotal, taxa, total } = recalcularTotalPedidoManual();
+            const dataHoje = new Date().toISOString().split("T")[0];
+            const pedidoId = `ped_manual_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+
+            salvandoPedidoManual = true;
+            const btnSalvar = document.getElementById("btn-salvar-pedido-manual");
+            const btnTexto = document.getElementById("btn-salvar-pedido-manual-texto");
+            btnSalvar.disabled = true;
+            if (btnTexto) btnTexto.innerText = "Salvando...";
+
+            try {
+                const itensSnapshot = itensPedidoManual.map(item => ({ ...item }));
+
+                await setDoc(doc(db, "pedidos", pedidoId), {
+                    clienteNome: nome,
+                    clienteTelefone: phone,
+                    tipoPedido: tipoPedido,
+                    endereco: enderecoObj,
+                    formaPagamento: formaPagamento,
+                    itens: itensSnapshot,
+                    subtotal: subtotal,
+                    taxaEntrega: taxa,
+                    valorTotal: total,
+                    statusPedido: "pendente",
+                    origem: "manual_admin",
+                    dataPedido: serverTimestamp()
+                });
+
+                await setDoc(doc(db, "fluxo_caixa", `caixa_${pedidoId}`), {
+                    pedidoId: pedidoId,
+                    data: dataHoje,
+                    descricao: `Venda p/ ${nome} (${tipoPedido === "entrega" ? "Entrega" : "Retirada"})`,
+                    categoria: "Vendas",
+                    tipo: "entrada",
+                    valor: total,
+                    statusPagamento: statusCaixa,
+                    criadoEm: serverTimestamp()
+                });
+
+                fecharModalNovoPedido();
+                showToast("Pedido registrado em Pedidos, Dashboard e Caixa!");
+            } catch (err) {
+                console.error("Erro ao registrar pedido manual:", err);
+                showToast("Erro ao salvar pedido no Firebase.");
+            } finally {
+                salvandoPedidoManual = false;
+                btnSalvar.disabled = false;
+                if (btnTexto) btnTexto.innerText = "Registrar Pedido";
+            }
+        });
+
+        // ================= MODAL PRODUTOS =================
         window.abrirModalProduto = function(idx = -1) {
             limparUrlPreviewTemporaria();
             arquivoImagemSelecionado = null;
@@ -1411,8 +1908,11 @@
 
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
-                const modal = document.getElementById("modal-produto");
-                if (modal && !modal.classList.contains("hidden")) {
+                const modalPedido = document.getElementById("modal-novo-pedido");
+                const modalProd = document.getElementById("modal-produto");
+                if (modalPedido && !modalPedido.classList.contains("hidden")) {
+                    fecharModalNovoPedido();
+                } else if (modalProd && !modalProd.classList.contains("hidden")) {
                     fecharModalProduto();
                 } else {
                     fecharMenuLateral();
@@ -1647,6 +2147,10 @@
                     ? 'bg-amber-100 text-amber-800 border-amber-200'
                     : 'bg-yellow-100 text-yellow-800 border-yellow-200';
 
+                const enderecoHtml = (p.tipoPedido === 'entrega' && p.endereco && typeof p.endereco === 'object')
+                    ? `<p class="text-[11px] text-gray-600 mt-1">📍 ${p.endereco.rua || ''}, Nº ${p.endereco.numero || ''} - ${p.endereco.bairro || ''} ${p.endereco.cep ? `(CEP: ${p.endereco.cep})` : ''}</p>`
+                    : '';
+
                 const itensHtml = Array.isArray(p.itens) && p.itens.length > 0
                     ? p.itens.map(item => `
                         <li class="flex items-center justify-between gap-2 text-xs sm:text-sm py-1.5 border-b border-dashed border-gray-100 last:border-none">
@@ -1666,6 +2170,7 @@
                                 <div class="min-w-0">
                                     <h3 class="font-bold text-duda-brown text-sm sm:text-base truncate">${p.clienteNome}</h3>
                                     <p class="text-[11px] sm:text-xs text-gray-500 font-medium">${p.dataFormatada} • ${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'} • ${p.formaPagamento}</p>
+                                    ${enderecoHtml}
                                 </div>
                                 <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${badgeStyle} shrink-0">
                                     ${st === 'concluido' ? '✅ Concluído' : st === 'em_preparacao' ? '👩‍🍳 Preparo' : '⏳ Pendente'}
@@ -1724,6 +2229,7 @@
                         id: docSnap.id,
                         clienteNome: p.clienteNome || 'Cliente',
                         tipoPedido: p.tipoPedido || 'retirada',
+                        endereco: p.endereco || null,
                         formaPagamento: p.formaPagamento || 'Pix',
                         valorTotal: p.valorTotal || 0,
                         statusPedido: p.statusPedido || 'pendente',
