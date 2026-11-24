@@ -654,41 +654,55 @@
             "uva-maracujá-cravejado": "Uva Maracujá Cravejado.jpeg"
         };
 
-        window.aplicarCatalogoFirebase = function(itensCatalogo) {
-            if (!Array.isArray(itensCatalogo)) return;
+        window.aplicarCatalogoFirebase = function(dadosCatalogo) {
+            const itensCatalogo = Array.isArray(dadosCatalogo) ? dadosCatalogo : dadosCatalogo?.itens;
+            const precosBombomRemotos = !Array.isArray(dadosCatalogo) ? dadosCatalogo?.precosBombom : null;
 
             const mapaPrecos = {};
             const listaCatalogo = [];
 
-            itensCatalogo.forEach((item) => {
-                if (!item) return;
-                const idItem = String(item.id || item.nome || "").trim();
-                const valor = Number(item.preco);
-                if (idItem && !Number.isNaN(valor)) {
-                    mapaPrecos[idItem] = valor;
-                    mapaPrecos[idItem.toLowerCase()] = valor;
-                }
-                if (item.nome && item.descricao !== undefined) {
-                    listaCatalogo.push({
-                        id: idItem || String(item.nome).toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-                        slug: idItem,
-                        name: item.nome,
-                        description: item.descricao,
-                        price: Number(item.preco) || 0,
-                        category: item.category || "Brownies",
-                        image: item.image || "Brownie.png"
+            if (Array.isArray(itensCatalogo)) {
+                itensCatalogo.forEach((item) => {
+                    if (!item) return;
+                    const idItem = String(item.id || item.nome || "").trim();
+                    const valor = Number(item.preco);
+                    if (idItem && !Number.isNaN(valor)) {
+                        mapaPrecos[idItem] = valor;
+                        mapaPrecos[idItem.toLowerCase()] = valor;
+                    }
+                    if (item.nome && item.descricao !== undefined) {
+                        listaCatalogo.push({
+                            id: idItem || String(item.nome).toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+                            slug: idItem,
+                            name: item.nome,
+                            description: item.descricao,
+                            price: Number(item.preco) || 0,
+                            category: item.category || "Brownies",
+                            image: item.image || "Brownie.png"
+                        });
+                    }
+                });
+
+                if (listaCatalogo.length > 0) {
+                    products = listaCatalogo;
+                } else {
+                    products = baseProducts.map(p => ({ ...p }));
+                    products.forEach((prod) => {
+                        const novoPreco = mapaPrecos[prod.slug] ?? mapaPrecos[prod.slug.toLowerCase()] ?? mapaPrecos[String(prod.id)];
+                        if (novoPreco !== undefined) {
+                            prod.price = novoPreco;
+                        }
                     });
                 }
-            });
+            }
 
-            if (listaCatalogo.length > 0) {
-                products = listaCatalogo;
-            } else {
-                products = baseProducts.map(p => ({ ...p }));
-                products.forEach((prod) => {
-                    const novoPreco = mapaPrecos[prod.slug] ?? mapaPrecos[prod.slug.toLowerCase()] ?? mapaPrecos[String(prod.id)];
-                    if (novoPreco !== undefined) {
-                        prod.price = novoPreco;
+            if (precosBombomRemotos && typeof precosBombomRemotos === "object") {
+                Object.entries(precosBombomRemotos).forEach(([chave, valor]) => {
+                    const num = Number(valor);
+                    if (!Number.isNaN(num)) {
+                        bombomPrices[chave] = num;
+                        mapaPrecos[chave] = num;
+                        mapaPrecos[chave.toLowerCase()] = num;
                     }
                 });
             }
@@ -1070,7 +1084,7 @@
 
         function orderForParty() {
             const msg = encodeURIComponent("Olá Duda Doces! Gostaria de encomendar doces para uma festa. Poderia me passar mais informações?");
-            window.open(`https://wa.me/${WPP_NUMBER}?text=${msg}`, '_blank');
+            window.open(`https://wa.me/${WPP_NUMBER}?text=${msg}`, '_blank', 'noopener,noreferrer');
         }
 
         function formatMoney(value) {
@@ -1188,8 +1202,8 @@
 
         function escutarCatalogoLoja() {
             onSnapshot(doc(db, "configuracao", "catalogo_loja"), (snap) => {
-                if (snap.exists() && Array.isArray(snap.data().itens)) {
-                    window.aplicarCatalogoFirebase(snap.data().itens);
+                if (snap.exists()) {
+                    window.aplicarCatalogoFirebase(snap.data());
                 }
             });
         }
@@ -1268,35 +1282,22 @@
                 console.error("Erro ao salvar pedido no Firebase: ", e);
             }
 
-            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫
-
-`;
-            message += `👤 *Cliente:* ${name}
-`;
-            message += `📱 *Telefone:* ${phoneInput}
-`;
-            message += `🛍️ *Itens do Pedido:*
-`;
+            let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
+            message += `👤 *Cliente:* ${name}\n`;
+            message += `📱 *Telefone:* ${phoneInput}\n`;
+            message += `🛍️ *Itens do Pedido:*\n`;
 
             cart.forEach(item => {
-                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})
-`;
+                message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
             });
 
-            message += `
-📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}
-`;
+            message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : 'Retirada 🏪'}\n`;
             if (deliveryType === 'entrega') {
-                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})
-`;
-                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}
-`;
+                message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
+                message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}\n`;
             }
-            message += `💳 *Pagamento:* ${paymentMethod}
-`;
-            message += `💰 *Total a Pagar:* *${formatMoney(total)}*
-
-`;
+            message += `💳 *Pagamento:* ${paymentMethod}\n`;
+            message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
             message += `Aguardando confirmação! ✨`;
 
             const encodedMessage = encodeURIComponent(message);
@@ -1306,8 +1307,12 @@
             backToCartItems();
             updateCartUI();
             toggleCart();
+            showToast("✅ Pedido registrado! Abrindo WhatsApp...");
 
-            window.location.href = wppUrl;
+            const novaAbaWpp = window.open(wppUrl, '_blank', 'noopener,noreferrer');
+            if (!novaAbaWpp) {
+                window.location.href = wppUrl;
+            }
         };
 
         window.addEventListener('load', () => {
