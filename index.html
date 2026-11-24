@@ -1299,7 +1299,7 @@
     <!-- SCRIPT DO FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, updateDoc, onSnapshot, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -1317,6 +1317,7 @@
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
+        window.setDoc = setDoc;
         window.doc = doc;
         window.updateDoc = updateDoc;
         window.query = query;
@@ -1325,6 +1326,8 @@
         window.serverTimestamp = serverTimestamp;
 
         let enviandoPedido = false;
+        let ultimoPedidoIdEnviado = null;
+        let whatsappAbertoParaPedidoId = null;
 
         async function registrarAcesso() {
             try {
@@ -1427,6 +1430,9 @@
             }
 
             try {
+                const pedidoId = ultimoPedidoIdEnviado || `ped_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+                ultimoPedidoIdEnviado = pedidoId;
+
                 const itensSnapshot = cart.map(item => ({ ...item }));
                 const subtotal = itensSnapshot.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                 const taxaEntrega = (deliveryType === 'entrega' ? DELIVERY_FEE : 0);
@@ -1447,10 +1453,9 @@
                     dataPedido: serverTimestamp()
                 };
 
-                const pedidoRef = await addDoc(collection(db, "pedidos"), dadosPedido);
-                const pedidoId = pedidoRef.id;
+                await setDoc(doc(db, "pedidos", pedidoId), dadosPedido);
 
-                await addDoc(collection(db, "fluxo_caixa"), {
+                await setDoc(doc(db, "fluxo_caixa", `caixa_${pedidoId}`), {
                     pedidoId: pedidoId,
                     data: dataHoje,
                     descricao: `Venda p/ ${name} (${deliveryType === 'entrega' ? 'Entrega' : 'Retirada'})`,
@@ -1481,15 +1486,16 @@
                 const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
 
                 cart = [];
+                ultimoPedidoIdEnviado = null;
                 backToCartItems();
                 updateCartUI();
                 toggleCart();
 
                 showToast("✅ Pedido registrado! Abrindo WhatsApp...");
 
-                const novaAbaWpp = window.open(wppUrl, '_blank', 'noopener,noreferrer');
-                if (!novaAbaWpp) {
-                    window.location.href = wppUrl;
+                if (whatsappAbertoParaPedidoId !== pedidoId) {
+                    whatsappAbertoParaPedidoId = pedidoId;
+                    window.open(wppUrl, '_blank', 'noopener,noreferrer');
                 }
             } catch (e) {
                 console.error("Erro ao salvar pedido no Firebase: ", e);
