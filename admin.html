@@ -53,12 +53,18 @@
         table input, table select {
             background: transparent;
             border: 1px solid transparent;
-            padding: 6px 10px;
+            padding: 5px 8px;
             border-radius: 6px;
             font-family: 'Inter', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.2s ease;
             width: 100%;
+        }
+        @media (min-width: 640px) {
+            table input, table select {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
         }
         table input:hover, table select:hover {
             background-color: rgba(0, 0, 0, 0.02);
@@ -76,17 +82,17 @@
 
     <!-- Tela de Bloqueio / Acesso Rápido -->
     <div id="auth-gate" class="fixed inset-0 z-50 bg-duda-cream flex items-center justify-center p-4">
-        <div class="bg-white max-w-sm w-full p-8 rounded-3xl shadow-premium border border-duda-pink/40 text-center space-y-6">
-            <img class="h-14 w-auto object-contain mx-auto" src="logo.png" alt="Duda Doces Logo">
+        <div class="bg-white max-w-sm w-full p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-duda-pink/40 text-center space-y-5">
+            <img class="h-12 sm:h-14 w-auto object-contain mx-auto" src="logo.png" alt="Duda Doces Logo">
             <div class="space-y-1">
-                <h2 class="text-xl font-extrabold text-duda-brown tracking-tight">Acesso Restrito</h2>
+                <h2 class="text-lg sm:text-xl font-extrabold text-duda-brown tracking-tight">Acesso Restrito</h2>
                 <p class="text-xs text-gray-500 font-medium">Digite sua senha/PIN para abrir o Painel Duda Doces.</p>
             </div>
 
-            <form id="form-login-painel" class="space-y-4">
-                <input type="password" id="input-senha-painel" autocomplete="current-password" placeholder="Digite a senha do painel..." class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-center text-sm font-bold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
+            <form id="form-login-painel" class="space-y-3.5">
+                <input type="password" id="input-senha-painel" autocomplete="current-password" placeholder="Digite a senha do painel..." class="w-full bg-duda-cream px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 text-center text-sm font-bold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
                 <p id="erro-login-painel" class="text-xs font-semibold text-red-600 hidden">Senha incorreta. Tente novamente.</p>
-                <button type="submit" class="w-full bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-sm">
+                <button type="submit" class="w-full bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold py-2.5 sm:py-3 rounded-xl transition-all shadow-sm">
                     Entrar no Painel
                 </button>
             </form>
@@ -100,119 +106,173 @@
     <!-- Conteúdo Principal (Oculto até autenticar) -->
     <div id="painel-protegido" class="hidden flex-1 flex flex-col">
 
-        <!-- Header do Painel com Abas -->
-        <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 py-4 sm:py-0 gap-4">
-                    <div class="flex items-center gap-3">
-                        <img class="h-12 w-auto object-contain" src="logo.png" alt="Duda Doces Logo">
-                        <div>
-                            <h1 class="font-bold text-lg sm:text-xl text-duda-brown tracking-tight">Painel Duda Doces</h1>
-                            <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Gestão Integrada em Tempo Real</span>
+        <!-- Overlay do Menu Lateral (PC e Mobile) -->
+        <div id="sidebar-overlay" onclick="fecharMenuLateral()" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden opacity-0 transition-opacity duration-300"></div>
+
+        <!-- Gaveta Lateral de Navegação (PC e Mobile) -->
+        <aside id="sidebar-drawer" class="fixed top-0 left-0 z-50 h-full w-72 sm:w-80 bg-white shadow-2xl border-r border-duda-pink/30 transform -translate-x-full transition-transform duration-300 ease-out flex flex-col">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <img class="h-9 w-auto object-contain" src="logo.png" alt="Duda Doces">
+                    <div>
+                        <p class="font-bold text-sm text-duda-brown leading-tight">Duda Doces</p>
+                        <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Menu do Painel</span>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharMenuLateral()" class="w-9 h-9 rounded-xl bg-gray-100 text-gray-500 hover:bg-duda-red hover:text-white transition-all flex items-center justify-center" title="Fechar Menu">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto px-3.5 py-4 space-y-1.5">
+                <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">Navegação</p>
+
+                <button type="button" onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-duda-red text-white shadow-xs">
+                    <span class="flex items-center gap-3">
+                        <i class="ph ph-chart-line-up text-lg"></i> Dashboard
+                    </span>
+                </button>
+
+                <button type="button" onclick="mudarAba('pedidos')" id="tab-btn-pedidos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-duda-brown hover:bg-duda-cream hover:text-duda-red">
+                    <span class="flex items-center gap-3">
+                        <i class="ph ph-list-checks text-lg"></i> Pedidos
+                    </span>
+                    <span id="badge-pedidos-ativos" class="bg-duda-pink/60 text-duda-brown text-[11px] font-extrabold px-2 py-0.5 rounded-full">0</span>
+                </button>
+
+                <button type="button" onclick="mudarAba('caixa')" id="tab-btn-caixa" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-duda-brown hover:bg-duda-cream hover:text-duda-red">
+                    <span class="flex items-center gap-3">
+                        <i class="ph ph-wallet text-lg"></i> Fluxo de Caixa
+                    </span>
+                </button>
+
+                <button type="button" onclick="mudarAba('estoque')" id="tab-btn-estoque" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-duda-brown hover:bg-duda-cream hover:text-duda-red">
+                    <span class="flex items-center gap-3">
+                        <i class="ph ph-package text-lg"></i> Estoque
+                    </span>
+                </button>
+
+                <button type="button" onclick="mudarAba('produtos')" id="tab-btn-produtos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-duda-brown hover:bg-duda-cream hover:text-duda-red">
+                    <span class="flex items-center gap-3">
+                        <i class="ph ph-cookie text-lg"></i> Produtos & Preços
+                    </span>
+                </button>
+
+                <button type="button" onclick="mudarAba('custos')" id="tab-btn-custos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-duda-brown hover:bg-duda-cream hover:text-duda-red">
+                    <span class="flex items-center gap-3">
+                        <i class="ph ph-calculator text-lg"></i> Calculadora de Custos
+                    </span>
+                </button>
+            </nav>
+
+            <div class="p-3.5 border-t border-gray-100 space-y-2 bg-duda-cream/40">
+                <a href="index.html" class="w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-white px-4 py-2.5 rounded-xl border border-duda-pink/40 shadow-2xs">
+                    <i class="ph ph-storefront text-base"></i> Ver Loja Online
+                </a>
+                <button type="button" onclick="bloquearPainel()" class="w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-red-600 transition-all bg-gray-100 hover:bg-red-50 px-4 py-2.5 rounded-xl">
+                    <i class="ph ph-lock-key text-base"></i> Sair / Bloquear
+                </button>
+            </div>
+        </aside>
+
+        <!-- Header Limpo e Proporcional -->
+        <header class="bg-white/95 backdrop-blur-md shadow-xs sticky top-0 z-40 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-14 sm:h-16 gap-3">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                        <button type="button" onclick="abrirMenuLateral()" class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-duda-cream hover:bg-duda-pink/40 text-duda-brown hover:text-duda-red border border-duda-pink/40 flex items-center justify-center transition-all shrink-0 active:scale-95" aria-label="Abrir menu de páginas">
+                            <i class="ph ph-list text-xl sm:text-2xl"></i>
+                            <span id="badge-menu-dot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-duda-red border-2 border-white"></span>
+                        </button>
+
+                        <img class="h-8 sm:h-10 w-auto object-contain shrink-0" src="logo.png" alt="Duda Doces Logo">
+
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h1 class="font-bold text-sm sm:text-lg text-duda-brown tracking-tight truncate">Painel Duda Doces</h1>
+                                <span id="header-aba-atual" class="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-duda-pink/30 text-duda-red shrink-0">Dashboard</span>
+                            </div>
+                            <span class="hidden sm:block text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Gestão Integrada em Tempo Real</span>
                         </div>
                     </div>
 
-                    <!-- Abas de Navegação -->
-                    <div class="flex items-center gap-1.5 sm:gap-2 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap justify-center">
-                        <button onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs">
-                            <i class="ph ph-chart-line-up text-base"></i> Dashboard
-                        </button>
-                        <button onclick="mudarAba('pedidos')" id="tab-btn-pedidos" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                            <i class="ph ph-list-checks text-base"></i> Pedidos
-                            <span id="badge-pedidos-ativos" class="bg-duda-pink/60 text-duda-brown text-[11px] font-extrabold px-1.5 py-0.5 rounded-full">0</span>
-                        </button>
-                        <button onclick="mudarAba('caixa')" id="tab-btn-caixa" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                            <i class="ph ph-wallet text-base"></i> Caixa
-                        </button>
-                        <button onclick="mudarAba('estoque')" id="tab-btn-estoque" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                            <i class="ph ph-package text-base"></i> Estoque
-                        </button>
-                        <button onclick="mudarAba('produtos')" id="tab-btn-produtos" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                            <i class="ph ph-cookie text-base"></i> Produtos
-                        </button>
-                        <button onclick="mudarAba('custos')" id="tab-btn-custos" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red">
-                            <i class="ph ph-calculator text-base"></i> Calculadora
-                        </button>
-                    </div>
-
-                    <div class="hidden md:flex items-center gap-2">
-                        <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-duda-brown hover:text-duda-red transition-all bg-duda-cream px-4 py-2.5 rounded-xl border border-duda-pink/30">
-                            <i class="ph ph-storefront text-lg"></i> Ver Loja
-                        </a>
-                        <button onclick="bloquearPainel()" class="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-red-600 transition-all bg-gray-100 px-3.5 py-2.5 rounded-xl" title="Bloquear Painel">
-                            <i class="ph ph-lock-key text-lg"></i> Sair
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="button" onclick="mudarAba('pedidos')" class="flex items-center gap-1.5 text-xs font-bold text-duda-brown bg-duda-cream hover:bg-duda-pink/30 px-2.5 sm:px-3.5 py-2 rounded-xl border border-duda-pink/40 transition-all">
+                            <i class="ph ph-bell-ringing text-duda-red text-sm sm:text-base"></i>
+                            <span class="hidden sm:inline">Pedidos</span>
+                            <span id="header-badge-pedidos" class="bg-duda-red text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
                         </button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
 
             <!-- ================= ABA 1: DASHBOARD ================= -->
-            <div id="view-dashboard" class="space-y-8">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+            <div id="view-dashboard" class="space-y-5 sm:space-y-8">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                    <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-currency-dollar"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Faturamento Total</p>
-                            <h3 id="stat-faturamento" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
+                        <div class="min-w-0">
+                            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider truncate">Faturamento</p>
+                            <h3 id="stat-faturamento" class="text-base sm:text-2xl font-bold text-duda-brown mt-0.5 tracking-tight truncate">R$ 0,00</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-shopping-bag"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Pedidos</p>
-                            <h3 id="stat-pedidos" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        <div class="min-w-0">
+                            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider truncate">Pedidos</p>
+                            <h3 id="stat-pedidos" class="text-base sm:text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-users"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Visitantes Únicos</p>
-                            <h3 id="stat-visitantes" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        <div class="min-w-0">
+                            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider truncate">Visitantes</p>
+                            <h3 id="stat-visitantes" class="text-base sm:text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-eye"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acessos Totais</p>
-                            <h3 id="stat-acessos-totais" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
+                        <div class="min-w-0">
+                            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider truncate">Acessos</p>
+                            <h3 id="stat-acessos-totais" class="text-base sm:text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">0</h3>
                         </div>
                     </div>
                 </div>
 
                 <!-- Gráfico Misto -->
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100">
-                    <div class="flex justify-between items-center mb-6">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
                         <div>
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-chart-line-up text-duda-red"></i> Acessos Diários
                             </h2>
-                            <p class="text-xs text-gray-500 font-medium">Fluxo de visitas ao site.</p>
+                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Fluxo de visitas ao site.</p>
                         </div>
                     </div>
-                    <div class="relative h-80 w-full">
+                    <div class="relative h-52 sm:h-80 w-full">
                         <canvas id="accessChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Tabela de Pedidos e Inativos -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
+                    <div class="lg:col-span-2 bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-4">
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-receipt text-duda-red"></i> Pedidos Recentes
                             </h2>
                             <div class="relative w-full sm:w-64">
@@ -223,145 +283,145 @@
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        <th class="pb-3 px-2">Cliente</th>
-                                        <th class="pb-3 px-2">Tipo</th>
-                                        <th class="pb-3 px-2">Pagamento</th>
-                                        <th class="pb-3 px-2">Total</th>
-                                        <th class="pb-3 px-2">Data</th>
-                                        <th class="pb-3 px-2 w-16 text-center">Ações</th>
+                                    <tr class="border-b border-gray-100 text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <th class="pb-2.5 px-2">Cliente</th>
+                                        <th class="pb-2.5 px-2">Tipo</th>
+                                        <th class="pb-2.5 px-2">Pagamento</th>
+                                        <th class="pb-2.5 px-2">Total</th>
+                                        <th class="pb-2.5 px-2">Data</th>
+                                        <th class="pb-2.5 px-2 w-12 text-center">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody id="orders-table-body" class="text-sm divide-y divide-gray-50 font-medium">
+                                <tbody id="orders-table-body" class="text-xs sm:text-sm divide-y divide-gray-50 font-medium">
                                     <tr><td colspan="6" class="text-center py-6 text-gray-400">Carregando pedidos...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col">
-                        <div class="flex justify-between items-center mb-3">
-                            <h2 class="text-lg font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex flex-col">
+                        <div class="flex justify-between items-center mb-2.5">
+                            <h2 class="text-base sm:text-lg font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-clock-counter-clockwise text-duda-red"></i> Reengajamento
                             </h2>
-                            <select id="filtro-dias-inativos" onchange="atualizarListaInativos()" class="bg-duda-cream text-xs font-bold text-duda-brown p-2 rounded-xl border border-duda-pink/40 outline-none cursor-pointer">
-                                <option value="15">+ de 15 dias</option>
-                                <option value="20">+ de 20 dias</option>
-                                <option value="30" selected>+ de 30 dias</option>
-                                <option value="45">+ de 45 dias</option>
-                                <option value="60">+ de 60 dias</option>
+                            <select id="filtro-dias-inativos" onchange="atualizarListaInativos()" class="bg-duda-cream text-xs font-bold text-duda-brown px-2.5 py-1.5 rounded-xl border border-duda-pink/40 outline-none cursor-pointer">
+                                <option value="15">+ 15 dias</option>
+                                <option value="20">+ 20 dias</option>
+                                <option value="30" selected>+ 30 dias</option>
+                                <option value="45">+ 45 dias</option>
+                                <option value="60">+ 60 dias</option>
                             </select>
                         </div>
-                        <p class="text-xs text-gray-500 mb-4 font-medium">Clientes sem comprar há mais de X dias.</p>
+                        <p class="text-[11px] sm:text-xs text-gray-500 mb-3.5 font-medium">Clientes sem comprar há mais de X dias.</p>
 
-                        <div id="inactive-clients-container" class="space-y-3 overflow-y-auto max-h-[320px] no-scrollbar">
-                            <div class="text-center py-8 text-gray-400 text-sm">Carregando...</div>
+                        <div id="inactive-clients-container" class="space-y-2.5 overflow-y-auto max-h-[280px] sm:max-h-[320px] no-scrollbar">
+                            <div class="text-center py-6 text-gray-400 text-xs sm:text-sm">Carregando...</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- ================= ABA NOVA: PEDIDOS ================= -->
-            <div id="view-pedidos" class="space-y-8 hidden">
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div id="view-pedidos" class="space-y-5 sm:space-y-8 hidden">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 space-y-4 sm:space-y-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-list-checks text-duda-red"></i> Fila de Pedidos e Produção
                             </h2>
-                            <p class="text-xs text-gray-500 font-medium">Pedidos feitos na loja entram aqui na hora com produtos, quantidades e controle de preparo.</p>
+                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Pedidos feitos na loja entram aqui na hora com produtos, quantidades e controle de preparo.</p>
                         </div>
 
-                        <div class="flex flex-wrap items-center gap-3">
-                            <div class="relative min-w-[200px]">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+                            <div class="relative sm:min-w-[200px]">
                                 <i class="ph ph-magnifying-glass text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
-                                <input type="search" id="busca-fila-pedidos" oninput="renderizarFilaPedidos()" placeholder="Buscar cliente ou doce..." class="w-full bg-duda-cream pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                                <input type="search" id="busca-fila-pedidos" oninput="renderizarFilaPedidos()" placeholder="Buscar cliente ou doce..." class="w-full bg-duda-cream pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
                             </div>
 
-                            <div class="flex items-center gap-1.5 bg-duda-cream p-1.5 rounded-2xl border border-duda-pink/30 flex-wrap" id="filtros-status-pedido">
-                                <button type="button" onclick="setFiltroStatusPedido('todos')" id="btn-filtro-pedido-todos" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-duda-red text-white transition-all">
+                            <div class="grid grid-cols-2 sm:flex items-center gap-1 bg-duda-cream p-1 rounded-xl sm:rounded-2xl border border-duda-pink/30" id="filtros-status-pedido">
+                                <button type="button" onclick="setFiltroStatusPedido('todos')" id="btn-filtro-pedido-todos" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl bg-duda-red text-white transition-all">
                                     Todos (<span id="count-pedido-todos">0</span>)
                                 </button>
-                                <button type="button" onclick="setFiltroStatusPedido('pendente')" id="btn-filtro-pedido-pendente" class="text-xs font-bold px-3 py-1.5 rounded-xl text-duda-brown hover:text-duda-red transition-all">
+                                <button type="button" onclick="setFiltroStatusPedido('pendente')" id="btn-filtro-pedido-pendente" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-duda-brown hover:text-duda-red transition-all">
                                     ⏳ Pendente (<span id="count-pedido-pendente">0</span>)
                                 </button>
-                                <button type="button" onclick="setFiltroStatusPedido('em_preparacao')" id="btn-filtro-pedido-em_preparacao" class="text-xs font-bold px-3 py-1.5 rounded-xl text-duda-brown hover:text-duda-red transition-all">
-                                    👩‍🍳 Em preparação (<span id="count-pedido-em_preparacao">0</span>)
+                                <button type="button" onclick="setFiltroStatusPedido('em_preparacao')" id="btn-filtro-pedido-em_preparacao" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-duda-brown hover:text-duda-red transition-all">
+                                    👩‍🍳 Preparo (<span id="count-pedido-em_preparacao">0</span>)
                                 </button>
-                                <button type="button" onclick="setFiltroStatusPedido('concluido')" id="btn-filtro-pedido-concluido" class="text-xs font-bold px-3 py-1.5 rounded-xl text-duda-brown hover:text-duda-red transition-all">
+                                <button type="button" onclick="setFiltroStatusPedido('concluido')" id="btn-filtro-pedido-concluido" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-duda-brown hover:text-duda-red transition-all">
                                     ✅ Concluído (<span id="count-pedido-concluido">0</span>)
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div id="fila-pedidos-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="col-span-full text-center py-10 text-gray-400 text-sm">Carregando pedidos...</div>
+                    <div id="fila-pedidos-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="col-span-full text-center py-8 text-gray-400 text-xs sm:text-sm">Carregando pedidos...</div>
                     </div>
                 </div>
             </div>
 
             <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
-            <div id="view-caixa" class="space-y-8 hidden">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-2xl font-bold">
+            <div id="view-caixa" class="space-y-5 sm:space-y-8 hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
+                    <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-arrow-circle-down"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Entradas (Lucros)</p>
-                            <h3 id="resumo-entradas" class="text-2xl font-bold text-green-600 mt-0.5 tracking-tight">R$ 0,00</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Entradas (Lucros)</p>
+                            <h3 id="resumo-entradas" class="text-lg sm:text-2xl font-bold text-green-600 mt-0.5 tracking-tight">R$ 0,00</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-2xl font-bold">
+                    <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-arrow-circle-up"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total de Saídas (Despesas)</p>
-                            <h3 id="resumo-saidas" class="text-2xl font-bold text-red-600 mt-0.5 tracking-tight">R$ 0,00</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Saídas (Despesas)</p>
+                            <h3 id="resumo-saidas" class="text-lg sm:text-2xl font-bold text-red-600 mt-0.5 tracking-tight">R$ 0,00</h3>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-3xl shadow-premium border border-gray-100 flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-2xl font-bold">
+                    <div class="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-duda-pink/30 text-duda-red flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-wallet"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Líquido</p>
-                            <h3 id="resumo-saldo" class="text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Líquido</p>
+                            <h3 id="resumo-saldo" class="text-lg sm:text-2xl font-bold text-duda-brown mt-0.5 tracking-tight">R$ 0,00</h3>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div class="flex flex-wrap items-center gap-3 flex-1">
-                            <div class="relative flex-1 min-w-[200px] max-w-xs">
-                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
-                                <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento (ex: venda alice)..." class="w-full bg-duda-cream pl-10 pr-3.5 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 space-y-4 sm:space-y-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3">
+                        <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 flex-1">
+                            <div class="relative col-span-2 sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
+                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento..." class="w-full bg-duda-cream pl-9 pr-3 py-2 sm:py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
                             </div>
 
-                            <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream px-2.5 py-2 sm:p-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                                 <option value="todos">📅 Todos os meses</option>
                             </select>
 
-                            <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream px-2.5 py-2 sm:p-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                                 <option value="todos">💳 Todos os status</option>
                                 <option value="pago">✅ Pago integral</option>
                                 <option value="50porcento">⚡ Pago 50%</option>
-                                <option value="pendente">⏳ Ainda não pagou</option>
+                                <option value="pendente">⏳ Pendente</option>
                             </select>
 
-                            <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream px-2.5 py-2 sm:p-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                                 <option value="todos">📊 Todos os Tipos</option>
-                                <option value="entrada">🟢 Entradas (Lucros)</option>
-                                <option value="saida">🔴 Saídas (Despesas)</option>
+                                <option value="entrada">🟢 Entradas</option>
+                                <option value="saida">🔴 Saídas</option>
                             </select>
 
-                            <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream p-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                                <option value="todas">🏷️ Todas as Categorias</option>
+                            <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-duda-cream px-2.5 py-2 sm:p-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todas">🏷️ Categorias</option>
                                 <option value="Vendas">💰 Vendas</option>
                                 <option value="Ingredientes">🍓 Ingredientes</option>
                                 <option value="Embalagens">📦 Embalagens</option>
@@ -371,34 +431,34 @@
                             </select>
                         </div>
 
-                        <button onclick="adicionarLancamentoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
-                            <i class="ph ph-plus-circle text-lg"></i> Novo Lançamento
+                        <button onclick="adicionarLancamentoFirebase()" class="w-full lg:w-auto justify-center bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
+                            <i class="ph ph-plus-circle text-base sm:text-lg"></i> Novo Lançamento
                         </button>
                     </div>
 
-                    <div id="resumo-mensal-bar" class="bg-duda-cream/70 border border-duda-pink/30 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-duda-brown">
+                    <div id="resumo-mensal-bar" class="bg-duda-cream/70 border border-duda-pink/30 rounded-xl sm:rounded-2xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs font-semibold text-duda-brown">
                         <span id="resumo-mes-titulo" class="font-bold text-duda-red">📅 Período: Todos os meses</span>
-                        <div class="flex flex-wrap items-center gap-4">
+                        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
                             <span id="resumo-mes-vendas" class="text-green-700">Entradas: R$ 0,00</span>
                             <span id="resumo-mes-gastos" class="text-red-700">Saídas: R$ 0,00</span>
                             <span id="resumo-mes-saldo" class="text-duda-brown font-bold">Saldo: R$ 0,00</span>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
-                        <table class="w-full text-left border-collapse">
+                    <div class="overflow-x-auto border border-gray-200 rounded-xl sm:rounded-2xl">
+                        <table class="w-full text-left border-collapse min-w-[680px]">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    <th class="py-3.5 px-4 w-32">Data</th>
-                                    <th class="py-3.5 px-4">Descrição / Histórico</th>
-                                    <th class="py-3.5 px-4 w-36">Categoria</th>
-                                    <th class="py-3.5 px-4 w-32">Tipo</th>
-                                    <th class="py-3.5 px-4 w-32">Valor (R$)</th>
-                                    <th class="py-3.5 px-4 w-40">Status Pagamento</th>
-                                    <th class="py-3.5 px-4 w-16 text-center">Ações</th>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-32">Data</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Descrição / Histórico</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-36">Categoria</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-32">Tipo</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-28">Valor (R$)</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-40">Status</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-14 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-caixa-body" class="text-sm divide-y divide-gray-100 font-medium">
+                            <tbody id="tabela-caixa-body" class="text-xs sm:text-sm divide-y divide-gray-100 font-medium">
                                 <tr><td colspan="7" class="text-center py-8 text-gray-400">Carregando dados do Firebase...</td></tr>
                             </tbody>
                         </table>
@@ -407,43 +467,43 @@
             </div>
 
             <!-- ================= ABA 3: CONTROLE DE ESTOQUE ================= -->
-            <div id="view-estoque" class="space-y-8 hidden">
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div id="view-estoque" class="space-y-5 sm:space-y-8 hidden">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 space-y-4 sm:space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-package text-duda-red"></i> Controle de Estoque & Compras
                             </h2>
-                            <p class="text-xs text-gray-500 font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
+                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
                         </div>
-                        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                            <div class="relative flex-1 sm:w-56">
-                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none"></i>
-                                <input type="search" id="busca-estoque" oninput="aplicarFiltrosEstoque()" placeholder="Buscar ingrediente..." class="w-full bg-duda-cream pl-10 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
+                        <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                            <div class="relative col-span-2 sm:w-56">
+                                <i class="ph ph-magnifying-glass text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                <input type="search" id="busca-estoque" oninput="aplicarFiltrosEstoque()" placeholder="Buscar ingrediente..." class="w-full bg-duda-cream pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs sm:text-sm font-medium text-duda-brown placeholder:text-gray-400 outline-none focus:border-duda-red focus:bg-white transition-all">
                             </div>
-                            <select id="filtro-status-estoque" onchange="aplicarFiltrosEstoque()" class="bg-duda-cream p-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
-                                <option value="todos">📦 Todos os status</option>
-                                <option value="vazio">🔴 Vazio (Comprar)</option>
+                            <select id="filtro-status-estoque" onchange="aplicarFiltrosEstoque()" class="bg-duda-cream px-2.5 py-2 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
+                                <option value="todos">📦 Todos</option>
+                                <option value="vazio">🔴 Vazio</option>
                                 <option value="metade">🟡 Metade</option>
                                 <option value="cheio">🟢 Cheio</option>
                             </select>
-                            <button onclick="adicionarItemEstoque()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                                <i class="ph ph-plus-circle text-lg"></i> Adicionar Item
+                            <button onclick="adicionarItemEstoque()" class="justify-center bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                                <i class="ph ph-plus-circle text-base sm:text-lg"></i> Adicionar
                             </button>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
-                        <table class="w-full text-left border-collapse">
+                    <div class="overflow-x-auto border border-gray-200 rounded-xl sm:rounded-2xl">
+                        <table class="w-full text-left border-collapse min-w-[480px]">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    <th class="py-3.5 px-4">Ingrediente / Item</th>
-                                    <th class="py-3.5 px-4 w-48">Unidade de Medida</th>
-                                    <th class="py-3.5 px-4 w-52">Status no Estoque</th>
-                                    <th class="py-3.5 px-4 w-20 text-center">Ações</th>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Ingrediente / Item</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-36 sm:w-48">Medida</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-44 sm:w-52">Status</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-14 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-estoque-body" class="text-sm divide-y divide-gray-100 font-medium">
+                            <tbody id="tabela-estoque-body" class="text-xs sm:text-sm divide-y divide-gray-100 font-medium">
                                 <tr><td colspan="4" class="text-center py-8 text-gray-400">Carregando estoque...</td></tr>
                             </tbody>
                         </table>
@@ -452,89 +512,89 @@
             </div>
 
             <!-- ================= ABA 4: GERENCIAR PRODUTOS & PREÇOS DA LOJA ================= -->
-            <div id="view-produtos" class="space-y-8 hidden">
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div id="view-produtos" class="space-y-5 sm:space-y-8 hidden">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 space-y-4 sm:space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                                <i class="ph ph-cookie text-duda-red"></i> Produtos e Preços da Loja (index.html)
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-cookie text-duda-red"></i> Produtos e Preços da Loja
                             </h2>
-                            <p class="text-xs text-gray-500 font-medium">Edite direto na tabela (salva automaticamente ao sair do campo) ou adicione novos produtos.</p>
+                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Edite direto na tabela ou adicione novos produtos.</p>
                         </div>
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <button onclick="abrirModalProduto()" class="bg-duda-red hover:bg-[#6b1f1f] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                                <i class="ph ph-plus-circle text-lg"></i> Adicionar Produto
+                        <div class="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                            <button onclick="abrirModalProduto()" class="justify-center bg-duda-red hover:bg-[#6b1f1f] text-white text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                                <i class="ph ph-plus-circle text-base sm:text-lg"></i> Novo Produto
                             </button>
-                            <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                                <i class="ph ph-floppy-disk text-lg"></i> Forçar Sincronização
+                            <button onclick="salvarPrecosCatalogoFirebase()" class="justify-center bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                                <i class="ph ph-floppy-disk text-base sm:text-lg"></i> Sincronizar
                             </button>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto border border-gray-200 rounded-2xl">
-                        <table class="w-full text-left border-collapse">
+                    <div class="overflow-x-auto border border-gray-200 rounded-xl sm:rounded-2xl">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    <th class="py-3.5 px-4 w-20">Foto</th>
-                                    <th class="py-3.5 px-4 w-48">Nome do Produto</th>
-                                    <th class="py-3.5 px-4">Descrição</th>
-                                    <th class="py-3.5 px-4 w-36">Valor Venda (R$)</th>
-                                    <th class="py-3.5 px-4 w-28 text-center">Ações</th>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-16">Foto</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-44">Nome do Produto</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Descrição</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-32">Valor (R$)</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-24 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-produtos-loja-body" class="text-sm divide-y divide-gray-100 font-medium"></tbody>
+                            <tbody id="tabela-produtos-loja-body" class="text-xs sm:text-sm divide-y divide-gray-100 font-medium"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <!-- Tabela de Preços do Monte seu Bombom -->
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 space-y-4 sm:space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                                <i class="ph ph-magic-wand text-duda-red"></i> Tabela de Preços — Monte seu Bombom
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-magic-wand text-duda-red"></i> Preços — Monte seu Bombom
                             </h2>
-                            <p class="text-xs text-gray-500 font-medium">Altere o valor de cada combinação (Fruta + Recheio + Cobertura). Atualiza a loja em tempo real.</p>
+                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Altere o valor de cada combinação. Atualiza a loja em tempo real.</p>
                         </div>
-                        <button onclick="salvarPrecosCatalogoFirebase()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                            <i class="ph ph-floppy-disk text-lg"></i> Salvar Tabela de Bombons
+                        <button onclick="salvarPrecosCatalogoFirebase()" class="w-full sm:w-auto justify-center bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-floppy-disk text-base sm:text-lg"></i> Salvar Tabela
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="tabela-precos-bombom-grid"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4" id="tabela-precos-bombom-grid"></div>
                 </div>
             </div>
 
             <!-- ================= ABA 5: CALCULADORA DE CUSTOS ================= -->
-            <div id="view-custos" class="space-y-8 hidden">
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div id="view-custos" class="space-y-5 sm:space-y-8 hidden">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categoria de Produto</label>
-                        <select id="categoria-produto" onchange="mudarCategoria()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                        <label class="block text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Categoria de Produto</label>
+                        <select id="categoria-produto" onchange="mudarCategoria()" class="w-full bg-duda-cream p-2.5 sm:p-3.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                             <option value="bombom">🍫 Bombom Gourmet no Pote</option>
                             <option value="brownie">🟫 Ficha Técnica de Brownies</option>
                         </select>
                     </div>
 
-                    <div id="container-select-bombom" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div id="container-select-bombom" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fruta Base</label>
-                            <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <label class="block text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Fruta Base</label>
+                            <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-duda-cream p-2.5 sm:p-3.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                                 <option value="morango">Morango</option>
                                 <option value="uva">Uva</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recheio</label>
-                            <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <label class="block text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Recheio</label>
+                            <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-duda-cream p-2.5 sm:p-3.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                                 <option value="ninho">Brigadeiro de Ninho</option>
                                 <option value="chocolate">Brigadeiro de Chocolate</option>
                                 <option value="maracuja">Brigadeiro de Maracujá</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cobertura</label>
-                            <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                            <label class="block text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Cobertura</label>
+                            <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-duda-cream p-2.5 sm:p-3.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                                 <option value="branco">Chocolate Branco</option>
                                 <option value="preto">Chocolate Preto</option>
                                 <option value="calda">Calda Vermelha (Amor)</option>
@@ -544,8 +604,8 @@
                     </div>
 
                     <div id="container-select-brownie" class="md:col-span-2 hidden">
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Selecionar Tipo de Brownie</label>
-                        <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full bg-duda-cream p-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none">
+                        <label class="block text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Selecionar Tipo de Brownie</label>
+                        <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full bg-duda-cream p-2.5 sm:p-3.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none">
                             <option value="tradicional">Brownie Tradicional (Unidade)</option>
                             <option value="bite">Brownie Bite (Unidade Avulsa)</option>
                             <option value="pacote8">Pacote com 8 Bites</option>
@@ -553,52 +613,52 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                        <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                            <i class="ph ph-receipt text-duda-red"></i> Resumo de Blocos da Ficha Técnica
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
+                    <div class="lg:col-span-2 bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 space-y-4 sm:space-y-6">
+                        <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                            <i class="ph ph-receipt text-duda-red"></i> Blocos da Ficha Técnica
                         </h2>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        <th class="pb-3 px-2">Bloco de Insumo / Componente</th>
-                                        <th class="pb-3 px-2">Especificação</th>
-                                        <th class="pb-3 px-2">Valor Total Gasto</th>
+                                    <tr class="border-b border-gray-100 text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <th class="pb-2.5 px-2">Componente</th>
+                                        <th class="pb-2.5 px-2">Especificação</th>
+                                        <th class="pb-2.5 px-2">Valor</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabela-ingredientes-detalhe" class="text-sm divide-y divide-gray-50 font-medium"></tbody>
+                                <tbody id="tabela-ingredientes-detalhe" class="text-xs sm:text-sm divide-y divide-gray-50 font-medium"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 flex flex-col justify-between space-y-6">
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 flex flex-col justify-between space-y-5">
                         <div>
-                            <h2 class="text-xl font-bold text-duda-brown mb-4 flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown mb-3 sm:mb-4 flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-currency-dollar text-duda-red"></i> Resumo de Custos
                             </h2>
 
-                            <div class="space-y-4">
-                                <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
-                                    <span class="text-xs font-bold text-gray-500 uppercase">Custo de Ingredientes (por bombom)</span>
-                                    <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                            <div class="space-y-2.5 sm:space-y-4">
+                                <div class="bg-duda-cream p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-duda-pink/30 flex justify-between items-center gap-2">
+                                    <span class="text-[11px] sm:text-xs font-bold text-gray-500 uppercase">Ingredientes</span>
+                                    <span id="resumo-custo-ingredientes" class="font-bold text-duda-brown text-sm sm:text-base">R$ 0,00</span>
                                 </div>
-                                <div class="bg-duda-cream p-4 rounded-2xl border border-duda-pink/30 flex justify-between items-center">
-                                    <span class="text-xs font-bold text-gray-500 uppercase">Embalagens, Adesivos & Mão de Obra</span>
-                                    <span id="resumo-custo-extras" class="font-bold text-duda-brown text-base">R$ 0,00</span>
+                                <div class="bg-duda-cream p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-duda-pink/30 flex justify-between items-center gap-2">
+                                    <span class="text-[11px] sm:text-xs font-bold text-gray-500 uppercase">Embalagem & Mão de Obra</span>
+                                    <span id="resumo-custo-extras" class="font-bold text-duda-brown text-sm sm:text-base">R$ 0,00</span>
                                 </div>
-                                <div class="bg-duda-red/10 p-5 rounded-2xl border border-duda-red/30 flex justify-between items-center">
-                                    <span class="text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total por Bombom</span>
-                                    <span id="resumo-custo-total" class="font-extrabold text-duda-red text-xl">R$ 0,00</span>
+                                <div class="bg-duda-red/10 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-duda-red/30 flex justify-between items-center gap-2">
+                                    <span class="text-[11px] sm:text-xs font-bold text-duda-red uppercase tracking-wider">Custo Total</span>
+                                    <span id="resumo-custo-total" class="font-extrabold text-duda-red text-lg sm:text-xl">R$ 0,00</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-duda-brown text-duda-cream p-6 rounded-2xl space-y-2">
-                            <span class="text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Praticado</span>
+                        <div class="bg-duda-brown text-duda-cream p-4 sm:p-6 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2">
+                            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-duda-gold">Preço de Venda Praticado</span>
                             <div class="flex justify-between items-baseline">
-                                <h3 id="resumo-preco-sugerido" class="text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
-                                <span id="resumo-lucro-estimado" class="text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
+                                <h3 id="resumo-preco-sugerido" class="text-2xl sm:text-3xl font-extrabold tracking-tight">R$ 0,00</h3>
+                                <span id="resumo-lucro-estimado" class="text-[11px] sm:text-xs text-green-400 font-bold">Lucro: R$ 0,00</span>
                             </div>
                             <p id="resumo-margem" class="text-[11px] text-gray-300 pt-2 border-t border-white/10">Margem de Lucro: 0%</p>
                         </div>
@@ -606,27 +666,27 @@
                 </div>
 
                 <!-- SIMULADOR & GESTÃO DE PREÇOS DE INSUMOS -->
-                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-premium border border-gray-100 space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-gray-100 space-y-4 sm:space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
-                                <i class="ph ph-sliders text-duda-red"></i> Simulador de Preços de Blocos e Insumos
+                            <h2 class="text-base sm:text-xl font-bold text-duda-brown flex items-center gap-2 tracking-tight">
+                                <i class="ph ph-sliders text-duda-red"></i> Simulador de Preços e Insumos
                             </h2>
-                            <p class="text-xs text-gray-500 font-medium">Altere o valor do bloco ou insumo base e salve para persistir no Firebase.</p>
+                            <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Altere o valor do insumo base e salve para persistir no Firebase.</p>
                         </div>
-                        <button onclick="salvarNovosPrecosInsumos()" class="bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
-                            <i class="ph ph-floppy-disk text-lg"></i> Salvar Custos
+                        <button onclick="salvarNovosPrecosInsumos()" class="w-full sm:w-auto justify-center bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph ph-floppy-disk text-base sm:text-lg"></i> Salvar Custos
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="simulador-inputs"></div>
+                    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4" id="simulador-inputs"></div>
                 </div>
             </div>
 
         </main>
 
         <!-- Rodapé -->
-        <footer class="bg-duda-brown text-duda-cream py-8 mt-12 text-center text-xs opacity-75 font-medium">
+        <footer class="bg-duda-brown text-duda-cream py-6 sm:py-8 mt-8 sm:mt-12 text-center text-[11px] sm:text-xs opacity-75 font-medium">
             <p>© 2026 Duda Doces • Painel Integrado em Tempo Real</p>
         </footer>
     </div>
@@ -636,13 +696,13 @@
         <div class="bg-white max-w-lg w-full max-h-[92dvh] sm:max-h-[90dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border border-duda-pink/40 flex flex-col overflow-hidden">
             
             <!-- Cabeçalho Fixo -->
-            <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 sm:px-8 sm:py-5 shrink-0 bg-white">
+            <div class="flex items-center justify-between border-b border-gray-100 px-5 py-3.5 sm:px-8 sm:py-5 shrink-0 bg-white">
                 <div>
-                    <h3 id="modal-produto-titulo" class="text-lg sm:text-xl font-extrabold text-duda-brown">Adicionar Novo Produto</h3>
-                    <p class="text-xs text-gray-500 font-medium">Salvo diretamente no catálogo da loja junto com os brownies.</p>
+                    <h3 id="modal-produto-titulo" class="text-base sm:text-xl font-extrabold text-duda-brown">Adicionar Novo Produto</h3>
+                    <p class="text-[11px] sm:text-xs text-gray-500 font-medium">Salvo diretamente no catálogo da loja.</p>
                 </div>
-                <button type="button" onclick="fecharModalProduto()" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500 hover:bg-duda-red hover:text-white transition-all flex items-center justify-center shrink-0">
-                    <i class="ph ph-x text-lg"></i>
+                <button type="button" onclick="fecharModalProduto()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-100 text-gray-500 hover:bg-duda-red hover:text-white transition-all flex items-center justify-center shrink-0">
+                    <i class="ph ph-x text-base sm:text-lg"></i>
                 </button>
             </div>
 
@@ -651,57 +711,57 @@
                 <input type="hidden" id="prod-edit-index" value="-1">
 
                 <!-- Área Rolável dos Campos -->
-                <div class="flex-1 min-h-0 overflow-y-auto px-6 py-5 sm:px-8 space-y-4">
+                <div class="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-8 sm:py-5 space-y-3.5">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Nome do Produto *</label>
-                        <input type="text" id="prod-nome" required placeholder="Ex: Brownie com Pistache" class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
+                        <label class="block text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Nome do Produto *</label>
+                        <input type="text" id="prod-nome" required placeholder="Ex: Brownie com Pistache" class="w-full bg-duda-cream px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-semibold text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Descrição *</label>
-                        <textarea id="prod-descricao" rows="3" required placeholder="Descreva o doce, recheio ou tamanho..." class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all"></textarea>
+                        <label class="block text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Descrição *</label>
+                        <textarea id="prod-descricao" rows="2" required placeholder="Descreva o doce, recheio ou tamanho..." class="w-full bg-duda-cream px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-medium text-duda-brown outline-none focus:border-duda-red focus:bg-white transition-all"></textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Valor (R$) *</label>
-                            <input type="text" inputmode="decimal" id="prod-preco" required placeholder="12,00" class="w-full bg-duda-cream px-4 py-3 rounded-xl border border-gray-200 text-sm font-bold text-duda-red outline-none focus:border-duda-red focus:bg-white transition-all">
+                            <label class="block text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Valor (R$) *</label>
+                            <input type="text" inputmode="decimal" id="prod-preco" required placeholder="12,00" class="w-full bg-duda-cream px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-bold text-duda-red outline-none focus:border-duda-red focus:bg-white transition-all">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Imagem do Produto</label>
-                            <input type="file" id="prod-imagem-arquivo" accept="image/*" onchange="previsualizarImagemProduto(event)" class="w-full bg-duda-cream px-3 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none focus:border-duda-red">
+                            <label class="block text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Imagem do Produto</label>
+                            <input type="file" id="prod-imagem-arquivo" accept="image/*" onchange="previsualizarImagemProduto(event)" class="w-full bg-duda-cream px-3 py-2 rounded-xl border border-gray-200 text-xs font-medium text-duda-brown outline-none focus:border-duda-red">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Ou URL / Nome do arquivo da imagem</label>
-                        <input type="text" id="prod-imagem-url" placeholder="Ex: Brownie.png ou https://..." oninput="atualizarPreviewManual()" class="w-full bg-duda-cream px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 outline-none focus:border-duda-red focus:bg-white transition-all">
+                        <label class="block text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Ou URL / Nome do arquivo da imagem</label>
+                        <input type="text" id="prod-imagem-url" placeholder="Ex: Brownie.png ou https://..." oninput="atualizarPreviewManual()" class="w-full bg-duda-cream px-3.5 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 outline-none focus:border-duda-red focus:bg-white transition-all">
                     </div>
 
-                    <div class="flex items-center gap-4 bg-duda-cream/60 p-3 rounded-2xl border border-duda-pink/30">
-                        <img id="prod-imagem-preview" src="Brownie.png" alt="Prévia do produto" class="w-16 h-16 rounded-xl object-cover border border-gray-200 bg-white shrink-0">
+                    <div class="flex items-center gap-3 bg-duda-cream/60 p-2.5 sm:p-3 rounded-2xl border border-duda-pink/30">
+                        <img id="prod-imagem-preview" src="Brownie.png" alt="Prévia do produto" class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl object-cover border border-gray-200 bg-white shrink-0">
                         <div class="text-xs text-gray-600 min-w-0">
                             <p class="font-bold text-duda-brown">Prévia na Loja</p>
-                            <p id="prod-status-upload" class="text-gray-500 truncate">Selecione uma imagem ou informe o caminho/URL.</p>
+                            <p id="prod-status-upload" class="text-[11px] text-gray-500 truncate">Selecione uma imagem ou informe o caminho/URL.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Rodapé Fixo (Sempre Clicável) -->
-                <div class="flex justify-end gap-3 px-6 py-4 sm:px-8 border-t border-gray-100 bg-white shrink-0">
-                    <button type="button" onclick="fecharModalProduto()" class="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition-all">
+                <!-- Rodapé Fixo -->
+                <div class="flex justify-end gap-2.5 px-5 py-3.5 sm:px-8 border-t border-gray-100 bg-white shrink-0">
+                    <button type="button" onclick="fecharModalProduto()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs sm:text-sm font-semibold transition-all">
                         Cancelar
                     </button>
-                    <button type="submit" id="btn-salvar-produto-modal" class="px-6 py-2.5 rounded-xl bg-duda-brown hover:bg-duda-red text-white text-sm font-semibold transition-all shadow-sm flex items-center gap-2 disabled:opacity-60">
-                        <i class="ph ph-check-circle text-lg"></i> <span id="btn-salvar-produto-texto">Salvar Produto</span>
+                    <button type="submit" id="btn-salvar-produto-modal" class="px-5 py-2 rounded-xl bg-duda-brown hover:bg-duda-red text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-60">
+                        <i class="ph ph-check-circle text-base sm:text-lg"></i> <span id="btn-salvar-produto-texto">Salvar Produto</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="toast" style="visibility:hidden; min-width:250px; background:#3A201E; color:#fff; text-align:center; border-radius:30px; padding:12px; position:fixed; z-index:1000; left:50%; bottom:30px; transform:translateX(-50%); font-size:14px; font-family:'Inter', sans-serif;"></div>
+    <div id="toast" style="visibility:hidden; min-width:240px; max-width:90vw; background:#3A201E; color:#fff; text-align:center; border-radius:30px; padding:10px 18px; position:fixed; z-index:1000; left:50%; bottom:24px; transform:translateX(-50%); font-size:13px; font-family:'Inter', sans-serif;"></div>
 
     <!-- Script Principal Unificado -->
     <script type="module">
@@ -721,7 +781,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const HASH_SENHA_PADRAO = "69e62ea6ec1e1e35959c97f5631d02c93286c13410c20895fb8b5118cf644ef0";
+        const HASH_SENHA_PADRAO = "4a782bd63547be5e4139137817f6cc10b59c871952972409f74f9e205b3a66f3";
         let hashSenhaAdminAtual = HASH_SENHA_PADRAO;
         let painelInicializado = false;
 
@@ -735,6 +795,41 @@
         let timerPreviewManual = null;
         let campoCaixaEmEdicao = null;
         let filtroStatusPedidoAtual = 'todos';
+
+        const NOMES_ABAS = {
+            dashboard: 'Dashboard',
+            pedidos: 'Pedidos',
+            caixa: 'Fluxo de Caixa',
+            estoque: 'Estoque',
+            produtos: 'Produtos',
+            custos: 'Calculadora'
+        };
+
+        window.abrirMenuLateral = function() {
+            const drawer = document.getElementById('sidebar-drawer');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!drawer || !overlay) return;
+
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                drawer.classList.remove('-translate-x-full');
+            });
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.fecharMenuLateral = function() {
+            const drawer = document.getElementById('sidebar-drawer');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!drawer || !overlay) return;
+
+            drawer.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+            document.body.style.overflow = '';
+        };
 
         async function gerarHashSha256(texto) {
             const encoder = new TextEncoder();
@@ -910,6 +1005,7 @@
         }
 
         window.bloquearPainel = function() {
+            fecharMenuLateral();
             sessionStorage.removeItem("duda_admin_autenticado");
             document.getElementById("painel-protegido").classList.add("hidden");
             document.getElementById("auth-gate").classList.remove("hidden");
@@ -987,14 +1083,18 @@
                 const el = document.getElementById(`view-${v}`);
                 const btn = document.getElementById(`tab-btn-${v}`);
                 if(el) el.classList.add('hidden');
-                if(btn) btn.className = "flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all text-duda-brown hover:text-duda-red";
+                if(btn) btn.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-duda-brown hover:bg-duda-cream hover:text-duda-red";
             });
 
             const viewAtiva = document.getElementById(`view-${aba}`);
             const btnAtivo = document.getElementById(`tab-btn-${aba}`);
             if(viewAtiva) viewAtiva.classList.remove('hidden');
-            if(btnAtivo) btnAtivo.className = "flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all bg-duda-red text-white shadow-xs";
+            if(btnAtivo) btnAtivo.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-duda-red text-white shadow-xs";
 
+            const badgeAba = document.getElementById('header-aba-atual');
+            if (badgeAba) badgeAba.innerText = NOMES_ABAS[aba] || 'Dashboard';
+
+            fecharMenuLateral();
             localStorage.setItem('duda_aba_ativa', aba);
             if(aba === 'dashboard' && myChart) myChart.update();
         };
@@ -1051,34 +1151,34 @@
             document.getElementById('resumo-custo-extras').innerText = (embalagem + adesivo + maoDeObra).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-total').innerText = custoTotalProducao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-preco-sugerido').innerText = precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro: ${lucroReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
             document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margemLucro}%`;
 
             document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Fruta (${frutaKey})</td>
-                    <td class="py-3 px-2 text-gray-600">Por unidade</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">${custoFruta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">Fruta (${frutaKey})</td>
+                    <td class="py-2.5 px-2 text-gray-600">Por unidade</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-brown">${custoFruta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Ingrediente Recheio (${recheioKey})</td>
-                    <td class="py-3 px-2 text-gray-600">Total somado da receita</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">${custoRecheio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">Recheio (${recheioKey})</td>
+                    <td class="py-2.5 px-2 text-gray-600">Por bombom</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-brown">${custoRecheio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Ingrediente Cobertura (${coberturaKey})</td>
-                    <td class="py-3 px-2 text-gray-600">Proporcional por bombom</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">${custoCobertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">Cobertura (${coberturaKey})</td>
+                    <td class="py-2.5 px-2 text-gray-600">Proporcional</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-brown">${custoCobertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
-                    <td class="py-3 px-2 text-gray-600">Unitário</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">${(embalagem + adesivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
+                    <td class="py-2.5 px-2 text-gray-600">Unitário</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-brown">${(embalagem + adesivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Mão de Obra</td>
-                    <td class="py-3 px-2 text-gray-600">Taxa fixa por unidade</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">${maoDeObra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">Mão de Obra</td>
+                    <td class="py-2.5 px-2 text-gray-600">Taxa fixa</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-brown">${maoDeObra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
             `;
         };
@@ -1110,19 +1210,19 @@
             document.getElementById('resumo-custo-extras').innerText = custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-custo-total').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('resumo-preco-sugerido').innerText = preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resumo-lucro-estimado').innerText = `Lucro Real: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            document.getElementById('resumo-lucro-estimado').innerText = `Lucro: ${lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
             document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margem}%`;
 
             document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Massa / Produção Brownie</td>
-                    <td class="py-3 px-2 text-gray-600">${spec}</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">${custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">Massa / Produção Brownie</td>
+                    <td class="py-2.5 px-2 text-gray-600">${spec}</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-brown">${custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
-                    <td class="py-3 px-2 text-gray-600">Por item/pacote</td>
-                    <td class="py-3 px-2 font-bold text-duda-brown">${custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">Embalagem & Adesivo</td>
+                    <td class="py-2.5 px-2 text-gray-600">Por item/pacote</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-brown">${custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
             `;
         };
@@ -1146,11 +1246,11 @@
             let html = '';
             for(let [insumo, dados] of Object.entries(insumosBase)) {
                 html += `
-                    <div class="bg-duda-cream/60 p-4 rounded-2xl border border-duda-pink/30 space-y-1">
-                        <label class="block text-xs font-bold text-gray-500 truncate" title="${insumo}">${insumo}</label>
-                        <div class="flex items-center gap-2">
+                    <div class="bg-duda-cream/60 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-duda-pink/30 space-y-1">
+                        <label class="block text-[11px] sm:text-xs font-bold text-gray-500 truncate" title="${insumo}">${insumo}</label>
+                        <div class="flex items-center gap-1.5">
                             <span class="text-xs font-bold text-duda-brown">R$</span>
-                            <input type="number" step="0.01" id="input-${insumo}" value="${dados.valor}" onchange="atualizarSimuladorLocal()" class="w-full bg-white p-2.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-brown outline-none">
+                            <input type="number" step="0.01" id="input-${insumo}" value="${dados.valor}" onchange="atualizarSimuladorLocal()" class="w-full bg-white px-2.5 py-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-xs sm:text-sm font-bold text-duda-brown outline-none">
                         </div>
                     </div>
                 `;
@@ -1197,11 +1297,11 @@
             let html = "";
             for (const [chave, valor] of Object.entries(precosBombomCatalogo)) {
                 html += `
-                    <div class="bg-duda-cream/60 p-3.5 rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-3">
+                    <div class="bg-duda-cream/60 p-3 rounded-xl sm:rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-2.5">
                         <span class="text-xs font-bold text-duda-brown leading-snug">${formatarRotuloComboBombom(chave)}</span>
-                        <div class="flex items-center gap-1.5 shrink-0">
+                        <div class="flex items-center gap-1 shrink-0">
                             <span class="text-xs font-bold text-gray-500">R$</span>
-                            <input type="number" step="0.50" value="${Number(valor).toFixed(2)}" onchange="atualizarPrecoBombomCatalogo('${chave}', parseFloat(this.value) || 0)" class="w-20 bg-white px-2.5 py-1.5 rounded-xl border border-gray-200 text-sm font-bold text-duda-red text-right outline-none focus:border-duda-red">
+                            <input type="number" step="0.50" value="${Number(valor).toFixed(2)}" onchange="atualizarPrecoBombomCatalogo('${chave}', parseFloat(this.value) || 0)" class="w-16 sm:w-20 bg-white px-2 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-gray-200 text-xs sm:text-sm font-bold text-duda-red text-right outline-none focus:border-duda-red">
                         </div>
                     </div>
                 `;
@@ -1243,19 +1343,19 @@
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-duda-cream/40 transition-colors";
                 tr.innerHTML = `
-                    <td class="py-2.5 px-4">
-                        <img src="${item.image || 'Brownie.png'}" alt="${item.nome || 'Produto'}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 bg-duda-cream">
+                    <td class="py-2 px-3 sm:px-4">
+                        <img src="${item.image || 'Brownie.png'}" alt="${item.nome || 'Produto'}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-gray-200 bg-duda-cream">
                     </td>
-                    <td class="py-2.5 px-4">
+                    <td class="py-2 px-3 sm:px-4">
                         <input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-bold text-duda-brown">
                     </td>
-                    <td class="py-2.5 px-4">
+                    <td class="py-2 px-3 sm:px-4">
                         <input type="text" value="${item.descricao || ''}" placeholder="Descrição do produto..." onchange="atualizarItemCatalogo(${idx}, 'descricao', this.value)" class="text-xs text-gray-600">
                     </td>
-                    <td class="py-2.5 px-4">
+                    <td class="py-2 px-3 sm:px-4">
                         <input type="number" step="0.01" value="${item.preco ?? 0}" onchange="atualizarItemCatalogo(${idx}, 'preco', parseFloat(this.value) || 0)" class="font-bold text-duda-red">
                     </td>
-                    <td class="py-2.5 px-4 text-center">
+                    <td class="py-2 px-3 sm:px-4 text-center">
                         <div class="flex items-center justify-center gap-1.5">
                             <button type="button" onclick="abrirModalProduto(${idx})" class="w-8 h-8 rounded-lg bg-duda-cream text-duda-brown hover:bg-duda-pink/40 transition-all flex items-center justify-center" title="Editar produto e imagem">
                                 <i class="ph ph-pencil-simple text-base"></i>
@@ -1314,6 +1414,8 @@
                 const modal = document.getElementById("modal-produto");
                 if (modal && !modal.classList.contains("hidden")) {
                     fecharModalProduto();
+                } else {
+                    fecharMenuLateral();
                 }
             }
         });
@@ -1463,9 +1565,9 @@
                 const btn = document.getElementById(`btn-filtro-pedido-${st}`);
                 if (!btn) return;
                 if (st === status) {
-                    btn.className = "text-xs font-bold px-3 py-1.5 rounded-xl bg-duda-red text-white transition-all";
+                    btn.className = "text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl bg-duda-red text-white transition-all";
                 } else {
-                    btn.className = "text-xs font-bold px-3 py-1.5 rounded-xl text-duda-brown hover:text-duda-red transition-all";
+                    btn.className = "text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-duda-brown hover:text-duda-red transition-all";
                 }
             });
             renderizarFilaPedidos();
@@ -1491,18 +1593,26 @@
             const pendente = listaPedidosMemoria.filter(p => (p.statusPedido || 'pendente') === 'pendente').length;
             const emPreparacao = listaPedidosMemoria.filter(p => p.statusPedido === 'em_preparacao').length;
             const concluido = listaPedidosMemoria.filter(p => p.statusPedido === 'concluido').length;
+            const ativos = pendente + emPreparacao;
 
             const elTotal = document.getElementById('count-pedido-todos');
             const elPend = document.getElementById('count-pedido-pendente');
             const elPrep = document.getElementById('count-pedido-em_preparacao');
             const elConc = document.getElementById('count-pedido-concluido');
             const badge = document.getElementById('badge-pedidos-ativos');
+            const headerBadge = document.getElementById('header-badge-pedidos');
+            const menuDot = document.getElementById('badge-menu-dot');
 
             if (elTotal) elTotal.innerText = total;
             if (elPend) elPend.innerText = pendente;
             if (elPrep) elPrep.innerText = emPreparacao;
             if (elConc) elConc.innerText = concluido;
-            if (badge) badge.innerText = pendente + emPreparacao;
+            if (badge) badge.innerText = ativos;
+            if (headerBadge) headerBadge.innerText = ativos;
+            if (menuDot) {
+                if (ativos > 0) menuDot.classList.remove('hidden');
+                else menuDot.classList.add('hidden');
+            }
         }
 
         window.renderizarFilaPedidos = function() {
@@ -1525,7 +1635,7 @@
             });
 
             if (filtrados.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 text-sm">Nenhum pedido encontrado neste filtro.</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400 text-xs sm:text-sm">Nenhum pedido encontrado neste filtro.</div>`;
                 return;
             }
 
@@ -1539,9 +1649,9 @@
 
                 const itensHtml = Array.isArray(p.itens) && p.itens.length > 0
                     ? p.itens.map(item => `
-                        <li class="flex items-center justify-between gap-2 text-sm py-1.5 border-b border-dashed border-gray-100 last:border-none">
+                        <li class="flex items-center justify-between gap-2 text-xs sm:text-sm py-1.5 border-b border-dashed border-gray-100 last:border-none">
                             <span class="font-semibold text-duda-brown">
-                                <span class="inline-block bg-duda-pink/40 text-duda-red font-extrabold text-xs px-2 py-0.5 rounded-lg mr-1.5">${item.quantity || 1}x</span>
+                                <span class="inline-block bg-duda-pink/40 text-duda-red font-extrabold text-[11px] px-1.5 py-0.5 rounded-md mr-1">${item.quantity || 1}x</span>
                                 ${item.name || 'Produto'}
                             </span>
                             <span class="text-xs font-bold text-gray-500 shrink-0">R$ ${((Number(item.price) || 0) * (Number(item.quantity) || 1)).toFixed(2).replace('.', ',')}</span>
@@ -1550,31 +1660,31 @@
                     : `<li class="text-xs text-gray-400 italic">Itens não discriminados</li>`;
 
                 return `
-                    <div class="bg-duda-cream/40 p-5 rounded-3xl border border-duda-pink/40 flex flex-col justify-between gap-4">
-                        <div class="space-y-3">
-                            <div class="flex items-start justify-between gap-3">
-                                <div>
-                                    <h3 class="font-bold text-duda-brown text-base">${p.clienteNome}</h3>
-                                    <p class="text-xs text-gray-500 font-medium">${p.dataFormatada} • ${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'} • ${p.formaPagamento}</p>
+                    <div class="bg-duda-cream/40 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-duda-pink/40 flex flex-col justify-between gap-3 sm:gap-4">
+                        <div class="space-y-2.5 sm:space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="min-w-0">
+                                    <h3 class="font-bold text-duda-brown text-sm sm:text-base truncate">${p.clienteNome}</h3>
+                                    <p class="text-[11px] sm:text-xs text-gray-500 font-medium">${p.dataFormatada} • ${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'} • ${p.formaPagamento}</p>
                                 </div>
-                                <span class="text-xs font-bold px-3 py-1 rounded-full border ${badgeStyle} shrink-0">
-                                    ${st === 'concluido' ? '✅ Concluído' : st === 'em_preparacao' ? '👩‍🍳 Em preparação' : '⏳ Pendente'}
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${badgeStyle} shrink-0">
+                                    ${st === 'concluido' ? '✅ Concluído' : st === 'em_preparacao' ? '👩‍🍳 Preparo' : '⏳ Pendente'}
                                 </span>
                             </div>
 
-                            <div class="bg-white p-3.5 rounded-2xl border border-gray-100">
-                                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Produtos Comprados</p>
+                            <div class="bg-white p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-gray-100">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Produtos Comprados</p>
                                 <ul>${itensHtml}</ul>
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-duda-pink/30">
-                            <div class="text-sm font-extrabold text-duda-red">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-duda-pink/30">
+                            <div class="text-xs sm:text-sm font-extrabold text-duda-red">
                                 Total: R$ ${p.valorTotal.toFixed(2).replace('.', ',')}
                             </div>
 
-                            <div class="flex items-center gap-2">
-                                <select onchange="atualizarStatusPedido('${p.id}', this.value)" class="bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-bold text-duda-brown outline-none focus:border-duda-red cursor-pointer">
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <select onchange="atualizarStatusPedido('${p.id}', this.value)" class="bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-duda-brown outline-none focus:border-duda-red cursor-pointer">
                                     <option value="pendente" ${st === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
                                     <option value="em_preparacao" ${st === 'em_preparacao' ? 'selected' : ''}>👩‍🍳 Em preparação</option>
                                     <option value="concluido" ${st === 'concluido' ? 'selected' : ''}>✅ Concluído</option>
@@ -1694,14 +1804,14 @@
 
             tbody.innerHTML = filtrados.map(p => `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-3 px-2 font-semibold text-duda-brown">${p.clienteNome}</td>
-                    <td class="py-3 px-2 text-gray-600 font-medium">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
-                    <td class="py-3 px-2 text-gray-600 font-medium">${p.formaPagamento}</td>
-                    <td class="py-3 px-2 font-bold text-duda-red">R$ ${p.valorTotal.toFixed(2).replace('.', ',')}</td>
-                    <td class="py-3 px-2 text-xs text-gray-500 font-medium">${p.dataFormatada}</td>
-                    <td class="py-3 px-2 text-center">
-                        <button onclick="removerPedidoCompleto('${p.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido e Caixa">
-                            <i class="ph ph-trash text-base"></i>
+                    <td class="py-2.5 px-2 font-semibold text-duda-brown">${p.clienteNome}</td>
+                    <td class="py-2.5 px-2 text-gray-600 font-medium">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
+                    <td class="py-2.5 px-2 text-gray-600 font-medium">${p.formaPagamento}</td>
+                    <td class="py-2.5 px-2 font-bold text-duda-red">R$ ${p.valorTotal.toFixed(2).replace('.', ',')}</td>
+                    <td class="py-2.5 px-2 text-[11px] sm:text-xs text-gray-500 font-medium">${p.dataFormatada}</td>
+                    <td class="py-2.5 px-2 text-center">
+                        <button onclick="removerPedidoCompleto('${p.id}')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido e Caixa">
+                            <i class="ph ph-trash text-sm sm:text-base"></i>
                         </button>
                     </td>
                 </tr>
@@ -1727,14 +1837,14 @@
                     const linkWpp = telFormatado ? `https://wa.me/${telFormatado}?text=${msgWpp}` : `https://wa.me/?text=${msgWpp}`;
 
                     inativosHtml += `
-                        <div class="bg-duda-cream/50 p-4 rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-3">
-                            <div>
-                                <h4 class="font-bold text-duda-brown text-sm">${cliente}</h4>
-                                <p class="text-xs text-gray-500">Última compra: ${dataFormatada} (${diffDays} dias atrás)</p>
-                                <p class="text-[11px] text-gray-400">Tel: ${info.telefone || 'Não informado'}</p>
+                        <div class="bg-duda-cream/50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-2.5">
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-duda-brown text-xs sm:text-sm truncate">${cliente}</h4>
+                                <p class="text-[11px] text-gray-500">Última: ${dataFormatada} (${diffDays}d)</p>
+                                <p class="text-[10px] text-gray-400 truncate">Tel: ${info.telefone || 'Não informado'}</p>
                             </div>
-                            <a href="${linkWpp}" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-sm shrink-0" title="Enviar Mensagem no WhatsApp">
-                                <i class="ph ph-whatsapp-logo text-xl"></i>
+                            <a href="${linkWpp}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-sm shrink-0" title="Enviar Mensagem no WhatsApp">
+                                <i class="ph ph-whatsapp-logo text-lg sm:text-xl"></i>
                             </a>
                         </div>
                     `;
@@ -1742,7 +1852,7 @@
             }
 
             if (qtdInativos === 0) {
-                inativosHtml = `<div class="text-center py-8 text-gray-400 text-sm">Nenhum cliente inativo há mais de ${limiteDias} dias. 🎉</div>`;
+                inativosHtml = `<div class="text-center py-6 text-gray-400 text-xs sm:text-sm">Nenhum cliente inativo há mais de ${limiteDias} dias. 🎉</div>`;
             }
             containerInativos.innerHTML = inativosHtml;
         };
@@ -1816,9 +1926,9 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-duda-cream/40 transition-colors';
                 tr.innerHTML = `
-                    <td class="py-2.5 px-4"><input type="date" value="${item.data || ''}" onfocus="marcarEdicaoCaixa('${item.id}', 'data')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'data', this.value)"></td>
-                    <td class="py-2.5 px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="marcarEdicaoCaixa('${item.id}', 'descricao')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'descricao', this.value)"></td>
-                    <td class="py-2.5 px-4">
+                    <td class="py-2 px-3 sm:px-4"><input type="date" value="${item.data || ''}" onfocus="marcarEdicaoCaixa('${item.id}', 'data')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'data', this.value)"></td>
+                    <td class="py-2 px-3 sm:px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="marcarEdicaoCaixa('${item.id}', 'descricao')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'descricao', this.value)"></td>
+                    <td class="py-2 px-3 sm:px-4">
                         <select onfocus="marcarEdicaoCaixa('${item.id}', 'categoria')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'categoria', this.value)">
                             <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
                             <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
@@ -1828,23 +1938,23 @@
                             <option value="Outros" ${item.categoria === 'Outros' ? 'selected' : ''}>⚙️ Outros</option>
                         </select>
                     </td>
-                    <td class="py-2.5 px-4">
+                    <td class="py-2 px-3 sm:px-4">
                         <select onfocus="marcarEdicaoCaixa('${item.id}', 'tipo')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'tipo', this.value)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                             <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
                             <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
                         </select>
                     </td>
-                    <td class="py-2.5 px-4">
+                    <td class="py-2 px-3 sm:px-4">
                         <input type="number" step="0.01" value="${item.valor || 0}" onfocus="marcarEdicaoCaixa('${item.id}', 'valor')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
                     </td>
-                    <td class="py-2.5 px-4">
-                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'statusPagamento')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
+                    <td class="py-2 px-3 sm:px-4">
+                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'statusPagamento')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
                             <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
                             <option value="pago" ${status === 'pago' ? 'selected' : ''}>✅ Pago Integral</option>
-                            <option value="50porcento" ${status === '50porcento' ? 'selected' : ''}>⚡ Pago 50% (Sinal)</option>
+                            <option value="50porcento" ${status === '50porcento' ? 'selected' : ''}>⚡ Pago 50%</option>
                         </select>
                     </td>
-                    <td class="py-2.5 px-4 text-center">
+                    <td class="py-2 px-3 sm:px-4 text-center">
                         <button onclick="removerLancamentoCaixa('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
                             <i class="ph ph-trash text-base"></i>
                         </button>
@@ -1883,7 +1993,7 @@
 
             const elSaldo = document.getElementById('resumo-saldo');
             elSaldo.innerText = fmtBRL(saldo);
-            elSaldo.className = saldo < 0 ? "text-2xl font-bold text-red-600 mt-0.5 tracking-tight" : "text-2xl font-bold text-duda-brown mt-0.5 tracking-tight";
+            elSaldo.className = saldo < 0 ? "text-lg sm:text-2xl font-bold text-red-600 mt-0.5 tracking-tight" : "text-lg sm:text-2xl font-bold text-duda-brown mt-0.5 tracking-tight";
 
             const rotuloPeriodo = mesFiltro && mesFiltro !== 'todos' ? formatarNomeMes(mesFiltro) : 'Todos os meses';
             document.getElementById('resumo-mes-titulo').innerText = `📅 Período: ${rotuloPeriodo}`;
@@ -1941,16 +2051,16 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-duda-cream/40 transition-colors';
                 tr.innerHTML = `
-                    <td class="py-2.5 px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarCampoEstoque('${item.id}', 'nome', this.value)"></td>
-                    <td class="py-2.5 px-4"><input type="text" value="${item.medida || ''}" onchange="atualizarCampoEstoque('${item.id}', 'medida', this.value)"></td>
-                    <td class="py-2.5 px-4">
-                        <select onchange="atualizarCampoEstoque('${item.id}', 'status', this.value)" class="font-semibold text-xs py-2 px-3 rounded-xl border border-gray-200 ${st === 'cheio' ? 'bg-green-50 text-green-700' : st === 'metade' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}">
+                    <td class="py-2 px-3 sm:px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarCampoEstoque('${item.id}', 'nome', this.value)"></td>
+                    <td class="py-2 px-3 sm:px-4"><input type="text" value="${item.medida || ''}" onchange="atualizarCampoEstoque('${item.id}', 'medida', this.value)"></td>
+                    <td class="py-2 px-3 sm:px-4">
+                        <select onchange="atualizarCampoEstoque('${item.id}', 'status', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-xl border border-gray-200 ${st === 'cheio' ? 'bg-green-50 text-green-700' : st === 'metade' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}">
                             <option value="cheio" ${st === 'cheio' ? 'selected' : ''}>🟢 Cheio</option>
                             <option value="metade" ${st === 'metade' ? 'selected' : ''}>🟡 Metade</option>
                             <option value="vazio" ${st === 'vazio' ? 'selected' : ''}>🔴 Vazio (Comprar)</option>
                         </select>
                     </td>
-                    <td class="py-2.5 px-4 text-center">
+                    <td class="py-2 px-3 sm:px-4 text-center">
                         <button onclick="removerItemEstoque('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
                             <i class="ph ph-trash text-base"></i>
                         </button>
