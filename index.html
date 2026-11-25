@@ -402,7 +402,7 @@
                             <button id="btn-recheio-chocolate" onclick="selectCustomOption('recheio', 'chocolate')" class="btn-recheio text-left px-4 py-3 sm:px-5 sm:py-4 rounded-xl border-2 border-gray-100 bg-white hover:border-duda-pink font-semibold text-gray-600 text-sm sm:text-base transition-all duration-300 hover:scale-[1.02] flex justify-between items-center shadow-xs">
                                 <span>🍫 Chocolate Nobre</span>
                             </button>
-                            <button id="btn-recheio-maracujá" onclick="selectCustomOption('recheio', 'maracujá')" class="btn-recheio text-left px-4 py-3 sm:px-5 sm:py-4 rounded-xl border-2 border-gray-100 bg-white hover:border-duda-pink font-semibold text-gray-600 text-sm sm:text-base transition-all duration-300 hover:scale-[1.02] flex justify-between items-center shadow-xs">
+                            <button id="btn-recheio-maracuja" onclick="selectCustomOption('recheio', 'maracujá')" class="btn-recheio text-left px-4 py-3 sm:px-5 sm:py-4 rounded-xl border-2 border-gray-100 bg-white hover:border-duda-pink font-semibold text-gray-600 text-sm sm:text-base transition-all duration-300 hover:scale-[1.02] flex justify-between items-center shadow-xs">
                                 <span>🟡 Maracujá Azedinho</span>
                             </button>
                         </div>
@@ -602,14 +602,14 @@
                 <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">Tipo de Pedido *</label>
                 <div class="grid grid-cols-2 gap-3">
                     <button type="button" id="btn-retirada" onclick="setDelivery('retirada')" class="p-3.5 border-2 border-duda-red bg-duda-red/5 text-duda-red font-semibold rounded-xl text-sm transition-all shadow-xs">Retirada (Grátis)</button>
-                    <button type="button" id="btn-entrega" onclick="setDelivery('entrega')" class="p-3.5 border-2 border-gray-200 text-gray-500 font-semibold rounded-xl text-sm transition-all shadow-xs">Entrega (<span id="btn-entrega-taxa">R$ 8,00</span>)</button>
+                    <button type="button" id="btn-entrega" onclick="setDelivery('entrega')" class="p-3.5 border-2 border-gray-200 text-gray-500 font-semibold rounded-xl text-sm transition-all shadow-xs">Entrega (<span id="btn-entrega-taxa">Informar endereço</span>)</button>
                 </div>
                 <input type="hidden" id="delivery-type" value="retirada">
             </div>
 
             <div id="address-fields" class="space-y-3 hidden bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                 <div class="flex flex-wrap items-center justify-between gap-1 text-[11px] bg-duda-cream/70 px-3 py-2 rounded-xl text-duda-brown font-semibold">
-                    <span>Frete estimado: <strong id="address-fee-hint" class="text-duda-red">R$ 8,00</strong></span>
+                    <span>Frete estimado: <strong id="address-fee-hint" class="text-duda-red">Informe o endereço</strong></span>
                     <span id="cep-status-badge" class="text-gray-500">Digite o CEP ou endereço</span>
                 </div>
                 <div class="flex gap-2">
@@ -669,7 +669,7 @@
                 </div>
                 <div id="delivery-fee-row" class="flex justify-between hidden">
                     <span id="delivery-fee-label">Taxa de Entrega</span>
-                    <span id="cart-delivery-fee" class="text-gray-800">R$ 8,00</span>
+                    <span id="cart-delivery-fee" class="text-gray-800">A calcular</span>
                 </div>
                 <div class="flex justify-between font-bold text-2xl text-duda-brown pt-4 border-t border-gray-100">
                     <span>Total</span>
@@ -760,7 +760,7 @@
 
         let products = baseProducts.map(p => ({ ...p }));
         let cart = [];
-        let DELIVERY_FEE = 8.00;
+        let DELIVERY_FEE = 0;
         let distanciaEstimadaKm = null;
         let freteCalculadoAtivo = false;
         let debounceFreteTimer = null;
@@ -831,6 +831,20 @@
             "uva-maracujá-cravejado": "Uva Maracujá Cravejado.jpeg"
         };
 
+        function normalizarChaveBombom(fruta, recheio, cobertura) {
+            const f = String(fruta || "").trim();
+            const r = String(recheio || "").trim().toLowerCase().replace("maracuja", "maracujá");
+            const c = String(cobertura || "").trim().toLowerCase();
+            return `${f}-${r}-${c}`;
+        }
+
+        function obterIdSeguroBotao(categoria, valor) {
+            const limpo = String(valor || "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+            return `btn-${categoria}-${limpo}`;
+        }
+
         function calcularDistanciaLinhaRetaKm(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -844,8 +858,8 @@
         }
 
         function calcularValorFretePorKm(kmRota) {
-            const km = Math.max(0.5, Number(kmRota) || 1);
-            const bruto = Math.max(8.00, 6.00 + (km * 1.50));
+            const km = Math.max(0.2, Number(kmRota) || 0.5);
+            const bruto = 4.00 + (km * 1.50);
             return Math.round(bruto * 2) / 2;
         }
 
@@ -896,6 +910,7 @@
             if (!rua && !bairro && cepLimpo.length !== 8) {
                 freteCalculadoAtivo = false;
                 distanciaEstimadaKm = null;
+                DELIVERY_FEE = 0;
                 if (statusBadge) statusBadge.innerText = "Digite o CEP ou endereço";
                 updateCartUI();
                 return;
@@ -923,7 +938,7 @@
                         destinoCoords.lat,
                         destinoCoords.lon
                     );
-                    const kmRotaEstimada = Math.max(0.8, Number((kmLinhaReta * 1.35).toFixed(1)));
+                    const kmRotaEstimada = Math.max(0.5, Number((kmLinhaReta * 1.35).toFixed(1)));
                     DELIVERY_FEE = calcularValorFretePorKm(kmRotaEstimada);
                     distanciaEstimadaKm = kmRotaEstimada;
                     freteCalculadoAtivo = true;
@@ -933,16 +948,19 @@
                         statusBadge.innerText = `~${kmRotaEstimada} km do Estoril • ${formatMoney(DELIVERY_FEE)}`;
                     }
                 } else {
-                    freteCalculadoAtivo = true;
+                    freteCalculadoAtivo = false;
                     distanciaEstimadaKm = null;
+                    DELIVERY_FEE = 0;
                     if (statusBadge) {
-                        statusBadge.innerText = `Taxa estimada: ${formatMoney(DELIVERY_FEE)}`;
+                        statusBadge.innerText = "Não foi possível localizar o endereço. Confira rua e bairro.";
                     }
                 }
             } catch (_) {
-                freteCalculadoAtivo = true;
+                freteCalculadoAtivo = false;
+                distanciaEstimadaKm = null;
+                DELIVERY_FEE = 0;
                 if (statusBadge) {
-                    statusBadge.innerText = `Taxa estimada: ${formatMoney(DELIVERY_FEE)}`;
+                    statusBadge.innerText = "Não foi possível calcular o frete agora.";
                 }
             } finally {
                 if (loading) loading.classList.add('hidden');
@@ -972,7 +990,7 @@
         }
 
         function atualizarInfoEntregaCheckout() {
-            const feeFormatted = formatMoney(DELIVERY_FEE);
+            const feeFormatted = freteCalculadoAtivo ? formatMoney(DELIVERY_FEE) : "A calcular";
             const btnTaxaEl = document.getElementById('btn-entrega-taxa');
             const feeRowEl = document.getElementById('cart-delivery-fee');
             const feeLabelEl = document.getElementById('delivery-fee-label');
@@ -981,7 +999,7 @@
             const timeEl = document.getElementById('checkout-estimated-time');
 
             if (btnTaxaEl) {
-                btnTaxaEl.innerText = freteCalculadoAtivo ? feeFormatted : `a partir de ${feeFormatted}`;
+                btnTaxaEl.innerText = freteCalculadoAtivo ? feeFormatted : "Informar endereço";
             }
             if (feeRowEl) feeRowEl.innerText = feeFormatted;
             if (feeLabelEl) {
@@ -989,7 +1007,7 @@
                     ? `Taxa de Entrega (~${distanciaEstimadaKm} km)`
                     : 'Taxa de Entrega';
             }
-            if (hintEl) hintEl.innerText = feeFormatted;
+            if (hintEl) hintEl.innerText = freteCalculadoAtivo ? feeFormatted : "Informe o endereço";
             if (regionEl) regionEl.innerText = PICKUP_REGION;
             if (timeEl) timeEl.innerText = ESTIMATED_TIME;
         }
@@ -1001,9 +1019,6 @@
             const listaCatalogo = [];
 
             if (!Array.isArray(dadosCatalogo) && dadosCatalogo) {
-                if (!freteCalculadoAtivo && typeof dadosCatalogo.taxaEntrega === "number" && !Number.isNaN(dadosCatalogo.taxaEntrega)) {
-                    DELIVERY_FEE = Math.max(0, dadosCatalogo.taxaEntrega);
-                }
                 if (typeof dadosCatalogo.regiaoRetirada === "string" && dadosCatalogo.regiaoRetirada.trim()) {
                     PICKUP_REGION = dadosCatalogo.regiaoRetirada.trim();
                 }
@@ -1053,9 +1068,10 @@
                 Object.entries(precosBombomRemotos).forEach(([chave, valor]) => {
                     const num = Number(valor);
                     if (!Number.isNaN(num)) {
-                        bombomPrices[chave] = num;
-                        mapaPrecos[chave] = num;
-                        mapaPrecos[chave.toLowerCase()] = num;
+                        const chaveNorm = chave.replace("-maracuja-", "-maracujá-");
+                        bombomPrices[chaveNorm] = num;
+                        mapaPrecos[chaveNorm] = num;
+                        mapaPrecos[chaveNorm.toLowerCase()] = num;
                     }
                 });
             }
@@ -1074,7 +1090,8 @@
                     item.price = produtoAtual.price;
                     item.image = produtoAtual.image;
                 } else if (item.bombomKey) {
-                    const novoPreco = mapaPrecos[item.bombomKey] ?? mapaPrecos[item.bombomKey.toLowerCase()];
+                    const chaveNorm = item.bombomKey.replace("-maracuja-", "-maracujá-");
+                    const novoPreco = mapaPrecos[chaveNorm] ?? mapaPrecos[chaveNorm.toLowerCase()];
                     if (novoPreco !== undefined) {
                         item.price = novoPreco;
                     }
@@ -1089,7 +1106,7 @@
         };
 
         function getCustomBombomImage(fruta, recheio, cobertura) {
-            const key = `${fruta}-${recheio}-${cobertura}`.toLowerCase();
+            const key = normalizarChaveBombom(fruta, recheio, cobertura).toLowerCase();
             return FOTOS_BOMBOM[key] || "logo.png";
         }
 
@@ -1209,14 +1226,17 @@
         }
 
         function selectCustomOption(category, value) {
-            customBombom[category] = value;
+            const valorNormalizado = category === 'recheio'
+                ? String(value || "").trim().toLowerCase().replace("maracuja", "maracujá")
+                : value;
+            customBombom[category] = valorNormalizado;
 
             document.querySelectorAll(`.btn-${category}`).forEach(btn => {
                 btn.classList.remove('border-duda-red', 'bg-duda-pink/20', 'font-bold', 'text-duda-brown');
                 btn.classList.add('border-gray-100', 'bg-white', 'font-semibold', 'text-gray-600');
             });
 
-            const selectedBtn = document.getElementById(`btn-${category}-${value}`);
+            const selectedBtn = document.getElementById(obterIdSeguroBotao(category, valorNormalizado));
             if (selectedBtn) {
                 selectedBtn.classList.remove('border-gray-100', 'bg-white', 'font-semibold', 'text-gray-600');
                 selectedBtn.classList.add('border-duda-red', 'bg-duda-pink/20', 'font-bold', 'text-duda-brown');
@@ -1235,6 +1255,7 @@
 
             const frutaIcon = customBombom.fruta === 'Morango' ? '🍓' : '🍇';
             const frutaName = customBombom.fruta === 'Morango' ? 'Morango' : 'Uva';
+            const recheioKey = customBombom.recheio === 'maracuja' ? 'maracujá' : customBombom.recheio;
             const recheioIcons = { 'ninho': '🥛', 'chocolate': '🍫', 'maracujá': '🟡' };
             const recheioNames = { 'ninho': 'Leite Ninho', 'chocolate': 'Chocolate', 'maracujá': 'Maracujá' };
             const coberturaIcons = { 'branco': '⚪', 'chocolate': '🟤', 'calda': '🍒', 'cravejado': '✨' };
@@ -1245,23 +1266,23 @@
                     <span>${frutaIcon}</span> ${frutaName}
                 </span>
                 <span class="inline-flex items-center gap-1.5 bg-duda-pink/25 px-3 py-1 rounded-full border border-duda-pink/40 text-xs font-bold text-duda-brown">
-                    <span>${recheioIcons[customBombom.recheio]}</span> ${recheioNames[customBombom.recheio]}
+                    <span>${recheioIcons[recheioKey]}</span> ${recheioNames[recheioKey]}
                 </span>
                 <span class="inline-flex items-center gap-1.5 bg-duda-pink/25 px-3 py-1 rounded-full border border-duda-pink/40 text-xs font-bold text-duda-brown">
                     <span>${coberturaIcons[customBombom.cobertura]}</span> ${coberturaNames[customBombom.cobertura]}
                 </span>
             `;
 
-            desc.innerText = `Bombom de ${frutaName} com recheio de ${recheioNames[customBombom.recheio]} e cobertura de ${coberturaNames[customBombom.cobertura]}`;
+            desc.innerText = `Bombom de ${frutaName} com recheio de ${recheioNames[recheioKey]} e cobertura de ${coberturaNames[customBombom.cobertura]}`;
 
             if (previewImg) {
-                const fotoEscolhida = getCustomBombomImage(customBombom.fruta, customBombom.recheio, customBombom.cobertura);
+                const fotoEscolhida = getCustomBombomImage(customBombom.fruta, recheioKey, customBombom.cobertura);
                 previewImg.onerror = () => {
                     previewImg.onerror = null;
                     previewImg.src = "logo.png";
                 };
                 previewImg.src = fotoEscolhida;
-                previewImg.alt = `Bombom de ${frutaName} com ${recheioNames[customBombom.recheio]} e ${coberturaNames[customBombom.cobertura]}`;
+                previewImg.alt = `Bombom de ${frutaName} com ${recheioNames[recheioKey]} e ${coberturaNames[customBombom.cobertura]}`;
             }
 
             if (previewPriceTag) {
@@ -1270,7 +1291,7 @@
         }
 
         function getCustomBombomPrice() {
-            const key = `${customBombom.fruta}-${customBombom.recheio}-${customBombom.cobertura}`;
+            const key = normalizarChaveBombom(customBombom.fruta, customBombom.recheio, customBombom.cobertura);
             return bombomPrices[key] ?? 10.00;
         }
 
@@ -1286,7 +1307,7 @@
 
         function addCustomBombomToCart() {
             const price = updateCustomBombomTotal();
-            const bombomKey = `${customBombom.fruta}-${customBombom.recheio}-${customBombom.cobertura}`;
+            const bombomKey = normalizarChaveBombom(customBombom.fruta, customBombom.recheio, customBombom.cobertura);
             const id = `custom-${bombomKey}`;
             const name = `Bombom Personalizado (${customBombom.fruta} + ${customBombom.recheio} + ${customBombom.cobertura})`;
             const image = getCustomBombomImage(customBombom.fruta, customBombom.recheio, customBombom.cobertura);
@@ -1423,7 +1444,7 @@
 
             const deliveryType = document.getElementById('delivery-type')?.value || 'retirada';
             let total = subtotal;
-            if (deliveryType === 'entrega') {
+            if (deliveryType === 'entrega' && freteCalculadoAtivo) {
                 total += DELIVERY_FEE;
             }
             if (cartTotal) cartTotal.innerText = formatMoney(total);
@@ -1572,7 +1593,7 @@
     <!-- SCRIPT DO FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, setDoc, doc, updateDoc, onSnapshot, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, getDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB1OG_cVe9eGIB_xabKZUW1-vwTSfrSRew",
@@ -1592,7 +1613,9 @@
         window.addDoc = addDoc;
         window.setDoc = setDoc;
         window.doc = doc;
+        window.getDoc = getDoc;
         window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
         window.query = query;
         window.where = where;
         window.getDocs = getDocs;
@@ -1608,34 +1631,52 @@
                 if (!visitanteId) {
                     visitanteId = 'user_' + Math.random().toString(36).substring(2) + Date.now();
                     localStorage.setItem('duda_visitante_id', visitanteId);
-                    await addDoc(collection(db, "acessos"), {
-                        visitanteId: visitanteId,
-                        totalAcessos: 1,
-                        primeiroAcesso: serverTimestamp(),
+                }
+
+                const dispositivoAtual = /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador";
+                const acessoRef = doc(db, "acessos", visitanteId);
+                const snapDireto = await getDoc(acessoRef);
+
+                if (snapDireto.exists()) {
+                    const qtdAtual = Number(snapDireto.data().totalAcessos) || 1;
+                    await updateDoc(acessoRef, {
+                        visitanteId,
+                        totalAcessos: qtdAtual + 1,
                         ultimoAcesso: serverTimestamp(),
-                        dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
+                        dispositivo: dispositivoAtual
                     });
-                } else {
-                    const q = query(collection(db, "acessos"), where("visitanteId", "==", visitanteId));
-                    const querySnapshot = await getDocs(q);
-                    if (!querySnapshot.empty) {
-                        querySnapshot.forEach(async (documento) => {
-                            const docRef = doc(db, "acessos", documento.id);
-                            const qtdAtual = documento.data().totalAcessos || 1;
-                            await updateDoc(docRef, {
-                                totalAcessos: qtdAtual + 1,
-                                ultimoAcesso: serverTimestamp()
-                            });
-                        });
-                    } else {
-                        await addDoc(collection(db, "acessos"), {
-                            visitanteId: visitanteId,
-                            totalAcessos: 1,
-                            primeiroAcesso: serverTimestamp(),
-                            ultimoAcesso: serverTimestamp(),
-                            dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "Celular" : "Computador"
-                        });
+                    return;
+                }
+
+                // Migração e limpeza segura de documentos antigos/duplicados para o mesmo visitanteId
+                const qAntigos = query(collection(db, "acessos"), where("visitanteId", "==", visitanteId));
+                const snapAntigos = await getDocs(qAntigos);
+
+                let somaAcessosAntigos = 0;
+                let primeiroAcessoAntigo = null;
+                const exclusoesDuplicadas = [];
+
+                snapAntigos.forEach((docAntigo) => {
+                    const dados = docAntigo.data() || {};
+                    somaAcessosAntigos += Number(dados.totalAcessos) || 1;
+                    if (!primeiroAcessoAntigo && dados.primeiroAcesso) {
+                        primeiroAcessoAntigo = dados.primeiroAcesso;
                     }
+                    if (docAntigo.id !== visitanteId) {
+                        exclusoesDuplicadas.push(deleteDoc(doc(db, "acessos", docAntigo.id)));
+                    }
+                });
+
+                await setDoc(acessoRef, {
+                    visitanteId,
+                    totalAcessos: somaAcessosAntigos > 0 ? somaAcessosAntigos + 1 : 1,
+                    primeiroAcesso: primeiroAcessoAntigo || serverTimestamp(),
+                    ultimoAcesso: serverTimestamp(),
+                    dispositivo: dispositivoAtual
+                });
+
+                if (exclusoesDuplicadas.length > 0) {
+                    await Promise.all(exclusoesDuplicadas);
                 }
             } catch (e) {
                 console.error("Erro ao gerenciar acesso inteligente: ", e);
@@ -1689,6 +1730,11 @@
 
                 if (!freteCalculadoAtivo) {
                     await calcularFreteAutomaticoPorEndereco();
+                }
+
+                if (!freteCalculadoAtivo || DELIVERY_FEE <= 0) {
+                    showToast("Não foi possível calcular o frete. Verifique rua e bairro.");
+                    return;
                 }
             }
 
