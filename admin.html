@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth dark">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo - Duda Doces (Modo Escuro)</title>
+    <title>Painel Administrativo - Duda Doces</title>
     <link rel="icon" type="image/png" href="Morango%20sem%20fundo.png">
     <link rel="apple-touch-icon" href="Morango%20sem%20fundo.png">
 
@@ -16,27 +16,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        'duda-cream': '#281C1B',
+                        'duda-cream': 'var(--bg-surface-2)',
                         'duda-pink': '#E8C1C1',
-                        'duda-red': '#B83B3B',
-                        'duda-brown': '#F4EAE8',
-                        'duda-gold': '#D4A96A',
-                        'duda-dark-bg': '#140E0D',
-                        'duda-dark-card': '#1E1514',
-                        'duda-dark-elevated': '#281C1B',
-                        'duda-dark-border': '#3B2927',
-                        'duda-text-muted': '#BFA7A4'
+                        'duda-red': 'var(--accent-red)',
+                        'duda-brown': 'var(--text-primary)',
+                        'duda-gold': 'var(--accent-gold)'
                     },
                     fontFamily: {
                         'sans': ['"Inter"', 'sans-serif'],
                         'serif': ['"Inter"', 'sans-serif'],
                     },
                     boxShadow: {
-                        'premium': '0 20px 40px -15px rgba(0, 0, 0, 0.55)',
+                        'premium': 'var(--shadow-premium)',
                     }
                 }
             }
@@ -50,15 +44,114 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        :root {
+            --bg-body: #140E0D;
+            --bg-surface: #1E1514;
+            --bg-surface-2: #281C1B;
+            --bg-surface-3: #251918;
+            --bg-header: rgba(30, 21, 20, 0.95);
+            --bg-footer: #191110;
+            --border-subtle: #3B2927;
+            --border-divider: #2D1F1E;
+            --text-primary: #F4EAE8;
+            --text-secondary: #C7AEAB;
+            --text-muted: #9E8683;
+            --text-placeholder: #8E7673;
+            --accent-red: #B83B3B;
+            --accent-red-btn: #9E3232;
+            --accent-red-hover: #B83B3B;
+            --accent-pink-soft: #E8C1C1;
+            --accent-gold: #D4A96A;
+            --shadow-premium: 0 20px 40px -15px rgba(0, 0, 0, 0.55);
+            --table-hover: rgba(255, 255, 255, 0.04);
+            --table-focus: #2E201F;
+            --color-scheme: dark;
+        }
+
+        html[data-theme="light"] {
+            --bg-body: #FCF9F6;
+            --bg-surface: #FFFFFF;
+            --bg-surface-2: #FCF9F6;
+            --bg-surface-3: #F9F5F2;
+            --bg-header: rgba(255, 255, 255, 0.95);
+            --bg-footer: #3A201E;
+            --border-subtle: #E5E7EB;
+            --border-divider: #F3F4F6;
+            --text-primary: #3A201E;
+            --text-secondary: #4B5563;
+            --text-muted: #6B7280;
+            --text-placeholder: #9CA3AF;
+            --accent-red: #8A2B2B;
+            --accent-red-btn: #3A201E;
+            --accent-red-hover: #8A2B2B;
+            --accent-pink-soft: #E8C1C1;
+            --accent-gold: #B38B59;
+            --shadow-premium: 0 20px 40px -15px rgba(138, 43, 43, 0.15);
+            --table-hover: rgba(0, 0, 0, 0.025);
+            --table-focus: #FFFFFF;
+            --color-scheme: light;
+        }
+
         body {
-            background-color: #140E0D;
-            color: #F4EAE8;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
+
         input, select, textarea {
-            color-scheme: dark;
+            color-scheme: var(--color-scheme);
         }
+
+        .panel-surface {
+            background-color: var(--bg-surface);
+            border-color: var(--border-subtle);
+        }
+
+        .panel-surface-2 {
+            background-color: var(--bg-surface-2);
+            border-color: var(--border-subtle);
+        }
+
+        .panel-surface-3 {
+            background-color: var(--bg-surface-3);
+            border-color: var(--border-subtle);
+        }
+
+        .panel-input {
+            background-color: var(--bg-surface-2);
+            border-color: var(--border-subtle);
+            color: var(--text-primary);
+        }
+
+        .panel-input::placeholder {
+            color: var(--text-placeholder);
+        }
+
+        .panel-input:focus {
+            background-color: var(--table-focus);
+            border-color: var(--accent-red);
+            outline: none;
+        }
+
+        .panel-btn-primary {
+            background-color: var(--accent-red-btn);
+            color: #FFF8F7;
+        }
+
+        .panel-btn-primary:hover {
+            background-color: var(--accent-red-hover);
+        }
+
+        .text-soft {
+            color: var(--text-secondary);
+        }
+
+        .text-dim {
+            color: var(--text-muted);
+        }
+
         table input, table select {
             background: transparent;
             border: 1px solid transparent;
@@ -66,52 +159,60 @@
             border-radius: 6px;
             font-family: 'Inter', sans-serif;
             font-size: 13px;
-            color: #F4EAE8;
+            color: var(--text-primary);
             transition: all 0.2s ease;
             width: 100%;
         }
+
         @media (min-width: 640px) {
             table input, table select {
                 padding: 6px 10px;
                 font-size: 14px;
             }
         }
+
         table input:hover, table select:hover {
-            background-color: rgba(255, 255, 255, 0.04);
-            border-color: #4A3432;
+            background-color: var(--table-hover);
+            border-color: var(--border-subtle);
         }
+
         table input:focus, table select:focus {
-            background-color: #2E201F;
-            border-color: #D47A7A;
+            background-color: var(--table-focus);
+            border-color: var(--accent-red);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(212, 122, 122, 0.18);
+            box-shadow: 0 0 0 2px rgba(184, 59, 59, 0.16);
         }
+
         table select option {
-            background-color: #1E1514;
-            color: #F4EAE8;
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
         }
     </style>
 </head>
-<body class="font-sans antialiased min-h-screen flex flex-col bg-[#140E0D] text-[#F4EAE8]">
+<body class="font-sans antialiased min-h-screen flex flex-col">
 
     <!-- Tela de Bloqueio / Acesso Rápido -->
-    <div id="auth-gate" class="fixed inset-0 z-50 bg-[#140E0D] flex items-center justify-center p-4">
-        <div class="bg-[#1E1514] max-w-sm w-full p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] text-center space-y-5">
+    <div id="auth-gate" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: var(--bg-body);">
+        <div class="panel-surface max-w-sm w-full p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border text-center space-y-5 relative">
+            <button type="button" onclick="alternarTema()" class="btn-tema-toggle absolute top-4 right-4 w-9 h-9 rounded-xl panel-surface-2 border flex items-center justify-center text-dim hover:text-[var(--text-primary)] transition-all" title="Alternar tema claro/escuro" aria-label="Alternar tema claro e escuro">
+                <i class="ph ph-sun text-lg"></i>
+            </button>
+
             <img class="h-12 sm:h-14 w-auto object-contain mx-auto" src="logo.png" alt="Duda Doces Logo">
             <div class="space-y-1">
-                <h2 class="text-lg sm:text-xl font-extrabold text-[#F4EAE8] tracking-tight">Acesso Restrito</h2>
-                <p class="text-xs text-[#BFA7A4] font-medium">Digite sua senha/PIN para abrir o Painel Duda Doces.</p>
+                <h2 class="text-lg sm:text-xl font-extrabold tracking-tight">Acesso Restrito</h2>
+                <p class="text-xs text-dim font-medium">Digite sua senha/PIN para abrir o Painel Duda Doces.</p>
             </div>
 
             <form id="form-login-painel" class="space-y-3.5">
-                <input type="password" id="input-senha-painel" autocomplete="current-password" placeholder="Digite a senha do painel..." class="w-full bg-[#281C1B] px-4 py-2.5 sm:py-3 rounded-xl border border-[#3B2927] text-center text-sm font-bold text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                <input type="password" id="input-senha-painel" autocomplete="current-password" placeholder="Digite a senha do painel..." class="w-full panel-input px-4 py-2.5 sm:py-3 rounded-xl border text-center text-sm font-bold outline-none transition-all">
                 <p id="erro-login-painel" class="text-xs font-semibold text-red-400 hidden">Senha incorreta. Tente novamente.</p>
-                <button type="submit" class="w-full bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-sm font-semibold py-2.5 sm:py-3 rounded-xl transition-all shadow-sm">
+                <button type="submit" class="w-full panel-btn-primary text-sm font-semibold py-2.5 sm:py-3 rounded-xl transition-all shadow-sm">
                     Entrar no Painel
                 </button>
             </form>
 
-            <a href="index.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#BFA7A4] hover:text-[#E8C1C1] transition-colors">
+            <a href="index.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-dim hover:text-[var(--accent-red)] transition-colors">
                 <i class="ph ph-arrow-left"></i> Voltar para a loja
             </a>
         </div>
@@ -121,100 +222,106 @@
     <div id="painel-protegido" class="hidden flex-1 flex flex-col">
 
         <!-- Overlay do Menu Lateral (PC e Mobile) -->
-        <div id="sidebar-overlay" onclick="fecharMenuLateral()" class="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs hidden opacity-0 transition-opacity duration-300"></div>
+        <div id="sidebar-overlay" onclick="fecharMenuLateral()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden opacity-0 transition-opacity duration-300"></div>
 
         <!-- Gaveta Lateral de Navegação (PC e Mobile) -->
-        <aside id="sidebar-drawer" class="fixed top-0 left-0 z-50 h-full w-72 sm:w-80 bg-[#1E1514] shadow-2xl border-r border-[#3B2927] transform -translate-x-full transition-transform duration-300 ease-out flex flex-col">
-            <div class="px-5 py-4 border-b border-[#3B2927] flex items-center justify-between">
+        <aside id="sidebar-drawer" class="fixed top-0 left-0 z-50 h-full w-72 sm:w-80 panel-surface shadow-2xl border-r transform -translate-x-full transition-transform duration-300 ease-out flex flex-col">
+            <div class="px-5 py-4 border-b flex items-center justify-between" style="border-color: var(--border-subtle);">
                 <div class="flex items-center gap-2.5">
                     <img class="h-9 w-auto object-contain" src="logo.png" alt="Duda Doces">
                     <div>
-                        <p class="font-bold text-sm text-[#F4EAE8] leading-tight">Duda Doces</p>
-                        <span class="text-[11px] text-[#9E8683] font-semibold uppercase tracking-wider">Menu do Painel</span>
+                        <p class="font-bold text-sm leading-tight">Duda Doces</p>
+                        <span class="text-[11px] text-dim font-semibold uppercase tracking-wider">Menu do Painel</span>
                     </div>
                 </div>
-                <button type="button" onclick="fecharMenuLateral()" class="w-9 h-9 rounded-xl bg-[#281C1B] text-[#C7AEAB] hover:bg-[#B83B3B] hover:text-white transition-all flex items-center justify-center" title="Fechar Menu">
+                <button type="button" onclick="fecharMenuLateral()" class="w-9 h-9 rounded-xl panel-surface-2 border text-soft hover:bg-[#B83B3B] hover:text-white transition-all flex items-center justify-center" title="Fechar Menu">
                     <i class="ph ph-x text-lg"></i>
                 </button>
             </div>
 
             <nav class="flex-1 overflow-y-auto px-3.5 py-4 space-y-1.5">
-                <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#9E8683]">Navegação</p>
+                <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-dim">Navegação</p>
 
-                <button type="button" onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-[#9E3232] text-[#FFF8F7] shadow-xs">
+                <button type="button" onclick="mudarAba('dashboard')" id="tab-btn-dashboard" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all panel-btn-primary shadow-xs">
                     <span class="flex items-center gap-3">
                         <i class="ph ph-chart-line-up text-lg"></i> Dashboard
                     </span>
                 </button>
 
-                <button type="button" onclick="mudarAba('pedidos')" id="tab-btn-pedidos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-[#E5D5D2] hover:bg-[#281C1B] hover:text-[#E8C1C1]">
+                <button type="button" onclick="mudarAba('pedidos')" id="tab-btn-pedidos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-soft hover:bg-[var(--bg-surface-2)]">
                     <span class="flex items-center gap-3">
                         <i class="ph ph-list-checks text-lg"></i> Pedidos
                     </span>
-                    <span id="badge-pedidos-ativos" class="bg-[#E8C1C1]/20 text-[#E8C1C1] text-[11px] font-extrabold px-2 py-0.5 rounded-full">0</span>
+                    <span id="badge-pedidos-ativos" class="bg-[#9E3232]/25 text-[#E8C1C1] text-[11px] font-extrabold px-2 py-0.5 rounded-full">0</span>
                 </button>
 
-                <button type="button" onclick="mudarAba('caixa')" id="tab-btn-caixa" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-[#E5D5D2] hover:bg-[#281C1B] hover:text-[#E8C1C1]">
+                <button type="button" onclick="mudarAba('caixa')" id="tab-btn-caixa" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-soft hover:bg-[var(--bg-surface-2)]">
                     <span class="flex items-center gap-3">
                         <i class="ph ph-wallet text-lg"></i> Fluxo de Caixa
                     </span>
                 </button>
 
-                <button type="button" onclick="mudarAba('estoque')" id="tab-btn-estoque" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-[#E5D5D2] hover:bg-[#281C1B] hover:text-[#E8C1C1]">
+                <button type="button" onclick="mudarAba('estoque')" id="tab-btn-estoque" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-soft hover:bg-[var(--bg-surface-2)]">
                     <span class="flex items-center gap-3">
                         <i class="ph ph-package text-lg"></i> Estoque
                     </span>
                 </button>
 
-                <button type="button" onclick="mudarAba('produtos')" id="tab-btn-produtos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-[#E5D5D2] hover:bg-[#281C1B] hover:text-[#E8C1C1]">
+                <button type="button" onclick="mudarAba('produtos')" id="tab-btn-produtos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-soft hover:bg-[var(--bg-surface-2)]">
                     <span class="flex items-center gap-3">
                         <i class="ph ph-cookie text-lg"></i> Produtos & Preços
                     </span>
                 </button>
 
-                <button type="button" onclick="mudarAba('custos')" id="tab-btn-custos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-[#E5D5D2] hover:bg-[#281C1B] hover:text-[#E8C1C1]">
+                <button type="button" onclick="mudarAba('custos')" id="tab-btn-custos" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-soft hover:bg-[var(--bg-surface-2)]">
                     <span class="flex items-center gap-3">
                         <i class="ph ph-calculator text-lg"></i> Calculadora de Custos
                     </span>
                 </button>
             </nav>
 
-            <div class="p-3.5 border-t border-[#3B2927] space-y-2 bg-[#191110]">
-                <a href="index.html" class="w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#F4EAE8] hover:text-[#E8C1C1] transition-all bg-[#281C1B] px-4 py-2.5 rounded-xl border border-[#3B2927]">
+            <div class="p-3.5 border-t space-y-2 panel-surface-3" style="border-color: var(--border-subtle);">
+                <a href="index.html" class="w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold panel-surface border px-4 py-2.5 rounded-xl transition-all">
                     <i class="ph ph-storefront text-base"></i> Ver Loja Online
                 </a>
-                <button type="button" onclick="bloquearPainel()" class="w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#C7AEAB] hover:text-red-400 transition-all bg-[#231817] hover:bg-red-950/50 px-4 py-2.5 rounded-xl border border-[#3B2927]/60">
+                <button type="button" onclick="bloquearPainel()" class="w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-soft hover:text-red-400 transition-all panel-surface-2 border px-4 py-2.5 rounded-xl">
                     <i class="ph ph-lock-key text-base"></i> Sair / Bloquear
                 </button>
             </div>
         </aside>
 
         <!-- Header Limpo e Proporcional -->
-        <header class="bg-[#1E1514]/95 backdrop-blur-md shadow-xs sticky top-0 z-40 border-b border-[#3B2927]">
+        <header class="backdrop-blur-md shadow-xs sticky top-0 z-40 border-b" style="background-color: var(--bg-header); border-color: var(--border-subtle);">
             <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-14 sm:h-16 gap-3">
                     <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-                        <button type="button" onclick="abrirMenuLateral()" class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#281C1B] hover:bg-[#342423] text-[#F4EAE8] hover:text-[#E8C1C1] border border-[#3B2927] flex items-center justify-center transition-all shrink-0 active:scale-95" aria-label="Abrir menu de páginas">
+                        <button type="button" onclick="abrirMenuLateral()" class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl panel-surface-2 border flex items-center justify-center transition-all shrink-0 active:scale-95" aria-label="Abrir menu de páginas">
                             <i class="ph ph-list text-xl sm:text-2xl"></i>
-                            <span id="badge-menu-dot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#D47A7A] border-2 border-[#1E1514]"></span>
+                            <span id="badge-menu-dot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#B83B3B] border-2" style="border-color: var(--bg-surface);"></span>
                         </button>
 
                         <img class="h-8 sm:h-10 w-auto object-contain shrink-0" src="logo.png" alt="Duda Doces Logo">
 
                         <div class="min-w-0">
                             <div class="flex items-center gap-2">
-                                <h1 class="font-bold text-sm sm:text-lg text-[#F4EAE8] tracking-tight truncate">Painel Duda Doces</h1>
-                                <span id="header-aba-atual" class="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[#9E3232]/30 text-[#E8C1C1] border border-[#B83B3B]/40 shrink-0">Dashboard</span>
+                                <h1 class="font-bold text-sm sm:text-lg tracking-tight truncate">Painel Duda Doces</h1>
+                                <span id="header-aba-atual" class="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[#9E3232]/20 text-[#E8C1C1] border border-[#B83B3B]/35 shrink-0">Dashboard</span>
                             </div>
-                            <span class="hidden sm:block text-[11px] text-[#9E8683] uppercase tracking-wider font-semibold">Gestão Integrada em Tempo Real</span>
+                            <span class="hidden sm:block text-[11px] text-dim uppercase tracking-wider font-semibold">Gestão Integrada em Tempo Real</span>
                         </div>
                     </div>
 
+                    <!-- Superior Direito: Pedidos + Botão Trocar Tema -->
                     <div class="flex items-center gap-2 shrink-0">
-                        <button type="button" onclick="mudarAba('pedidos')" class="flex items-center gap-1.5 text-xs font-bold text-[#F4EAE8] bg-[#281C1B] hover:bg-[#342423] px-2.5 sm:px-3.5 py-2 rounded-xl border border-[#3B2927] transition-all">
+                        <button type="button" onclick="mudarAba('pedidos')" class="flex items-center gap-1.5 text-xs font-bold panel-surface-2 border px-2.5 sm:px-3.5 py-2 rounded-xl transition-all">
                             <i class="ph ph-bell-ringing text-[#E8C1C1] text-sm sm:text-base"></i>
                             <span class="hidden sm:inline">Pedidos</span>
                             <span id="header-badge-pedidos" class="bg-[#B83B3B] text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+                        </button>
+
+                        <button type="button" id="btn-trocar-tema-header" onclick="alternarTema()" class="btn-tema-toggle flex items-center gap-1.5 text-xs font-bold panel-surface-2 border px-2.5 sm:px-3 py-2 rounded-xl transition-all active:scale-95" title="Trocar tema claro / escuro" aria-label="Trocar tema">
+                            <i class="ph ph-sun text-base text-[#D4A96A]"></i>
+                            <span class="tema-label hidden md:inline">Claro</span>
                         </button>
                     </div>
                 </div>
@@ -226,55 +333,55 @@
             <!-- ================= ABA 1: DASHBOARD ================= -->
             <div id="view-dashboard" class="space-y-5 sm:space-y-8">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                    <div class="bg-[#1E1514] p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex items-center gap-3 sm:gap-4">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/25 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
+                    <div class="panel-surface p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/20 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-currency-dollar"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[10px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider truncate">Faturamento</p>
-                            <h3 id="stat-faturamento" class="text-base sm:text-2xl font-bold text-[#F4EAE8] mt-0.5 tracking-tight truncate">R$ 0,00</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider truncate">Faturamento</p>
+                            <h3 id="stat-faturamento" class="text-base sm:text-2xl font-bold mt-0.5 tracking-tight truncate">R$ 0,00</h3>
                         </div>
                     </div>
 
-                    <div class="bg-[#1E1514] p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex items-center gap-3 sm:gap-4">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/25 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
+                    <div class="panel-surface p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/20 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-shopping-bag"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[10px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider truncate">Pedidos</p>
-                            <h3 id="stat-pedidos" class="text-base sm:text-2xl font-bold text-[#F4EAE8] mt-0.5 tracking-tight">0</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider truncate">Pedidos</p>
+                            <h3 id="stat-pedidos" class="text-base sm:text-2xl font-bold mt-0.5 tracking-tight">0</h3>
                         </div>
                     </div>
 
-                    <div class="bg-[#1E1514] p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex items-center gap-3 sm:gap-4">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/25 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
+                    <div class="panel-surface p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/20 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-users"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[10px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider truncate">Visitantes</p>
-                            <h3 id="stat-visitantes" class="text-base sm:text-2xl font-bold text-[#F4EAE8] mt-0.5 tracking-tight">0</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider truncate">Visitantes</p>
+                            <h3 id="stat-visitantes" class="text-base sm:text-2xl font-bold mt-0.5 tracking-tight">0</h3>
                         </div>
                     </div>
 
-                    <div class="bg-[#1E1514] p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex items-center gap-3 sm:gap-4">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/25 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
+                    <div class="panel-surface p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/20 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-eye"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[10px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider truncate">Acessos</p>
-                            <h3 id="stat-acessos-totais" class="text-base sm:text-2xl font-bold text-[#F4EAE8] mt-0.5 tracking-tight">0</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider truncate">Acessos</p>
+                            <h3 id="stat-acessos-totais" class="text-base sm:text-2xl font-bold mt-0.5 tracking-tight">0</h3>
                         </div>
                     </div>
                 </div>
 
                 <!-- Gráfico Misto -->
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927]">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border">
                     <div class="flex justify-between items-center mb-4 sm:mb-6">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-chart-line-up text-[#E8C1C1]"></i> Acessos Diários
                             </h2>
-                            <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Fluxo de visitas ao site.</p>
+                            <p class="text-[11px] sm:text-xs text-soft font-medium">Fluxo de visitas ao site.</p>
                         </div>
                     </div>
                     <div class="relative h-52 sm:h-80 w-full">
@@ -284,20 +391,20 @@
 
                 <!-- Tabela de Pedidos e Inativos -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
-                    <div class="lg:col-span-2 bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex flex-col">
+                    <div class="lg:col-span-2 panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border flex flex-col">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-4">
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-receipt text-[#E8C1C1]"></i> Pedidos Recentes
                             </h2>
                             <div class="relative w-full sm:w-64">
-                                <i class="ph ph-magnifying-glass text-[#9E8683] absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
-                                <input type="search" id="busca-pedidos" oninput="renderizarTabelaPedidos()" placeholder="Buscar cliente ou pagamento..." class="w-full bg-[#281C1B] pl-9 pr-3 py-2 rounded-xl border border-[#3B2927] text-xs font-semibold text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                                <i class="ph ph-magnifying-glass text-dim absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                <input type="search" id="busca-pedidos" oninput="renderizarTabelaPedidos()" placeholder="Buscar cliente ou pagamento..." class="w-full panel-input pl-9 pr-3 py-2 rounded-xl border text-xs font-semibold outline-none transition-all">
                             </div>
                         </div>
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="border-b border-[#3B2927] text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">
+                                    <tr class="border-b text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider" style="border-color: var(--border-subtle);">
                                         <th class="pb-2.5 px-2">Cliente</th>
                                         <th class="pb-2.5 px-2">Tipo</th>
                                         <th class="pb-2.5 px-2">Pagamento</th>
@@ -306,19 +413,19 @@
                                         <th class="pb-2.5 px-2 w-12 text-center">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody id="orders-table-body" class="text-xs sm:text-sm divide-y divide-[#2D1F1E] font-medium">
-                                    <tr><td colspan="6" class="text-center py-6 text-[#9E8683]">Carregando pedidos...</td></tr>
+                                <tbody id="orders-table-body" class="text-xs sm:text-sm divide-y font-medium" style="border-color: var(--border-divider);">
+                                    <tr><td colspan="6" class="text-center py-6 text-dim">Carregando pedidos...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex flex-col">
+                    <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border flex flex-col">
                         <div class="flex justify-between items-center mb-2.5">
-                            <h2 class="text-base sm:text-lg font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-lg font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-clock-counter-clockwise text-[#E8C1C1]"></i> Reengajamento
                             </h2>
-                            <select id="filtro-dias-inativos" onchange="atualizarListaInativos()" class="bg-[#281C1B] text-xs font-bold text-[#F4EAE8] px-2.5 py-1.5 rounded-xl border border-[#3B2927] outline-none cursor-pointer">
+                            <select id="filtro-dias-inativos" onchange="atualizarListaInativos()" class="panel-input text-xs font-bold px-2.5 py-1.5 rounded-xl border outline-none cursor-pointer">
                                 <option value="15">+ 15 dias</option>
                                 <option value="20">+ 20 dias</option>
                                 <option value="30" selected>+ 30 dias</option>
@@ -326,10 +433,10 @@
                                 <option value="60">+ 60 dias</option>
                             </select>
                         </div>
-                        <p class="text-[11px] sm:text-xs text-[#BFA7A4] mb-3.5 font-medium">Clientes sem comprar há mais de X dias.</p>
+                        <p class="text-[11px] sm:text-xs text-soft mb-3.5 font-medium">Clientes sem comprar há mais de X dias.</p>
 
                         <div id="inactive-clients-container" class="space-y-2.5 overflow-y-auto max-h-[280px] sm:max-h-[320px] no-scrollbar">
-                            <div class="text-center py-6 text-[#9E8683] text-xs sm:text-sm">Carregando...</div>
+                            <div class="text-center py-6 text-dim text-xs sm:text-sm">Carregando...</div>
                         </div>
                     </div>
                 </div>
@@ -337,36 +444,36 @@
 
             <!-- ================= ABA NOVA: PEDIDOS ================= -->
             <div id="view-pedidos" class="space-y-5 sm:space-y-8 hidden">
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] space-y-4 sm:space-y-6">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border space-y-4 sm:space-y-6">
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-list-checks text-[#E8C1C1]"></i> Fila de Pedidos e Produção
                             </h2>
-                            <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Pedidos da loja ou adicionados manualmente entram aqui e sincronizam com Dashboard e Fluxo de Caixa.</p>
+                            <p class="text-[11px] sm:text-xs text-soft font-medium">Pedidos da loja ou adicionados manualmente entram aqui e sincronizam com Dashboard e Fluxo de Caixa.</p>
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
-                            <button type="button" onclick="abrirModalNovoPedido()" class="justify-center bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0">
+                            <button type="button" onclick="abrirModalNovoPedido()" class="justify-center panel-btn-primary text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0">
                                 <i class="ph ph-plus-circle text-base sm:text-lg"></i> Novo Pedido
                             </button>
 
                             <div class="relative sm:min-w-[200px]">
-                                <i class="ph ph-magnifying-glass text-[#9E8683] absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
-                                <input type="search" id="busca-fila-pedidos" oninput="renderizarFilaPedidos()" placeholder="Buscar cliente ou doce..." class="w-full bg-[#281C1B] pl-9 pr-3 py-2 rounded-xl border border-[#3B2927] text-xs font-semibold text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                                <i class="ph ph-magnifying-glass text-dim absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                <input type="search" id="busca-fila-pedidos" oninput="renderizarFilaPedidos()" placeholder="Buscar cliente ou doce..." class="w-full panel-input pl-9 pr-3 py-2 rounded-xl border text-xs font-semibold outline-none transition-all">
                             </div>
 
-                            <div class="grid grid-cols-2 sm:flex items-center gap-1 bg-[#281C1B] p-1 rounded-xl sm:rounded-2xl border border-[#3B2927]" id="filtros-status-pedido">
-                                <button type="button" onclick="setFiltroStatusPedido('todos')" id="btn-filtro-pedido-todos" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl bg-[#9E3232] text-[#FFF8F7] transition-all">
+                            <div class="grid grid-cols-2 sm:flex items-center gap-1 panel-surface-2 p-1 rounded-xl sm:rounded-2xl border" id="filtros-status-pedido">
+                                <button type="button" onclick="setFiltroStatusPedido('todos')" id="btn-filtro-pedido-todos" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl panel-btn-primary transition-all">
                                     Todos (<span id="count-pedido-todos">0</span>)
                                 </button>
-                                <button type="button" onclick="setFiltroStatusPedido('pendente')" id="btn-filtro-pedido-pendente" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[#E5D5D2] hover:text-[#E8C1C1] transition-all">
+                                <button type="button" onclick="setFiltroStatusPedido('pendente')" id="btn-filtro-pedido-pendente" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-soft transition-all">
                                     ⏳ Pendente (<span id="count-pedido-pendente">0</span>)
                                 </button>
-                                <button type="button" onclick="setFiltroStatusPedido('em_preparacao')" id="btn-filtro-pedido-em_preparacao" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[#E5D5D2] hover:text-[#E8C1C1] transition-all">
+                                <button type="button" onclick="setFiltroStatusPedido('em_preparacao')" id="btn-filtro-pedido-em_preparacao" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-soft transition-all">
                                     👩‍🍳 Preparo (<span id="count-pedido-em_preparacao">0</span>)
                                 </button>
-                                <button type="button" onclick="setFiltroStatusPedido('concluido')" id="btn-filtro-pedido-concluido" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[#E5D5D2] hover:text-[#E8C1C1] transition-all">
+                                <button type="button" onclick="setFiltroStatusPedido('concluido')" id="btn-filtro-pedido-concluido" class="text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-soft transition-all">
                                     ✅ Concluído (<span id="count-pedido-concluido">0</span>)
                                 </button>
                             </div>
@@ -374,7 +481,7 @@
                     </div>
 
                     <div id="fila-pedidos-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        <div class="col-span-full text-center py-8 text-[#9E8683] text-xs sm:text-sm">Carregando pedidos...</div>
+                        <div class="col-span-full text-center py-8 text-dim text-xs sm:text-sm">Carregando pedidos...</div>
                     </div>
                 </div>
             </div>
@@ -382,63 +489,63 @@
             <!-- ================= ABA 2: FLUXO DE CAIXA ================= -->
             <div id="view-caixa" class="space-y-5 sm:space-y-8 hidden">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
-                    <div class="bg-[#1E1514] p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex items-center gap-3 sm:gap-4">
+                    <div class="panel-surface p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border flex items-center gap-3 sm:gap-4">
                         <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-emerald-950/70 text-emerald-400 border border-emerald-800/40 flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-arrow-circle-down"></i>
                         </div>
                         <div>
-                            <p class="text-[10px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">Entradas (Lucros)</p>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider">Entradas (Lucros)</p>
                             <h3 id="resumo-entradas" class="text-lg sm:text-2xl font-bold text-emerald-400 mt-0.5 tracking-tight">R$ 0,00</h3>
                         </div>
                     </div>
 
-                    <div class="bg-[#1E1514] p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex items-center gap-3 sm:gap-4">
+                    <div class="panel-surface p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border flex items-center gap-3 sm:gap-4">
                         <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-rose-950/70 text-rose-400 border border-rose-800/40 flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-arrow-circle-up"></i>
                         </div>
                         <div>
-                            <p class="text-[10px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">Saídas (Despesas)</p>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider">Saídas (Despesas)</p>
                             <h3 id="resumo-saidas" class="text-lg sm:text-2xl font-bold text-rose-400 mt-0.5 tracking-tight">R$ 0,00</h3>
                         </div>
                     </div>
 
-                    <div class="bg-[#1E1514] p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex items-center gap-3 sm:gap-4">
-                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/25 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
+                    <div class="panel-surface p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-premium border flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#9E3232]/20 text-[#E8C1C1] flex items-center justify-center text-lg sm:text-2xl font-bold shrink-0">
                             <i class="ph ph-wallet"></i>
                         </div>
                         <div>
-                            <p class="text-[10px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">Saldo Líquido</p>
-                            <h3 id="resumo-saldo" class="text-lg sm:text-2xl font-bold text-[#F4EAE8] mt-0.5 tracking-tight">R$ 0,00</h3>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider">Saldo Líquido</p>
+                            <h3 id="resumo-saldo" class="text-lg sm:text-2xl font-bold mt-0.5 tracking-tight">R$ 0,00</h3>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] space-y-4 sm:space-y-6">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border space-y-4 sm:space-y-6">
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3">
                         <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 flex-1">
                             <div class="relative col-span-2 sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
-                                <i class="ph ph-magnifying-glass text-[#9E8683] absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
-                                <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento..." class="w-full bg-[#281C1B] pl-9 pr-3 py-2 sm:py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-medium text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                                <i class="ph ph-magnifying-glass text-dim absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                <input type="search" id="busca-caixa" oninput="aplicarFiltrosCaixa()" placeholder="Buscar lançamento..." class="w-full panel-input pl-9 pr-3 py-2 sm:py-2.5 rounded-xl border text-xs sm:text-sm font-medium outline-none transition-all">
                             </div>
 
-                            <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="bg-[#281C1B] px-2.5 py-2 sm:p-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <select id="filtro-mes" onchange="aplicarFiltrosCaixa()" class="panel-input px-2.5 py-2 sm:p-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="todos">📅 Todos os meses</option>
                             </select>
 
-                            <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="bg-[#281C1B] px-2.5 py-2 sm:p-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <select id="filtro-status" onchange="aplicarFiltrosCaixa()" class="panel-input px-2.5 py-2 sm:p-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="todos">💳 Todos os status</option>
                                 <option value="pago">✅ Pago integral</option>
                                 <option value="50porcento">⚡ Pago 50%</option>
                                 <option value="pendente">⏳ Pendente</option>
                             </select>
 
-                            <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="bg-[#281C1B] px-2.5 py-2 sm:p-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <select id="filtro-tipo" onchange="aplicarFiltrosCaixa()" class="panel-input px-2.5 py-2 sm:p-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="todos">📊 Todos os Tipos</option>
                                 <option value="entrada">🟢 Entradas</option>
                                 <option value="saida">🔴 Saídas</option>
                             </select>
 
-                            <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="bg-[#281C1B] px-2.5 py-2 sm:p-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <select id="filtro-categoria" onchange="aplicarFiltrosCaixa()" class="panel-input px-2.5 py-2 sm:p-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="todas">🏷️ Categorias</option>
                                 <option value="Vendas">💰 Vendas</option>
                                 <option value="Ingredientes">🍓 Ingredientes</option>
@@ -449,24 +556,24 @@
                             </select>
                         </div>
 
-                        <button onclick="adicionarLancamentoFirebase()" class="w-full lg:w-auto justify-center bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
+                        <button onclick="adicionarLancamentoFirebase()" class="w-full lg:w-auto justify-center panel-btn-primary text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 shrink-0">
                             <i class="ph ph-plus-circle text-base sm:text-lg"></i> Novo Lançamento
                         </button>
                     </div>
 
-                    <div id="resumo-mensal-bar" class="bg-[#281C1B] border border-[#3B2927] rounded-xl sm:rounded-2xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs font-semibold text-[#E5D5D2]">
+                    <div id="resumo-mensal-bar" class="panel-surface-2 border rounded-xl sm:rounded-2xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs font-semibold text-soft">
                         <span id="resumo-mes-titulo" class="font-bold text-[#E8C1C1]">📅 Período: Todos os meses</span>
                         <div class="flex flex-wrap items-center gap-3 sm:gap-4">
                             <span id="resumo-mes-vendas" class="text-emerald-400">Entradas: R$ 0,00</span>
                             <span id="resumo-mes-gastos" class="text-rose-400">Saídas: R$ 0,00</span>
-                            <span id="resumo-mes-saldo" class="text-[#F4EAE8] font-bold">Saldo: R$ 0,00</span>
+                            <span id="resumo-mes-saldo" class="font-bold">Saldo: R$ 0,00</span>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto border border-[#3B2927] rounded-xl sm:rounded-2xl">
+                    <div class="overflow-x-auto border rounded-xl sm:rounded-2xl" style="border-color: var(--border-subtle);">
                         <table class="w-full text-left border-collapse min-w-[680px]">
                             <thead>
-                                <tr class="bg-[#251918] border-b border-[#3B2927] text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">
+                                <tr class="panel-surface-3 border-b text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider">
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-32">Data</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Descrição / Histórico</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-36">Categoria</th>
@@ -476,8 +583,8 @@
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-14 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-caixa-body" class="text-xs sm:text-sm divide-y divide-[#2D1F1E] font-medium">
-                                <tr><td colspan="7" class="text-center py-8 text-[#9E8683]">Carregando dados do Firebase...</td></tr>
+                            <tbody id="tabela-caixa-body" class="text-xs sm:text-sm divide-y font-medium" style="border-color: var(--border-divider);">
+                                <tr><td colspan="7" class="text-center py-8 text-dim">Carregando dados do Firebase...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -486,43 +593,43 @@
 
             <!-- ================= ABA 3: CONTROLE DE ESTOQUE ================= -->
             <div id="view-estoque" class="space-y-5 sm:space-y-8 hidden">
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] space-y-4 sm:space-y-6">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border space-y-4 sm:space-y-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-package text-[#E8C1C1]"></i> Controle de Estoque & Compras
                             </h2>
-                            <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
+                            <p class="text-[11px] sm:text-xs text-soft font-medium">Controle o que está Cheio, Metade ou Vazio para saber o que comprar.</p>
                         </div>
                         <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
                             <div class="relative col-span-2 sm:w-56">
-                                <i class="ph ph-magnifying-glass text-[#9E8683] absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
-                                <input type="search" id="busca-estoque" oninput="aplicarFiltrosEstoque()" placeholder="Buscar ingrediente..." class="w-full bg-[#281C1B] pl-9 pr-3 py-2 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-medium text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                                <i class="ph ph-magnifying-glass text-dim absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                <input type="search" id="busca-estoque" oninput="aplicarFiltrosEstoque()" placeholder="Buscar ingrediente..." class="w-full panel-input pl-9 pr-3 py-2 rounded-xl border text-xs sm:text-sm font-medium outline-none transition-all">
                             </div>
-                            <select id="filtro-status-estoque" onchange="aplicarFiltrosEstoque()" class="bg-[#281C1B] px-2.5 py-2 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <select id="filtro-status-estoque" onchange="aplicarFiltrosEstoque()" class="panel-input px-2.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="todos">📦 Todos</option>
                                 <option value="vazio">🔴 Vazio</option>
                                 <option value="metade">🟡 Metade</option>
                                 <option value="cheio">🟢 Cheio</option>
                             </select>
-                            <button onclick="adicionarItemEstoque()" class="justify-center bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                            <button onclick="adicionarItemEstoque()" class="justify-center panel-btn-primary text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
                                 <i class="ph ph-plus-circle text-base sm:text-lg"></i> Adicionar
                             </button>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto border border-[#3B2927] rounded-xl sm:rounded-2xl">
+                    <div class="overflow-x-auto border rounded-xl sm:rounded-2xl" style="border-color: var(--border-subtle);">
                         <table class="w-full text-left border-collapse min-w-[480px]">
                             <thead>
-                                <tr class="bg-[#251918] border-b border-[#3B2927] text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">
+                                <tr class="panel-surface-3 border-b text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider">
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Ingrediente / Item</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-36 sm:w-48">Medida</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-44 sm:w-52">Status</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-14 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-estoque-body" class="text-xs sm:text-sm divide-y divide-[#2D1F1E] font-medium">
-                                <tr><td colspan="4" class="text-center py-8 text-[#9E8683]">Carregando estoque...</td></tr>
+                            <tbody id="tabela-estoque-body" class="text-xs sm:text-sm divide-y font-medium" style="border-color: var(--border-divider);">
+                                <tr><td colspan="4" class="text-center py-8 text-dim">Carregando estoque...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -531,28 +638,28 @@
 
             <!-- ================= ABA 4: GERENCIAR PRODUTOS & PREÇOS DA LOJA ================= -->
             <div id="view-produtos" class="space-y-5 sm:space-y-8 hidden">
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] space-y-4 sm:space-y-6">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border space-y-4 sm:space-y-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-cookie text-[#E8C1C1]"></i> Produtos e Preços da Loja
                             </h2>
-                            <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Edite direto na tabela ou adicione novos produtos.</p>
+                            <p class="text-[11px] sm:text-xs text-soft font-medium">Edite direto na tabela ou adicione novos produtos.</p>
                         </div>
                         <div class="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                            <button onclick="abrirModalProduto()" class="justify-center bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                            <button onclick="abrirModalProduto()" class="justify-center panel-btn-primary text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
                                 <i class="ph ph-plus-circle text-base sm:text-lg"></i> Novo Produto
                             </button>
-                            <button onclick="salvarPrecosCatalogoFirebase()" class="justify-center bg-[#2E201F] hover:bg-[#3A2726] text-[#F4EAE8] border border-[#4A3432] text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                            <button onclick="salvarPrecosCatalogoFirebase()" class="justify-center panel-surface-2 border text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
                                 <i class="ph ph-floppy-disk text-base sm:text-lg"></i> Sincronizar
                             </button>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto border border-[#3B2927] rounded-xl sm:rounded-2xl">
+                    <div class="overflow-x-auto border rounded-xl sm:rounded-2xl" style="border-color: var(--border-subtle);">
                         <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead>
-                                <tr class="bg-[#251918] border-b border-[#3B2927] text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">
+                                <tr class="panel-surface-3 border-b text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider">
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-16">Foto</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-44">Nome do Produto</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Descrição</th>
@@ -560,21 +667,21 @@
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-24 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-produtos-loja-body" class="text-xs sm:text-sm divide-y divide-[#2D1F1E] font-medium"></tbody>
+                            <tbody id="tabela-produtos-loja-body" class="text-xs sm:text-sm divide-y font-medium" style="border-color: var(--border-divider);"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <!-- Tabela de Preços do Monte seu Bombom -->
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] space-y-4 sm:space-y-6">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border space-y-4 sm:space-y-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-magic-wand text-[#E8C1C1]"></i> Preços — Monte seu Bombom
                             </h2>
-                            <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Altere o valor de cada combinação. Atualiza a loja em tempo real.</p>
+                            <p class="text-[11px] sm:text-xs text-soft font-medium">Altere o valor de cada combinação. Atualiza a loja em tempo real.</p>
                         </div>
-                        <button onclick="salvarPrecosCatalogoFirebase()" class="w-full sm:w-auto justify-center bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                        <button onclick="salvarPrecosCatalogoFirebase()" class="w-full sm:w-auto justify-center panel-btn-primary text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
                             <i class="ph ph-floppy-disk text-base sm:text-lg"></i> Salvar Tabela
                         </button>
                     </div>
@@ -585,10 +692,10 @@
 
             <!-- ================= ABA 5: CALCULADORA DE CUSTOS ================= -->
             <div id="view-custos" class="space-y-5 sm:space-y-8 hidden">
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                     <div>
-                        <label class="block text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider mb-1.5">Categoria de Produto</label>
-                        <select id="categoria-produto" onchange="mudarCategoria()" class="w-full bg-[#281C1B] p-2.5 sm:p-3.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                        <label class="block text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider mb-1.5">Categoria de Produto</label>
+                        <select id="categoria-produto" onchange="mudarCategoria()" class="w-full panel-input p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                             <option value="bombom">🍫 Bombom Gourmet no Pote</option>
                             <option value="brownie">🟫 Ficha Técnica de Brownies</option>
                         </select>
@@ -596,23 +703,23 @@
 
                     <div id="container-select-bombom" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
-                            <label class="block text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider mb-1.5">Fruta Base</label>
-                            <select id="filtro-fruta" onchange="calcularBombom()" class="w-full bg-[#281C1B] p-2.5 sm:p-3.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <label class="block text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider mb-1.5">Fruta Base</label>
+                            <select id="filtro-fruta" onchange="calcularBombom()" class="w-full panel-input p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="morango">Morango</option>
                                 <option value="uva">Uva</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider mb-1.5">Recheio</label>
-                            <select id="filtro-recheio" onchange="calcularBombom()" class="w-full bg-[#281C1B] p-2.5 sm:p-3.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <label class="block text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider mb-1.5">Recheio</label>
+                            <select id="filtro-recheio" onchange="calcularBombom()" class="w-full panel-input p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="ninho">Brigadeiro de Ninho</option>
                                 <option value="chocolate">Brigadeiro de Chocolate</option>
                                 <option value="maracuja">Brigadeiro de Maracujá</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider mb-1.5">Cobertura</label>
-                            <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full bg-[#281C1B] p-2.5 sm:p-3.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                            <label class="block text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider mb-1.5">Cobertura</label>
+                            <select id="filtro-cobertura" onchange="calcularBombom()" class="w-full panel-input p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="branco">Chocolate Branco</option>
                                 <option value="preto">Chocolate Preto</option>
                                 <option value="calda">Calda Vermelha (Amor)</option>
@@ -622,8 +729,8 @@
                     </div>
 
                     <div id="container-select-brownie" class="md:col-span-2 hidden">
-                        <label class="block text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider mb-1.5">Selecionar Tipo de Brownie</label>
-                        <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full bg-[#281C1B] p-2.5 sm:p-3.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none">
+                        <label class="block text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider mb-1.5">Selecionar Tipo de Brownie</label>
+                        <select id="filtro-brownie" onchange="calcularBrownie()" class="w-full panel-input p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                             <option value="tradicional">Brownie Tradicional (Unidade)</option>
                             <option value="bite">Brownie Bite (Unidade Avulsa)</option>
                             <option value="pacote8">Pacote com 8 Bites</option>
@@ -632,38 +739,38 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
-                    <div class="lg:col-span-2 bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] space-y-4 sm:space-y-6">
-                        <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                    <div class="lg:col-span-2 panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border space-y-4 sm:space-y-6">
+                        <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                             <i class="ph ph-receipt text-[#E8C1C1]"></i> Blocos da Ficha Técnica
                         </h2>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="border-b border-[#3B2927] text-[11px] sm:text-xs font-bold text-[#9E8683] uppercase tracking-wider">
+                                    <tr class="border-b text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider" style="border-color: var(--border-subtle);">
                                         <th class="pb-2.5 px-2">Componente</th>
                                         <th class="pb-2.5 px-2">Especificação</th>
                                         <th class="pb-2.5 px-2">Valor</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabela-ingredientes-detalhe" class="text-xs sm:text-sm divide-y divide-[#2D1F1E] font-medium"></tbody>
+                                <tbody id="tabela-ingredientes-detalhe" class="text-xs sm:text-sm divide-y font-medium" style="border-color: var(--border-divider);"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex flex-col justify-between space-y-5">
+                    <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border flex flex-col justify-between space-y-5">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] mb-3 sm:mb-4 flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-currency-dollar text-[#E8C1C1]"></i> Resumo de Custos
                             </h2>
 
                             <div class="space-y-2.5 sm:space-y-4">
-                                <div class="bg-[#281C1B] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#3B2927] flex justify-between items-center gap-2">
-                                    <span class="text-[11px] sm:text-xs font-bold text-[#BFA7A4] uppercase">Ingredientes</span>
-                                    <span id="resumo-custo-ingredientes" class="font-bold text-[#F4EAE8] text-sm sm:text-base">R$ 0,00</span>
+                                <div class="panel-surface-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl border flex justify-between items-center gap-2">
+                                    <span class="text-[11px] sm:text-xs font-bold text-soft uppercase">Ingredientes</span>
+                                    <span id="resumo-custo-ingredientes" class="font-bold text-sm sm:text-base">R$ 0,00</span>
                                 </div>
-                                <div class="bg-[#281C1B] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#3B2927] flex justify-between items-center gap-2">
-                                    <span class="text-[11px] sm:text-xs font-bold text-[#BFA7A4] uppercase">Embalagem & Mão de Obra</span>
-                                    <span id="resumo-custo-extras" class="font-bold text-[#F4EAE8] text-sm sm:text-base">R$ 0,00</span>
+                                <div class="panel-surface-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl border flex justify-between items-center gap-2">
+                                    <span class="text-[11px] sm:text-xs font-bold text-soft uppercase">Embalagem & Mão de Obra</span>
+                                    <span id="resumo-custo-extras" class="font-bold text-sm sm:text-base">R$ 0,00</span>
                                 </div>
                                 <div class="bg-[#9E3232]/20 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#B83B3B]/40 flex justify-between items-center gap-2">
                                     <span class="text-[11px] sm:text-xs font-bold text-[#E8C1C1] uppercase tracking-wider">Custo Total</span>
@@ -672,7 +779,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-[#2A1B1A] border border-[#452D2B] text-[#F4EAE8] p-4 sm:p-6 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2">
+                        <div class="panel-surface-3 border text-[#F4EAE8] p-4 sm:p-6 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2" style="background-color: #2A1B1A; border-color: #452D2B;">
                             <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#D4A96A]">Preço de Venda Praticado</span>
                             <div class="flex justify-between items-baseline">
                                 <h3 id="resumo-preco-sugerido" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#FFF8F7]">R$ 0,00</h3>
@@ -684,15 +791,15 @@
                 </div>
 
                 <!-- SIMULADOR & GESTÃO DE PREÇOS DE INSUMOS -->
-                <div class="bg-[#1E1514] p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border border-[#3B2927] space-y-4 sm:space-y-6">
+                <div class="panel-surface p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-premium border space-y-4 sm:space-y-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-[#F4EAE8] flex items-center gap-2 tracking-tight">
+                            <h2 class="text-base sm:text-xl font-bold flex items-center gap-2 tracking-tight">
                                 <i class="ph ph-sliders text-[#E8C1C1]"></i> Simulador de Preços e Insumos
                             </h2>
-                            <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Altere o valor do insumo base e salve para persistir no Firebase.</p>
+                            <p class="text-[11px] sm:text-xs text-soft font-medium">Altere o valor do insumo base e salve para persistir no Firebase.</p>
                         </div>
-                        <button onclick="salvarNovosPrecosInsumos()" class="w-full sm:w-auto justify-center bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                        <button onclick="salvarNovosPrecosInsumos()" class="w-full sm:w-auto justify-center panel-btn-primary text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
                             <i class="ph ph-floppy-disk text-base sm:text-lg"></i> Salvar Custos
                         </button>
                     </div>
@@ -704,24 +811,24 @@
         </main>
 
         <!-- Rodapé -->
-        <footer class="bg-[#191110] border-t border-[#2E201F] text-[#BFA7A4] py-6 sm:py-8 mt-8 sm:mt-12 text-center text-[11px] sm:text-xs font-medium">
+        <footer class="border-t py-6 sm:py-8 mt-8 sm:mt-12 text-center text-[11px] sm:text-xs font-medium" style="background-color: var(--bg-footer); border-color: var(--border-subtle); color: var(--text-secondary);">
             <p>© 2026 Duda Doces • Painel Integrado em Tempo Real</p>
         </footer>
     </div>
 
     <!-- Modal: Adicionar Novo Pedido Manualmente -->
     <div id="modal-novo-pedido" onclick="if(event.target === this) fecharModalNovoPedido()" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-[#1E1514] max-w-2xl w-full max-h-[94dvh] sm:max-h-[92dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex flex-col overflow-hidden">
+        <div class="panel-surface max-w-2xl w-full max-h-[94dvh] sm:max-h-[92dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border flex flex-col overflow-hidden">
             
             <!-- Cabeçalho Fixo -->
-            <div class="flex items-center justify-between border-b border-[#3B2927] px-5 py-3.5 sm:px-7 sm:py-4 shrink-0 bg-[#1E1514]">
+            <div class="flex items-center justify-between border-b px-5 py-3.5 sm:px-7 sm:py-4 shrink-0 panel-surface" style="border-color: var(--border-subtle);">
                 <div>
-                    <h3 class="text-base sm:text-xl font-extrabold text-[#F4EAE8] flex items-center gap-2">
+                    <h3 class="text-base sm:text-xl font-extrabold flex items-center gap-2">
                         <i class="ph ph-plus-circle text-[#E8C1C1]"></i> Registrar Pedido Manual
                     </h3>
-                    <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Salva na fila de Pedidos, no Dashboard e no Fluxo de Caixa.</p>
+                    <p class="text-[11px] sm:text-xs text-soft font-medium">Salva na fila de Pedidos, no Dashboard e no Fluxo de Caixa.</p>
                 </div>
-                <button type="button" onclick="fecharModalNovoPedido()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#281C1B] text-[#C7AEAB] hover:bg-[#B83B3B] hover:text-white transition-all flex items-center justify-center shrink-0">
+                <button type="button" onclick="fecharModalNovoPedido()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full panel-surface-2 border text-soft hover:bg-[#B83B3B] hover:text-white transition-all flex items-center justify-center shrink-0">
                     <i class="ph ph-x text-base sm:text-lg"></i>
                 </button>
             </div>
@@ -733,29 +840,29 @@
                     <!-- Dados do Cliente -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Nome Completo do Cliente *</label>
-                            <input type="text" id="manual-cliente-nome" required placeholder="Ex: Maria Silva" class="w-full bg-[#281C1B] px-3.5 py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                            <label class="block text-[11px] font-bold text-soft uppercase tracking-wider mb-1">Nome Completo do Cliente *</label>
+                            <input type="text" id="manual-cliente-nome" required placeholder="Ex: Maria Silva" class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none transition-all">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">WhatsApp (com DDD) *</label>
-                            <input type="text" id="manual-cliente-telefone" required placeholder="Ex: (31) 99999-8888" class="w-full bg-[#281C1B] px-3.5 py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                            <label class="block text-[11px] font-bold text-soft uppercase tracking-wider mb-1">WhatsApp (com DDD) *</label>
+                            <input type="text" id="manual-cliente-telefone" required placeholder="Ex: (31) 99999-8888" class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none transition-all">
                         </div>
                     </div>
 
                     <!-- Tipo de Pedido e Pagamento -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Tipo de Pedido *</label>
+                            <label class="block text-[11px] font-bold text-soft uppercase tracking-wider mb-1">Tipo de Pedido *</label>
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button" id="btn-manual-retirada" onclick="setTipoPedidoManual('retirada')" class="py-2.5 px-2 border-2 border-[#D47A7A] bg-[#9E3232]/25 text-[#E8C1C1] font-bold rounded-xl text-xs transition-all">🏪 Retirada</button>
-                                <button type="button" id="btn-manual-entrega" onclick="setTipoPedidoManual('entrega')" class="py-2.5 px-2 border-2 border-[#3B2927] bg-[#281C1B] text-[#BFA7A4] font-bold rounded-xl text-xs transition-all">🛵 Entrega</button>
+                                <button type="button" id="btn-manual-entrega" onclick="setTipoPedidoManual('entrega')" class="py-2.5 px-2 border-2 panel-surface-2 text-soft font-bold rounded-xl text-xs transition-all">🛵 Entrega</button>
                             </div>
                             <input type="hidden" id="manual-tipo-pedido" value="retirada">
                         </div>
 
                         <div>
-                            <label class="block text-[11px] font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Forma de Pagamento *</label>
-                            <select id="manual-forma-pagamento" required class="w-full bg-[#281C1B] px-3 py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120]">
+                            <label class="block text-[11px] font-bold text-soft uppercase tracking-wider mb-1">Forma de Pagamento *</label>
+                            <select id="manual-forma-pagamento" required class="w-full panel-input px-3 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="Pix">Pix</option>
                                 <option value="Dinheiro">Dinheiro</option>
                                 <option value="Cartão Débito">Cartão Débito</option>
@@ -764,8 +871,8 @@
                         </div>
 
                         <div>
-                            <label class="block text-[11px] font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Status no Caixa</label>
-                            <select id="manual-status-caixa" class="w-full bg-[#281C1B] px-3 py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120]">
+                            <label class="block text-[11px] font-bold text-soft uppercase tracking-wider mb-1">Status no Caixa</label>
+                            <select id="manual-status-caixa" class="w-full panel-input px-3 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none">
                                 <option value="pendente">⏳ Pendente</option>
                                 <option value="pago">✅ Pago Integral</option>
                                 <option value="50porcento">⚡ Pago 50%</option>
@@ -774,78 +881,78 @@
                     </div>
 
                     <!-- Endereço (Exibido apenas se Entrega) -->
-                    <div id="manual-endereco-box" class="hidden bg-[#281C1B] p-3.5 sm:p-4 rounded-2xl border border-[#3B2927] space-y-3">
+                    <div id="manual-endereco-box" class="hidden panel-surface-2 p-3.5 sm:p-4 rounded-2xl border space-y-3">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-[#E8C1C1] uppercase tracking-wider">📍 Dados de Entrega</span>
                             <div class="flex items-center gap-1.5">
-                                <label class="text-[11px] font-bold text-[#C7AEAB]">Taxa Entrega (R$):</label>
-                                <input type="number" step="0.50" id="manual-taxa-entrega" value="8.00" oninput="recalcularTotalPedidoManual()" class="w-20 bg-[#1E1514] px-2 py-1 rounded-lg border border-[#3B2927] text-xs font-bold text-[#E8C1C1] text-right outline-none">
+                                <label class="text-[11px] font-bold text-soft">Taxa Entrega (R$):</label>
+                                <input type="number" step="0.50" id="manual-taxa-entrega" value="8.00" oninput="recalcularTotalPedidoManual()" class="w-20 panel-input px-2 py-1 rounded-lg border text-xs font-bold text-[#E8C1C1] text-right outline-none">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                             <div>
-                                <label class="block text-[10px] font-bold text-[#9E8683] uppercase mb-1">CEP</label>
-                                <input type="text" id="manual-cep" placeholder="00000-000" maxlength="9" onblur="buscarCepManual(this.value)" class="w-full bg-[#1E1514] px-3 py-2 rounded-xl border border-[#3B2927] text-xs font-medium text-[#F4EAE8] outline-none focus:border-[#D47A7A]">
+                                <label class="block text-[10px] font-bold text-dim uppercase mb-1">CEP</label>
+                                <input type="text" id="manual-cep" placeholder="00000-000" maxlength="9" onblur="buscarCepManual(this.value)" class="w-full panel-input px-3 py-2 rounded-xl border text-xs font-medium outline-none">
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-[10px] font-bold text-[#9E8683] uppercase mb-1">Rua / Logradouro *</label>
-                                <input type="text" id="manual-rua" placeholder="Nome da rua" class="w-full bg-[#1E1514] px-3 py-2 rounded-xl border border-[#3B2927] text-xs font-medium text-[#F4EAE8] outline-none focus:border-[#D47A7A]">
+                                <label class="block text-[10px] font-bold text-dim uppercase mb-1">Rua / Logradouro *</label>
+                                <input type="text" id="manual-rua" placeholder="Nome da rua" class="w-full panel-input px-3 py-2 rounded-xl border text-xs font-medium outline-none">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2.5">
                             <div>
-                                <label class="block text-[10px] font-bold text-[#9E8683] uppercase mb-1">Número *</label>
-                                <input type="text" id="manual-numero" placeholder="Nº" class="w-full bg-[#1E1514] px-3 py-2 rounded-xl border border-[#3B2927] text-xs font-medium text-[#F4EAE8] outline-none focus:border-[#D47A7A]">
+                                <label class="block text-[10px] font-bold text-dim uppercase mb-1">Número *</label>
+                                <input type="text" id="manual-numero" placeholder="Nº" class="w-full panel-input px-3 py-2 rounded-xl border text-xs font-medium outline-none">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-[#9E8683] uppercase mb-1">Bairro *</label>
-                                <input type="text" id="manual-bairro" placeholder="Bairro" class="w-full bg-[#1E1514] px-3 py-2 rounded-xl border border-[#3B2927] text-xs font-medium text-[#F4EAE8] outline-none focus:border-[#D47A7A]">
+                                <label class="block text-[10px] font-bold text-dim uppercase mb-1">Bairro *</label>
+                                <input type="text" id="manual-bairro" placeholder="Bairro" class="w-full panel-input px-3 py-2 rounded-xl border text-xs font-medium outline-none">
                             </div>
                         </div>
                     </div>
 
                     <!-- Adicionar Itens ao Pedido -->
-                    <div class="bg-[#251918] p-3.5 sm:p-4 rounded-2xl border border-[#3B2927] space-y-3">
-                        <p class="text-xs font-extrabold text-[#F4EAE8] uppercase tracking-wider">🛍️ Adicionar Itens do Pedido</p>
+                    <div class="panel-surface-3 p-3.5 sm:p-4 rounded-2xl border space-y-3">
+                        <p class="text-xs font-extrabold uppercase tracking-wider">🛍️ Adicionar Itens do Pedido</p>
 
                         <!-- Atalho Catálogo -->
                         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
                             <div class="sm:col-span-7">
-                                <label class="block text-[10px] font-bold text-[#9E8683] uppercase mb-1">Produto do Catálogo</label>
-                                <select id="manual-select-produto" class="w-full bg-[#1E1514] px-3 py-2 rounded-xl border border-[#3B2927] text-xs font-semibold text-[#F4EAE8] outline-none focus:border-[#D47A7A]"></select>
+                                <label class="block text-[10px] font-bold text-dim uppercase mb-1">Produto do Catálogo</label>
+                                <select id="manual-select-produto" class="w-full panel-input px-3 py-2 rounded-xl border text-xs font-semibold outline-none"></select>
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-[10px] font-bold text-[#9E8683] uppercase mb-1">Qtd</label>
-                                <input type="number" id="manual-qtd-produto" min="1" value="1" class="w-full bg-[#1E1514] px-2.5 py-2 rounded-xl border border-[#3B2927] text-xs font-bold text-center text-[#F4EAE8] outline-none">
+                                <label class="block text-[10px] font-bold text-dim uppercase mb-1">Qtd</label>
+                                <input type="number" id="manual-qtd-produto" min="1" value="1" class="w-full panel-input px-2.5 py-2 rounded-xl border text-xs font-bold text-center outline-none">
                             </div>
                             <div class="sm:col-span-3">
-                                <button type="button" onclick="adicionarProdutoCatalogoManual()" class="w-full bg-[#3A2726] hover:bg-[#B83B3B] text-[#F4EAE8] text-xs font-bold py-2 px-3 rounded-xl border border-[#4D3533] transition-all flex items-center justify-center gap-1">
+                                <button type="button" onclick="adicionarProdutoCatalogoManual()" class="w-full panel-surface-2 hover:bg-[#B83B3B] hover:text-white text-xs font-bold py-2 px-3 rounded-xl border transition-all flex items-center justify-center gap-1">
                                     <i class="ph ph-plus"></i> Incluir
                                 </button>
                             </div>
                         </div>
 
                         <!-- Atalho Bombom Personalizado -->
-                        <div class="pt-2 border-t border-[#3B2927]/80 space-y-2">
+                        <div class="pt-2 border-t space-y-2" style="border-color: var(--border-subtle);">
                             <label class="block text-[10px] font-bold text-[#E8C1C1] uppercase">🍫 Adicionar Bombom Personalizado</label>
                             <div class="grid grid-cols-3 sm:grid-cols-12 gap-2 items-end">
                                 <div class="sm:col-span-3">
-                                    <select id="manual-bombom-fruta" class="w-full bg-[#1E1514] px-2.5 py-2 rounded-xl border border-[#3B2927] text-xs font-semibold text-[#F4EAE8] outline-none">
+                                    <select id="manual-bombom-fruta" class="w-full panel-input px-2.5 py-2 rounded-xl border text-xs font-semibold outline-none">
                                         <option value="Morango">🍓 Morango</option>
                                         <option value="Uva">🍇 Uva</option>
                                     </select>
                                 </div>
                                 <div class="sm:col-span-3">
-                                    <select id="manual-bombom-recheio" class="w-full bg-[#1E1514] px-2.5 py-2 rounded-xl border border-[#3B2927] text-xs font-semibold text-[#F4EAE8] outline-none">
+                                    <select id="manual-bombom-recheio" class="w-full panel-input px-2.5 py-2 rounded-xl border text-xs font-semibold outline-none">
                                         <option value="ninho">Ninho</option>
                                         <option value="chocolate">Chocolate</option>
                                         <option value="maracujá">Maracujá</option>
                                     </select>
                                 </div>
                                 <div class="sm:col-span-3">
-                                    <select id="manual-bombom-cobertura" class="w-full bg-[#1E1514] px-2.5 py-2 rounded-xl border border-[#3B2927] text-xs font-semibold text-[#F4EAE8] outline-none">
+                                    <select id="manual-bombom-cobertura" class="w-full panel-input px-2.5 py-2 rounded-xl border text-xs font-semibold outline-none">
                                         <option value="branco">Choc. Branco</option>
                                         <option value="chocolate">Choc. Leite</option>
                                         <option value="calda">Calda Amor</option>
@@ -853,8 +960,8 @@
                                     </select>
                                 </div>
                                 <div class="col-span-3 sm:col-span-3 flex gap-1.5">
-                                    <input type="number" id="manual-bombom-qtd" min="1" value="1" class="w-14 bg-[#1E1514] px-2 py-2 rounded-xl border border-[#3B2927] text-xs font-bold text-center text-[#F4EAE8] outline-none">
-                                    <button type="button" onclick="adicionarBombomPersonalizadoManual()" class="flex-1 bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs font-bold py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1">
+                                    <input type="number" id="manual-bombom-qtd" min="1" value="1" class="w-14 panel-input px-2 py-2 rounded-xl border text-xs font-bold text-center outline-none">
+                                    <button type="button" onclick="adicionarBombomPersonalizadoManual()" class="flex-1 panel-btn-primary text-xs font-bold py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1">
                                         <i class="ph ph-plus"></i> Bombom
                                     </button>
                                 </div>
@@ -862,13 +969,13 @@
                         </div>
 
                         <!-- Item Avulso / Personalizado -->
-                        <div class="pt-2 border-t border-[#3B2927]/80 space-y-1.5">
-                            <label class="block text-[10px] font-bold text-[#9E8683] uppercase">✨ Ou Item Avulso / Encomenda Especial</label>
+                        <div class="pt-2 border-t space-y-1.5" style="border-color: var(--border-subtle);">
+                            <label class="block text-[10px] font-bold text-dim uppercase">✨ Ou Item Avulso / Encomenda Especial</label>
                             <div class="grid grid-cols-12 gap-2 items-center">
-                                <input type="text" id="manual-avulso-nome" placeholder="Ex: Caixa 20 doces festa" class="col-span-6 bg-[#1E1514] px-2.5 py-2 rounded-xl border border-[#3B2927] text-xs font-medium text-[#F4EAE8] placeholder:text-[#8E7673] outline-none">
-                                <input type="number" id="manual-avulso-qtd" min="1" value="1" class="col-span-2 bg-[#1E1514] px-2 py-2 rounded-xl border border-[#3B2927] text-xs font-bold text-center text-[#F4EAE8] outline-none">
-                                <input type="number" step="0.01" id="manual-avulso-preco" placeholder="R$" class="col-span-2 bg-[#1E1514] px-2 py-2 rounded-xl border border-[#3B2927] text-xs font-bold text-[#E8C1C1] outline-none">
-                                <button type="button" onclick="adicionarItemAvulsoManual()" class="col-span-2 bg-[#3A2726] hover:bg-[#B83B3B] text-[#F4EAE8] text-xs font-bold py-2 rounded-xl border border-[#4D3533] transition-all">+</button>
+                                <input type="text" id="manual-avulso-nome" placeholder="Ex: Caixa 20 doces festa" class="col-span-6 panel-input px-2.5 py-2 rounded-xl border text-xs font-medium outline-none">
+                                <input type="number" id="manual-avulso-qtd" min="1" value="1" class="col-span-2 panel-input px-2 py-2 rounded-xl border text-xs font-bold text-center outline-none">
+                                <input type="number" step="0.01" id="manual-avulso-preco" placeholder="R$" class="col-span-2 panel-input px-2 py-2 rounded-xl border text-xs font-bold text-[#E8C1C1] outline-none">
+                                <button type="button" onclick="adicionarItemAvulsoManual()" class="col-span-2 panel-surface-2 hover:bg-[#B83B3B] hover:text-white text-xs font-bold py-2 rounded-xl border transition-all">+</button>
                             </div>
                         </div>
                     </div>
@@ -876,26 +983,26 @@
                     <!-- Lista de Itens Selecionados -->
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-[#F4EAE8] uppercase tracking-wider">Itens Adicionados (<span id="manual-qtd-total-itens">0</span>)</span>
-                            <span id="manual-subtotal-label" class="text-xs font-semibold text-[#BFA7A4]">Subtotal: R$ 0,00</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Itens Adicionados (<span id="manual-qtd-total-itens">0</span>)</span>
+                            <span id="manual-subtotal-label" class="text-xs font-semibold text-soft">Subtotal: R$ 0,00</span>
                         </div>
                         <div id="manual-itens-lista" class="space-y-1.5 max-h-40 overflow-y-auto">
-                            <p class="text-xs text-[#9E8683] italic text-center py-3 bg-[#251918] rounded-xl">Nenhum item adicionado ainda.</p>
+                            <p class="text-xs text-dim italic text-center py-3 panel-surface-3 rounded-xl">Nenhum item adicionado ainda.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Rodapé Fixo -->
-                <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 sm:px-7 border-t border-[#3B2927] bg-[#1E1514] shrink-0">
+                <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 sm:px-7 border-t shrink-0 panel-surface" style="border-color: var(--border-subtle);">
                     <div>
-                        <span class="text-[10px] font-bold uppercase text-[#9E8683] block">Total do Pedido</span>
+                        <span class="text-[10px] font-bold uppercase text-dim block">Total do Pedido</span>
                         <span id="manual-total-geral" class="text-lg sm:text-xl font-extrabold text-[#E8C1C1]">R$ 0,00</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="fecharModalNovoPedido()" class="px-4 py-2 rounded-xl bg-[#281C1B] hover:bg-[#342423] text-[#C7AEAB] text-xs sm:text-sm font-semibold transition-all">
+                        <button type="button" onclick="fecharModalNovoPedido()" class="px-4 py-2 rounded-xl panel-surface-2 border text-soft text-xs sm:text-sm font-semibold transition-all">
                             Cancelar
                         </button>
-                        <button type="submit" id="btn-salvar-pedido-manual" class="px-5 py-2.5 rounded-xl bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-60">
+                        <button type="submit" id="btn-salvar-pedido-manual" class="px-5 py-2.5 rounded-xl panel-btn-primary text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-60">
                             <i class="ph ph-check-circle text-base sm:text-lg"></i> <span id="btn-salvar-pedido-manual-texto">Registrar Pedido</span>
                         </button>
                     </div>
@@ -906,15 +1013,15 @@
 
     <!-- Modal: Adicionar / Editar Produto no Catálogo -->
     <div id="modal-produto" onclick="if(event.target === this) fecharModalProduto()" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-[#1E1514] max-w-lg w-full max-h-[92dvh] sm:max-h-[90dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border border-[#3B2927] flex flex-col overflow-hidden">
+        <div class="panel-surface max-w-lg w-full max-h-[92dvh] sm:max-h-[90dvh] rounded-t-3xl sm:rounded-3xl shadow-premium border flex flex-col overflow-hidden">
             
             <!-- Cabeçalho Fixo -->
-            <div class="flex items-center justify-between border-b border-[#3B2927] px-5 py-3.5 sm:px-8 sm:py-5 shrink-0 bg-[#1E1514]">
+            <div class="flex items-center justify-between border-b px-5 py-3.5 sm:px-8 sm:py-5 shrink-0 panel-surface" style="border-color: var(--border-subtle);">
                 <div>
-                    <h3 id="modal-produto-titulo" class="text-base sm:text-xl font-extrabold text-[#F4EAE8]">Adicionar Novo Produto</h3>
-                    <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">Salvo diretamente no catálogo da loja.</p>
+                    <h3 id="modal-produto-titulo" class="text-base sm:text-xl font-extrabold">Adicionar Novo Produto</h3>
+                    <p class="text-[11px] sm:text-xs text-soft font-medium">Salvo diretamente no catálogo da loja.</p>
                 </div>
-                <button type="button" onclick="fecharModalProduto()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#281C1B] text-[#C7AEAB] hover:bg-[#B83B3B] hover:text-white transition-all flex items-center justify-center shrink-0">
+                <button type="button" onclick="fecharModalProduto()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full panel-surface-2 border text-soft hover:bg-[#B83B3B] hover:text-white transition-all flex items-center justify-center shrink-0">
                     <i class="ph ph-x text-base sm:text-lg"></i>
                 </button>
             </div>
@@ -926,47 +1033,47 @@
                 <!-- Área Rolável dos Campos -->
                 <div class="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-8 sm:py-5 space-y-3.5">
                     <div>
-                        <label class="block text-[11px] sm:text-xs font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Nome do Produto *</label>
-                        <input type="text" id="prod-nome" required placeholder="Ex: Brownie com Pistache" class="w-full bg-[#281C1B] px-3.5 py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-semibold text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                        <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Nome do Produto *</label>
+                        <input type="text" id="prod-nome" required placeholder="Ex: Brownie com Pistache" class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none transition-all">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] sm:text-xs font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Descrição *</label>
-                        <textarea id="prod-descricao" rows="2" required placeholder="Descreva o doce, recheio ou tamanho..." class="w-full bg-[#281C1B] px-3.5 py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-medium text-[#F4EAE8] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all"></textarea>
+                        <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Descrição *</label>
+                        <textarea id="prod-descricao" rows="2" required placeholder="Descreva o doce, recheio ou tamanho..." class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-medium outline-none transition-all"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[11px] sm:text-xs font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Valor (R$) *</label>
-                            <input type="text" inputmode="decimal" id="prod-preco" required placeholder="12,00" class="w-full bg-[#281C1B] px-3.5 py-2.5 rounded-xl border border-[#3B2927] text-xs sm:text-sm font-bold text-[#E8C1C1] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                            <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Valor (R$) *</label>
+                            <input type="text" inputmode="decimal" id="prod-preco" required placeholder="12,00" class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-bold text-[#E8C1C1] outline-none transition-all">
                         </div>
 
                         <div>
-                            <label class="block text-[11px] sm:text-xs font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Imagem do Produto</label>
-                            <input type="file" id="prod-imagem-arquivo" accept="image/*" onchange="previsualizarImagemProduto(event)" class="w-full bg-[#281C1B] px-3 py-2 rounded-xl border border-[#3B2927] text-xs font-medium text-[#F4EAE8] outline-none focus:border-[#D47A7A]">
+                            <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Imagem do Produto</label>
+                            <input type="file" id="prod-imagem-arquivo" accept="image/*" onchange="previsualizarImagemProduto(event)" class="w-full panel-input px-3 py-2 rounded-xl border text-xs font-medium outline-none">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[11px] sm:text-xs font-bold text-[#BFA7A4] uppercase tracking-wider mb-1">Ou URL / Nome do arquivo da imagem</label>
-                        <input type="text" id="prod-imagem-url" placeholder="Ex: Brownie.png ou https://..." oninput="atualizarPreviewManual()" class="w-full bg-[#281C1B] px-3.5 py-2 rounded-xl border border-[#3B2927] text-xs font-medium text-[#E5D5D2] placeholder:text-[#8E7673] outline-none focus:border-[#D47A7A] focus:bg-[#2F2120] transition-all">
+                        <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Ou URL / Nome do arquivo da imagem</label>
+                        <input type="text" id="prod-imagem-url" placeholder="Ex: Brownie.png ou https://..." oninput="atualizarPreviewManual()" class="w-full panel-input px-3.5 py-2 rounded-xl border text-xs font-medium outline-none transition-all">
                     </div>
 
-                    <div class="flex items-center gap-3 bg-[#281C1B] p-2.5 sm:p-3 rounded-2xl border border-[#3B2927]">
-                        <img id="prod-imagem-preview" src="Brownie.png" alt="Prévia do produto" class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl object-cover border border-[#3B2927] bg-[#1E1514] shrink-0">
-                        <div class="text-xs text-[#C7AEAB] min-w-0">
-                            <p class="font-bold text-[#F4EAE8]">Prévia na Loja</p>
-                            <p id="prod-status-upload" class="text-[11px] text-[#9E8683] truncate">Selecione uma imagem ou informe o caminho/URL.</p>
+                    <div class="flex items-center gap-3 panel-surface-2 p-2.5 sm:p-3 rounded-2xl border">
+                        <img id="prod-imagem-preview" src="Brownie.png" alt="Prévia do produto" class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl object-cover border panel-surface shrink-0">
+                        <div class="text-xs text-soft min-w-0">
+                            <p class="font-bold">Prévia na Loja</p>
+                            <p id="prod-status-upload" class="text-[11px] text-dim truncate">Selecione uma imagem ou informe o caminho/URL.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Rodapé Fixo -->
-                <div class="flex justify-end gap-2.5 px-5 py-3.5 sm:px-8 border-t border-[#3B2927] bg-[#1E1514] shrink-0">
-                    <button type="button" onclick="fecharModalProduto()" class="px-4 py-2 rounded-xl bg-[#281C1B] hover:bg-[#342423] text-[#C7AEAB] text-xs sm:text-sm font-semibold transition-all">
+                <div class="flex justify-end gap-2.5 px-5 py-3.5 sm:px-8 border-t shrink-0 panel-surface" style="border-color: var(--border-subtle);">
+                    <button type="button" onclick="fecharModalProduto()" class="px-4 py-2 rounded-xl panel-surface-2 border text-soft text-xs sm:text-sm font-semibold transition-all">
                         Cancelar
                     </button>
-                    <button type="submit" id="btn-salvar-produto-modal" class="px-5 py-2 rounded-xl bg-[#9E3232] hover:bg-[#B83B3B] text-[#FFF8F7] text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-60">
+                    <button type="submit" id="btn-salvar-produto-modal" class="px-5 py-2 rounded-xl panel-btn-primary text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-60">
                         <i class="ph ph-check-circle text-base sm:text-lg"></i> <span id="btn-salvar-produto-texto">Salvar Produto</span>
                     </button>
                 </div>
@@ -999,6 +1106,8 @@
         let painelInicializado = false;
 
         let myChart = null;
+        let ultimosLabelsGrafico = ['Hoje'];
+        let ultimosValoresGrafico = [0];
         let listaCaixaMemoria = [];
         let listaPedidosMemoria = [];
         let listaEstoqueMemoria = [];
@@ -1019,6 +1128,41 @@
             produtos: 'Produtos',
             custos: 'Calculadora'
         };
+
+        function obterTemaAtual() {
+            return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        }
+
+        function atualizarIconesTema(tema) {
+            const ehEscuro = tema === 'dark';
+            document.querySelectorAll('.btn-tema-toggle').forEach((btn) => {
+                const icone = btn.querySelector('i');
+                const rotulo = btn.querySelector('.tema-label');
+                if (icone) {
+                    icone.className = ehEscuro ? 'ph ph-sun text-base text-[#D4A96A]' : 'ph ph-moon text-base text-[#8A2B2B]';
+                }
+                if (rotulo) {
+                    rotulo.innerText = ehEscuro ? 'Claro' : 'Escuro';
+                }
+            });
+        }
+
+        window.aplicarTema = function(tema) {
+            const temaValido = tema === 'light' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', temaValido);
+            localStorage.setItem('duda_tema_painel', temaValido);
+            atualizarIconesTema(temaValido);
+            renderizarGraficoMisto(ultimosLabelsGrafico, ultimosValoresGrafico);
+        };
+
+        window.alternarTema = function() {
+            const proximoTema = obterTemaAtual() === 'dark' ? 'light' : 'dark';
+            aplicarTema(proximoTema);
+            showToast(proximoTema === 'dark' ? 'Modo escuro ativado!' : 'Modo claro ativado!');
+        };
+
+        // Aplica o tema salvo (padrão: escuro) o mais cedo possível
+        aplicarTema(localStorage.getItem('duda_tema_painel') || 'dark');
 
         window.abrirMenuLateral = function() {
             const drawer = document.getElementById('sidebar-drawer');
@@ -1298,13 +1442,13 @@
                 const el = document.getElementById(`view-${v}`);
                 const btn = document.getElementById(`tab-btn-${v}`);
                 if(el) el.classList.add('hidden');
-                if(btn) btn.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-[#E5D5D2] hover:bg-[#281C1B] hover:text-[#E8C1C1]";
+                if(btn) btn.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-soft hover:bg-[var(--bg-surface-2)]";
             });
 
             const viewAtiva = document.getElementById(`view-${aba}`);
             const btnAtivo = document.getElementById(`tab-btn-${aba}`);
             if(viewAtiva) viewAtiva.classList.remove('hidden');
-            if(btnAtivo) btnAtivo.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-[#9E3232] text-[#FFF8F7] shadow-xs";
+            if(btnAtivo) btnAtivo.className = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all panel-btn-primary shadow-xs";
 
             const badgeAba = document.getElementById('header-aba-atual');
             if (badgeAba) badgeAba.innerText = NOMES_ABAS[aba] || 'Dashboard';
@@ -1370,29 +1514,29 @@
             document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margemLucro}%`;
 
             document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-[#F4EAE8]">Fruta (${frutaKey})</td>
-                    <td class="py-2.5 px-2 text-[#BFA7A4]">Por unidade</td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 px-2 font-semibold">Fruta (${frutaKey})</td>
+                    <td class="py-2.5 px-2 text-soft">Por unidade</td>
                     <td class="py-2.5 px-2 font-bold text-[#E8C1C1]">${custoFruta.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-[#F4EAE8]">Recheio (${recheioKey})</td>
-                    <td class="py-2.5 px-2 text-[#BFA7A4]">Por bombom</td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 px-2 font-semibold">Recheio (${recheioKey})</td>
+                    <td class="py-2.5 px-2 text-soft">Por bombom</td>
                     <td class="py-2.5 px-2 font-bold text-[#E8C1C1]">${custoRecheio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-[#F4EAE8]">Cobertura (${coberturaKey})</td>
-                    <td class="py-2.5 px-2 text-[#BFA7A4]">Proporcional</td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 px-2 font-semibold">Cobertura (${coberturaKey})</td>
+                    <td class="py-2.5 px-2 text-soft">Proporcional</td>
                     <td class="py-2.5 px-2 font-bold text-[#E8C1C1]">${custoCobertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-[#F4EAE8]">Embalagem & Adesivo</td>
-                    <td class="py-2.5 px-2 text-[#BFA7A4]">Unitário</td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 px-2 font-semibold">Embalagem & Adesivo</td>
+                    <td class="py-2.5 px-2 text-soft">Unitário</td>
                     <td class="py-2.5 px-2 font-bold text-[#E8C1C1]">${(embalagem + adesivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-[#F4EAE8]">Mão de Obra</td>
-                    <td class="py-2.5 px-2 text-[#BFA7A4]">Taxa fixa</td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 px-2 font-semibold">Mão de Obra</td>
+                    <td class="py-2.5 px-2 text-soft">Taxa fixa</td>
                     <td class="py-2.5 px-2 font-bold text-[#E8C1C1]">${maoDeObra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
             `;
@@ -1429,14 +1573,14 @@
             document.getElementById('resumo-margem').innerText = `Margem de Lucro: ${margem}%`;
 
             document.getElementById('tabela-ingredientes-detalhe').innerHTML = `
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-[#F4EAE8]">Massa / Produção Brownie</td>
-                    <td class="py-2.5 px-2 text-[#BFA7A4]">${spec}</td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 px-2 font-semibold">Massa / Produção Brownie</td>
+                    <td class="py-2.5 px-2 text-soft">${spec}</td>
                     <td class="py-2.5 px-2 font-bold text-[#E8C1C1]">${custoIng.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-[#F4EAE8]">Embalagem & Adesivo</td>
-                    <td class="py-2.5 px-2 text-[#BFA7A4]">Por item/pacote</td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 px-2 font-semibold">Embalagem & Adesivo</td>
+                    <td class="py-2.5 px-2 text-soft">Por item/pacote</td>
                     <td class="py-2.5 px-2 font-bold text-[#E8C1C1]">${custoExt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                 </tr>
             `;
@@ -1461,11 +1605,11 @@
             let html = '';
             for(let [insumo, dados] of Object.entries(insumosBase)) {
                 html += `
-                    <div class="bg-[#281C1B] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#3B2927] space-y-1">
-                        <label class="block text-[11px] sm:text-xs font-bold text-[#BFA7A4] truncate" title="${insumo}">${insumo}</label>
+                    <div class="panel-surface-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl border space-y-1">
+                        <label class="block text-[11px] sm:text-xs font-bold text-soft truncate" title="${insumo}">${insumo}</label>
                         <div class="flex items-center gap-1.5">
                             <span class="text-xs font-bold text-[#E8C1C1]">R$</span>
-                            <input type="number" step="0.01" id="input-${insumo}" value="${dados.valor}" onchange="atualizarSimuladorLocal()" class="w-full bg-[#1E1514] px-2.5 py-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border border-[#3B2927] text-xs sm:text-sm font-bold text-[#F4EAE8] outline-none">
+                            <input type="number" step="0.01" id="input-${insumo}" value="${dados.valor}" onchange="atualizarSimuladorLocal()" class="w-full panel-input px-2.5 py-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border text-xs sm:text-sm font-bold outline-none">
                         </div>
                     </div>
                 `;
@@ -1512,11 +1656,11 @@
             let html = "";
             for (const [chave, valor] of Object.entries(precosBombomCatalogo)) {
                 html += `
-                    <div class="bg-[#281C1B] p-3 rounded-xl sm:rounded-2xl border border-[#3B2927] flex items-center justify-between gap-2.5">
-                        <span class="text-xs font-bold text-[#F4EAE8] leading-snug">${formatarRotuloComboBombom(chave)}</span>
+                    <div class="panel-surface-2 p-3 rounded-xl sm:rounded-2xl border flex items-center justify-between gap-2.5">
+                        <span class="text-xs font-bold leading-snug">${formatarRotuloComboBombom(chave)}</span>
                         <div class="flex items-center gap-1 shrink-0">
-                            <span class="text-xs font-bold text-[#9E8683]">R$</span>
-                            <input type="number" step="0.50" value="${Number(valor).toFixed(2)}" onchange="atualizarPrecoBombomCatalogo('${chave}', parseFloat(this.value) || 0)" class="w-16 sm:w-20 bg-[#1E1514] px-2 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-[#3B2927] text-xs sm:text-sm font-bold text-[#E8C1C1] text-right outline-none focus:border-[#D47A7A]">
+                            <span class="text-xs font-bold text-dim">R$</span>
+                            <input type="number" step="0.50" value="${Number(valor).toFixed(2)}" onchange="atualizarPrecoBombomCatalogo('${chave}', parseFloat(this.value) || 0)" class="w-16 sm:w-20 panel-input px-2 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border text-xs sm:text-sm font-bold text-[#E8C1C1] text-right outline-none">
                         </div>
                     </div>
                 `;
@@ -1557,26 +1701,26 @@
 
             catalogoLoja.forEach((item, idx) => {
                 const tr = document.createElement("tr");
-                tr.className = "hover:bg-[#281C1B]/70 transition-colors";
+                tr.className = "hover:bg-[var(--table-hover)] transition-colors";
                 tr.innerHTML = `
                     <td class="py-2 px-3 sm:px-4">
-                        <img src="${item.image || 'Brownie.png'}" alt="${item.nome || 'Produto'}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-[#3B2927] bg-[#281C1B]">
+                        <img src="${item.image || 'Brownie.png'}" alt="${item.nome || 'Produto'}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border panel-surface-2">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
-                        <input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-bold text-[#F4EAE8]">
+                        <input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-bold">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
-                        <input type="text" value="${item.descricao || ''}" placeholder="Descrição do produto..." onchange="atualizarItemCatalogo(${idx}, 'descricao', this.value)" class="text-xs text-[#C7AEAB]">
+                        <input type="text" value="${item.descricao || ''}" placeholder="Descrição do produto..." onchange="atualizarItemCatalogo(${idx}, 'descricao', this.value)" class="text-xs text-soft">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
                         <input type="number" step="0.01" value="${item.preco ?? 0}" onchange="atualizarItemCatalogo(${idx}, 'preco', parseFloat(this.value) || 0)" class="font-bold text-[#E8C1C1]">
                     </td>
                     <td class="py-2 px-3 sm:px-4 text-center">
                         <div class="flex items-center justify-center gap-1.5">
-                            <button type="button" onclick="abrirModalProduto(${idx})" class="w-8 h-8 rounded-lg bg-[#281C1B] text-[#E8C1C1] border border-[#3B2927] hover:bg-[#3A2726] transition-all flex items-center justify-center" title="Editar produto e imagem">
+                            <button type="button" onclick="abrirModalProduto(${idx})" class="w-8 h-8 rounded-lg panel-surface-2 border text-[#E8C1C1] hover:bg-[#3A2726] transition-all flex items-center justify-center" title="Editar produto e imagem">
                                 <i class="ph ph-pencil-simple text-base"></i>
                             </button>
-                            <button type="button" onclick="removerItemCatalogo(${idx})" class="w-8 h-8 rounded-lg bg-[#281C1B] text-[#9E8683] border border-[#3B2927] hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center" title="Remover item">
+                            <button type="button" onclick="removerItemCatalogo(${idx})" class="w-8 h-8 rounded-lg panel-surface-2 border text-dim hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center" title="Remover item">
                                 <i class="ph ph-trash text-base"></i>
                             </button>
                         </div>
@@ -1624,11 +1768,11 @@
 
             if (tipo === "retirada") {
                 btnRet.className = "py-2.5 px-2 border-2 border-[#D47A7A] bg-[#9E3232]/25 text-[#E8C1C1] font-bold rounded-xl text-xs transition-all";
-                btnEnt.className = "py-2.5 px-2 border-2 border-[#3B2927] bg-[#281C1B] text-[#BFA7A4] font-bold rounded-xl text-xs transition-all";
+                btnEnt.className = "py-2.5 px-2 border-2 panel-surface-2 text-soft font-bold rounded-xl text-xs transition-all";
                 boxEnd.classList.add("hidden");
             } else {
                 btnEnt.className = "py-2.5 px-2 border-2 border-[#D47A7A] bg-[#9E3232]/25 text-[#E8C1C1] font-bold rounded-xl text-xs transition-all";
-                btnRet.className = "py-2.5 px-2 border-2 border-[#3B2927] bg-[#281C1B] text-[#BFA7A4] font-bold rounded-xl text-xs transition-all";
+                btnRet.className = "py-2.5 px-2 border-2 panel-surface-2 text-soft font-bold rounded-xl text-xs transition-all";
                 boxEnd.classList.remove("hidden");
             }
             recalcularTotalPedidoManual();
@@ -1757,21 +1901,21 @@
             if (!lista) return;
 
             if (itensPedidoManual.length === 0) {
-                lista.innerHTML = `<p class="text-xs text-[#9E8683] italic text-center py-3 bg-[#251918] rounded-xl">Nenhum item adicionado ainda.</p>`;
+                lista.innerHTML = `<p class="text-xs text-dim italic text-center py-3 panel-surface-3 rounded-xl">Nenhum item adicionado ainda.</p>`;
                 recalcularTotalPedidoManual();
                 return;
             }
 
             lista.innerHTML = itensPedidoManual.map((item, idx) => `
-                <div class="flex items-center justify-between gap-2 bg-[#281C1B] px-3 py-2 rounded-xl border border-[#3B2927] text-xs">
+                <div class="flex items-center justify-between gap-2 panel-surface-2 px-3 py-2 rounded-xl border text-xs">
                     <div class="min-w-0 flex-1">
-                        <p class="font-bold text-[#F4EAE8] truncate">${item.quantity}x ${item.name}</p>
-                        <span class="text-[11px] text-[#9E8683]">Unit: R$ ${item.price.toFixed(2).replace(".", ",")}</span>
+                        <p class="font-bold truncate">${item.quantity}x ${item.name}</p>
+                        <span class="text-[11px] text-dim">Unit: R$ ${item.price.toFixed(2).replace(".", ",")}</span>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
                         <span class="font-extrabold text-[#E8C1C1] mr-1">R$ ${(item.price * item.quantity).toFixed(2).replace(".", ",")}</span>
-                        <button type="button" onclick="alterarQtdItemManual(${idx}, -1)" class="w-6 h-6 rounded-lg bg-[#1E1514] border border-[#3B2927] text-[#C7AEAB] hover:bg-[#B83B3B] hover:text-white flex items-center justify-center font-bold">-</button>
-                        <button type="button" onclick="alterarQtdItemManual(${idx}, 1)" class="w-6 h-6 rounded-lg bg-[#1E1514] border border-[#3B2927] text-[#C7AEAB] hover:bg-[#B83B3B] hover:text-white flex items-center justify-center font-bold">+</button>
+                        <button type="button" onclick="alterarQtdItemManual(${idx}, -1)" class="w-6 h-6 rounded-lg panel-surface border text-soft hover:bg-[#B83B3B] hover:text-white flex items-center justify-center font-bold">-</button>
+                        <button type="button" onclick="alterarQtdItemManual(${idx}, 1)" class="w-6 h-6 rounded-lg panel-surface border text-soft hover:bg-[#B83B3B] hover:text-white flex items-center justify-center font-bold">+</button>
                     </div>
                 </div>
             `).join("");
@@ -2079,9 +2223,9 @@
                 const btn = document.getElementById(`btn-filtro-pedido-${st}`);
                 if (!btn) return;
                 if (st === status) {
-                    btn.className = "text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl bg-[#9E3232] text-[#FFF8F7] transition-all";
+                    btn.className = "text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl panel-btn-primary transition-all";
                 } else {
-                    btn.className = "text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[#E5D5D2] hover:text-[#E8C1C1] transition-all";
+                    btn.className = "text-[11px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg sm:rounded-xl text-soft transition-all";
                 }
             });
             renderizarFilaPedidos();
@@ -2149,7 +2293,7 @@
             });
 
             if (filtrados.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-8 text-[#9E8683] text-xs sm:text-sm">Nenhum pedido encontrado neste filtro.</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-8 text-dim text-xs sm:text-sm">Nenhum pedido encontrado neste filtro.</div>`;
                 return;
             }
 
@@ -2162,28 +2306,28 @@
                     : 'bg-yellow-950/70 text-yellow-300 border-yellow-800/50';
 
                 const enderecoHtml = (p.tipoPedido === 'entrega' && p.endereco && typeof p.endereco === 'object')
-                    ? `<p class="text-[11px] text-[#C7AEAB] mt-1">📍 ${p.endereco.rua || ''}, Nº ${p.endereco.numero || ''} - ${p.endereco.bairro || ''} ${p.endereco.cep ? `(CEP: ${p.endereco.cep})` : ''}</p>`
+                    ? `<p class="text-[11px] text-soft mt-1">📍 ${p.endereco.rua || ''}, Nº ${p.endereco.numero || ''} - ${p.endereco.bairro || ''} ${p.endereco.cep ? `(CEP: ${p.endereco.cep})` : ''}</p>`
                     : '';
 
                 const itensHtml = Array.isArray(p.itens) && p.itens.length > 0
                     ? p.itens.map(item => `
-                        <li class="flex items-center justify-between gap-2 text-xs sm:text-sm py-1.5 border-b border-dashed border-[#3B2927]/70 last:border-none">
-                            <span class="font-semibold text-[#F4EAE8]">
-                                <span class="inline-block bg-[#9E3232]/30 text-[#E8C1C1] font-extrabold text-[11px] px-1.5 py-0.5 rounded-md mr-1">${item.quantity || 1}x</span>
+                        <li class="flex items-center justify-between gap-2 text-xs sm:text-sm py-1.5 border-b border-dashed last:border-none" style="border-color: var(--border-divider);">
+                            <span class="font-semibold">
+                                <span class="inline-block bg-[#9E3232]/25 text-[#E8C1C1] font-extrabold text-[11px] px-1.5 py-0.5 rounded-md mr-1">${item.quantity || 1}x</span>
                                 ${item.name || 'Produto'}
                             </span>
-                            <span class="text-xs font-bold text-[#BFA7A4] shrink-0">R$ ${((Number(item.price) || 0) * (Number(item.quantity) || 1)).toFixed(2).replace('.', ',')}</span>
+                            <span class="text-xs font-bold text-soft shrink-0">R$ ${((Number(item.price) || 0) * (Number(item.quantity) || 1)).toFixed(2).replace('.', ',')}</span>
                         </li>
                     `).join('')
-                    : `<li class="text-xs text-[#9E8683] italic">Itens não discriminados</li>`;
+                    : `<li class="text-xs text-dim italic">Itens não discriminados</li>`;
 
                 return `
-                    <div class="bg-[#251918] p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-[#3B2927] flex flex-col justify-between gap-3 sm:gap-4">
+                    <div class="panel-surface-3 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col justify-between gap-3 sm:gap-4">
                         <div class="space-y-2.5 sm:space-y-3">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="min-w-0">
-                                    <h3 class="font-bold text-[#F4EAE8] text-sm sm:text-base truncate">${p.clienteNome}</h3>
-                                    <p class="text-[11px] sm:text-xs text-[#BFA7A4] font-medium">${p.dataFormatada} • ${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'} • ${p.formaPagamento}</p>
+                                    <h3 class="font-bold text-sm sm:text-base truncate">${p.clienteNome}</h3>
+                                    <p class="text-[11px] sm:text-xs text-soft font-medium">${p.dataFormatada} • ${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'} • ${p.formaPagamento}</p>
                                     ${enderecoHtml}
                                 </div>
                                 <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${badgeStyle} shrink-0">
@@ -2191,25 +2335,25 @@
                                 </span>
                             </div>
 
-                            <div class="bg-[#1E1514] p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-[#3B2927]">
-                                <p class="text-[10px] font-bold text-[#9E8683] uppercase tracking-wider mb-1">Produtos Comprados</p>
+                            <div class="panel-surface p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border">
+                                <p class="text-[10px] font-bold text-dim uppercase tracking-wider mb-1">Produtos Comprados</p>
                                 <ul>${itensHtml}</ul>
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#3B2927]">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t" style="border-color: var(--border-subtle);">
                             <div class="text-xs sm:text-sm font-extrabold text-[#E8C1C1]">
                                 Total: R$ ${p.valorTotal.toFixed(2).replace('.', ',')}
                             </div>
 
                             <div class="flex items-center gap-1.5 sm:gap-2">
-                                <select onchange="atualizarStatusPedido('${p.id}', this.value)" class="bg-[#1E1514] border border-[#3B2927] rounded-xl px-2.5 py-1.5 text-xs font-bold text-[#F4EAE8] outline-none focus:border-[#D47A7A] cursor-pointer">
+                                <select onchange="atualizarStatusPedido('${p.id}', this.value)" class="panel-input border rounded-xl px-2.5 py-1.5 text-xs font-bold outline-none cursor-pointer">
                                     <option value="pendente" ${st === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
                                     <option value="em_preparacao" ${st === 'em_preparacao' ? 'selected' : ''}>👩‍🍳 Em preparação</option>
                                     <option value="concluido" ${st === 'concluido' ? 'selected' : ''}>✅ Concluído</option>
                                 </select>
 
-                                <button onclick="removerPedidoCompleto('${p.id}')" class="w-8 h-8 rounded-xl bg-[#1E1514] border border-[#3B2927] text-[#9E8683] hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center" title="Excluir Pedido">
+                                <button onclick="removerPedidoCompleto('${p.id}')" class="w-8 h-8 rounded-xl panel-surface border text-dim hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center" title="Excluir Pedido">
                                     <i class="ph ph-trash text-base"></i>
                                 </button>
                             </div>
@@ -2298,7 +2442,9 @@
 
                 const labelsGrafico = Object.keys(diasContagem).slice(-7);
                 const dataGrafico = labelsGrafico.map(label => diasContagem[label]);
-                renderizarGraficoMisto(labelsGrafico.length ? labelsGrafico : ['Hoje'], dataGrafico.length ? dataGrafico : [0]);
+                ultimosLabelsGrafico = labelsGrafico.length ? labelsGrafico : ['Hoje'];
+                ultimosValoresGrafico = dataGrafico.length ? dataGrafico : [0];
+                renderizarGraficoMisto(ultimosLabelsGrafico, ultimosValoresGrafico);
             });
         }
 
@@ -2318,19 +2464,19 @@
             });
 
             if (pedidosFiltrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-[#9E8683]">Nenhum pedido encontrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-dim">Nenhum pedido encontrado.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = pedidosFiltrados.slice(0, 12).map((p) => `
-                <tr class="hover:bg-[#281C1B]/70 transition-colors">
-                    <td class="py-2.5 sm:py-3.5 px-2 font-semibold text-[#F4EAE8]">${p.clienteNome}</td>
-                    <td class="py-2.5 sm:py-3.5 px-2 text-[#E5D5D2]">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
-                    <td class="py-2.5 sm:py-3.5 px-2"><span class="bg-[#281C1B] text-[#C7AEAB] border border-[#3B2927] px-2 py-0.5 rounded-lg text-[11px] font-semibold">${p.formaPagamento}</span></td>
+                <tr class="hover:bg-[var(--table-hover)] transition-colors">
+                    <td class="py-2.5 sm:py-3.5 px-2 font-semibold">${p.clienteNome}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2 text-soft">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2"><span class="panel-surface-2 text-soft border px-2 py-0.5 rounded-lg text-[11px] font-semibold">${p.formaPagamento}</span></td>
                     <td class="py-2.5 sm:py-3.5 px-2 font-bold text-[#E8C1C1]">R$ ${p.valorTotal.toFixed(2).replace('.', ',')}</td>
-                    <td class="py-2.5 sm:py-3.5 px-2 text-[#9E8683] text-[11px]">${p.dataFormatada}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2 text-dim text-[11px]">${p.dataFormatada}</td>
                     <td class="py-2.5 sm:py-3.5 px-2 text-center">
-                        <button onclick="removerPedidoCompleto('${p.id}')" class="w-7 h-7 rounded-lg bg-[#281C1B] text-[#9E8683] border border-[#3B2927] hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido">
+                        <button onclick="removerPedidoCompleto('${p.id}')" class="w-7 h-7 rounded-lg panel-surface-2 border text-dim hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido">
                             <i class="ph ph-trash text-sm"></i>
                         </button>
                     </td>
@@ -2377,22 +2523,22 @@
                     const linkWpp = telefoneLimpo ? `https://api.whatsapp.com/send?phone=55${telefoneLimpo}&text=${wppMsg}` : `#`;
 
                     container.innerHTML += `
-                        <div class="p-3 bg-[#281C1B] rounded-xl sm:rounded-2xl border border-[#3B2927] flex items-center justify-between gap-2">
+                        <div class="p-3 panel-surface-2 rounded-xl sm:rounded-2xl border flex items-center justify-between gap-2">
                             <div class="min-w-0">
-                                <h4 class="font-bold text-[#F4EAE8] text-xs sm:text-sm truncate">${nome}</h4>
+                                <h4 class="font-bold text-xs sm:text-sm truncate">${nome}</h4>
                                 <span class="text-[11px] text-[#E8C1C1] font-semibold">Última compra há ${diffDays} dias</span>
                             </div>
                             ${telefoneLimpo ? `
                             <a href="${linkWpp}" target="_blank" class="bg-emerald-700 hover:bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1 transition-all shadow-xs shrink-0">
                                 <i class="ph ph-whatsapp-logo text-sm"></i> Chamar
-                            </a>` : '<span class="text-[11px] text-[#9E8683] shrink-0">Sem Tel</span>'}
+                            </a>` : '<span class="text-[11px] text-dim shrink-0">Sem Tel</span>'}
                         </div>
                     `;
                 }
             }
 
             if (qtdInativos === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-[#9E8683] text-xs sm:text-sm">Nenhum cliente sem comprar há mais de ${diasFiltro} dias!</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-dim text-xs sm:text-sm">Nenhum cliente sem comprar há mais de ${diasFiltro} dias!</div>`;
             }
         };
 
@@ -2401,6 +2547,15 @@
             if(!canvas) return;
             const ctx = canvas.getContext('2d');
             if(myChart) myChart.destroy();
+
+            const escuro = obterTemaAtual() === 'dark';
+            const corLinha = escuro ? '#E8C1C1' : '#3A201E';
+            const corPonto = escuro ? '#D4A96A' : '#8A2B2B';
+            const corBordaPonto = escuro ? '#1E1514' : '#FFFFFF';
+            const corBarraFundo = escuro ? 'rgba(184, 59, 59, 0.35)' : 'rgba(138, 43, 43, 0.22)';
+            const corBarraBorda = escuro ? '#D47A7A' : '#8A2B2B';
+            const corGrid = escuro ? 'rgba(244, 234, 232, 0.06)' : 'rgba(0, 0, 0, 0.05)';
+            const corTick = escuro ? '#BFA7A4' : '#6B7280';
 
             myChart = new Chart(ctx, {
                 type: 'bar',
@@ -2411,20 +2566,20 @@
                             type: 'line',
                             label: 'Tendência',
                             data: values,
-                            borderColor: '#E8C1C1',
+                            borderColor: corLinha,
                             borderWidth: 2.5,
                             fill: false,
                             tension: 0.4,
-                            pointBackgroundColor: '#D4A96A',
-                            pointBorderColor: '#1E1514',
+                            pointBackgroundColor: corPonto,
+                            pointBorderColor: corBordaPonto,
                             pointRadius: 4
                         },
                         {
                             type: 'bar',
                             label: 'Acessos no Dia',
                             data: values,
-                            backgroundColor: 'rgba(184, 59, 59, 0.35)',
-                            borderColor: '#D47A7A',
+                            backgroundColor: corBarraFundo,
+                            borderColor: corBarraBorda,
                             borderWidth: 1.5,
                             borderRadius: 6
                         }
@@ -2437,12 +2592,12 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(244, 234, 232, 0.06)' },
-                            ticks: { stepSize: 1, color: '#BFA7A4' }
+                            grid: { color: corGrid },
+                            ticks: { stepSize: 1, color: corTick }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#BFA7A4' }
+                            ticks: { color: corTick }
                         }
                     }
                 }
@@ -2526,16 +2681,16 @@
                     : 'bg-yellow-950/70 text-yellow-300 border-yellow-800/50';
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-[#281C1B]/70 transition-colors";
+                tr.className = "hover:bg-[var(--table-hover)] transition-colors";
                 tr.innerHTML = `
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="date" data-caixa-id="${item.id}" data-caixa-campo="data" value="${item.data || ''}" onfocus="registrarFocoCaixa('${item.id}', 'data')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'data', this.value)" class="text-[#C7AEAB]">
+                        <input type="date" data-caixa-id="${item.id}" data-caixa-campo="data" value="${item.data || ''}" onfocus="registrarFocoCaixa('${item.id}', 'data')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'data', this.value)" class="text-soft">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="text" data-caixa-id="${item.id}" data-caixa-campo="descricao" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="registrarFocoCaixa('${item.id}', 'descricao')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'descricao', this.value)" class="font-medium text-[#F4EAE8]">
+                        <input type="text" data-caixa-id="${item.id}" data-caixa-campo="descricao" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="registrarFocoCaixa('${item.id}', 'descricao')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'descricao', this.value)" class="font-medium">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <select data-caixa-id="${item.id}" data-caixa-campo="categoria" onfocus="registrarFocoCaixa('${item.id}', 'categoria')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'categoria', this.value)" class="text-[#E5D5D2]">
+                        <select data-caixa-id="${item.id}" data-caixa-campo="categoria" onfocus="registrarFocoCaixa('${item.id}', 'categoria')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'categoria', this.value)" class="text-soft">
                             <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
                             <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
                             <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>📦 Embalagens</option>
@@ -2551,7 +2706,7 @@
                         </select>
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="number" step="0.01" data-caixa-id="${item.id}" data-caixa-campo="valor" value="${valorBruto}" onfocus="registrarFocoCaixa('${item.id}', 'valor')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="font-bold text-[#F4EAE8]">
+                        <input type="number" step="0.01" data-caixa-id="${item.id}" data-caixa-campo="valor" value="${valorBruto}" onfocus="registrarFocoCaixa('${item.id}', 'valor')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="font-bold">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
                         <select data-caixa-id="${item.id}" data-caixa-campo="statusPagamento" onfocus="registrarFocoCaixa('${item.id}', 'statusPagamento')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'statusPagamento', this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold ${bgStatus}">
@@ -2561,7 +2716,7 @@
                         </select>
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4 text-center">
-                        <button onclick="removerLancamentoFirebase('${item.id}', '${item.pedidoId || ''}')" class="w-8 h-8 rounded-lg bg-[#281C1B] text-[#9E8683] border border-[#3B2927] hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center mx-auto" title="Excluir Linha">
+                        <button onclick="removerLancamentoFirebase('${item.id}', '${item.pedidoId || ''}')" class="w-8 h-8 rounded-lg panel-surface-2 border text-dim hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center mx-auto" title="Excluir Linha">
                             <i class="ph ph-trash text-base"></i>
                         </button>
                     </td>
@@ -2570,7 +2725,7 @@
             });
 
             if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-[#9E8683]">Nenhum lançamento encontrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-dim">Nenhum lançamento encontrado.</td></tr>`;
             }
 
             if (campoCaixaEmEdicao) {
@@ -2724,13 +2879,13 @@
                 if(item.status === 'vazio') bgSelect = 'bg-rose-950/70 text-rose-300 border-rose-800/50';
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-[#281C1B]/70 transition-colors";
+                tr.className = "hover:bg-[var(--table-hover)] transition-colors";
                 tr.innerHTML = `
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="text" value="${item.nome || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'nome', this.value)" class="font-bold text-[#F4EAE8]">
+                        <input type="text" value="${item.nome || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'nome', this.value)" class="font-bold">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="text" value="${item.medida || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'medida', this.value)" class="text-[#C7AEAB]">
+                        <input type="text" value="${item.medida || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'medida', this.value)" class="text-soft">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
                         <select onchange="atualizarCelulaEstoque('${item.id}', 'status', this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold ${bgSelect}">
@@ -2740,7 +2895,7 @@
                         </select>
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4 text-center">
-                        <button onclick="removerItemEstoque('${item.id}')" class="w-8 h-8 rounded-lg bg-[#281C1B] text-[#9E8683] border border-[#3B2927] hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center mx-auto" title="Excluir Item">
+                        <button onclick="removerItemEstoque('${item.id}')" class="w-8 h-8 rounded-lg panel-surface-2 border text-dim hover:bg-rose-950/80 hover:text-rose-400 transition-all flex items-center justify-center mx-auto" title="Excluir Item">
                             <i class="ph ph-trash text-base"></i>
                         </button>
                     </td>
@@ -2749,7 +2904,7 @@
             });
 
             if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-[#9E8683]">Nenhum ingrediente encontrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-dim">Nenhum ingrediente encontrado.</td></tr>`;
             }
         }
 
@@ -2795,6 +2950,7 @@
         }
 
         window.addEventListener('load', async () => {
+            atualizarIconesTema(obterTemaAtual());
             await carregarSenhaAdmin();
             if (sessionStorage.getItem("duda_admin_autenticado") === "sim") {
                 liberarPainel();
