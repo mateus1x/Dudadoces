@@ -2259,33 +2259,32 @@
 
             const acessosRef = collection(db, "acessos");
             onSnapshot(acessosRef, (queryAcessos) => {
-                let totalVisitantesUnicos = 0;
+                const visitantesUnicosSet = new Set();
                 let totalAcessosSoma = 0;
                 let diasContagem = {};
 
                 queryAcessos.forEach((docSnap) => {
-                    const a = docSnap.data();
-                    totalVisitantesUnicos++;
-                    totalAcessosSoma += (a.totalAcessos || 1);
+                    const a = docSnap.data() || {};
+                    const chaveVisitante = String(a.visitanteId || docSnap.id).trim();
+                    if (chaveVisitante) {
+                        visitantesUnicosSet.add(chaveVisitante);
+                    }
+                    totalAcessosSoma += Number(a.totalAcessos) || 1;
 
-                    if (a.ultimoAcesso && a.ultimoAcesso.toDate) {
-                        const dt = a.ultimoAcesso.toDate();
-                        const chaveIso = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
-                        const rotuloBr = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                        if (!diasContagem[chaveIso]) {
-                            diasContagem[chaveIso] = { rotulo: rotuloBr, total: 0 };
-                        }
-                        diasContagem[chaveIso].total += (a.totalAcessos || 1);
+                    let timestampUsar = a.ultimoAcesso || a.primeiroAcesso;
+                    if (timestampUsar && timestampUsar.toDate) {
+                        const dateObj = timestampUsar.toDate();
+                        const diaKey = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                        diasContagem[diaKey] = (diasContagem[diaKey] || 0) + 1;
                     }
                 });
 
-                document.getElementById('stat-visitantes').innerText = totalVisitantesUnicos;
+                document.getElementById('stat-visitantes').innerText = visitantesUnicosSet.size;
                 document.getElementById('stat-acessos-totais').innerText = totalAcessosSoma;
 
-                const chavesOrdenadas = Object.keys(diasContagem).sort();
-                const labelsDias = chavesOrdenadas.map(k => diasContagem[k].rotulo);
-                const valoresDias = chavesOrdenadas.map(k => diasContagem[k].total);
-                renderizarGraficoAcessos(labelsDias, valoresDias);
+                const labelsGrafico = Object.keys(diasContagem).slice(-7);
+                const dataGrafico = labelsGrafico.map(label => diasContagem[label]);
+                renderizarGraficoMisto(labelsGrafico.length ? labelsGrafico : ['Hoje'], dataGrafico.length ? dataGrafico : [0]);
             });
         }
 
@@ -2294,74 +2293,139 @@
             if (!tbody) return;
 
             const termo = normalizarBusca(document.getElementById('busca-pedidos')?.value || '');
-            const filtrados = listaPedidosMemoria.filter(p => {
+            const pedidosFiltrados = listaPedidosMemoria.filter((p) => {
                 if (!termo) return true;
                 return (
                     normalizarBusca(p.clienteNome).includes(termo) ||
                     normalizarBusca(p.formaPagamento).includes(termo) ||
-                    normalizarBusca(p.tipoPedido).includes(termo)
+                    normalizarBusca(p.tipoPedido).includes(termo) ||
+                    normalizarBusca(p.dataFormatada).includes(termo)
                 );
             });
 
-            if (filtrados.length === 0) {
+            if (pedidosFiltrados.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400">Nenhum pedido encontrado.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtrados.map(p => `
+            tbody.innerHTML = pedidosFiltrados.slice(0, 12).map((p) => `
                 <tr class="hover:bg-duda-cream/40 transition-colors">
-                    <td class="py-2.5 px-2 font-semibold text-duda-brown">${p.clienteNome}</td>
-                    <td class="py-2.5 px-2 text-gray-600 font-medium">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
-                    <td class="py-2.5 px-2 text-gray-600 font-medium">${p.formaPagamento}</td>
-                    <td class="py-2.5 px-2 font-bold text-duda-red">R$ ${p.valorTotal.toFixed(2).replace('.', ',')}</td>
-                    <td class="py-2.5 px-2 text-[11px] sm:text-xs text-gray-500 font-medium">${p.dataFormatada}</td>
-                    <td class="py-2.5 px-2 text-center">
-                        <button onclick="removerPedidoCompleto('${p.id}')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido e Caixa">
-                            <i class="ph ph-trash text-sm sm:text-base"></i>
+                    <td class="py-2.5 sm:py-3.5 px-2 font-semibold text-duda-brown">${p.clienteNome}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2"><span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-lg text-[11px] font-semibold">${p.formaPagamento}</span></td>
+                    <td class="py-2.5 sm:py-3.5 px-2 font-bold text-duda-red">R$ ${p.valorTotal.toFixed(2).replace('.', ',')}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2 text-gray-400 text-[11px]">${p.dataFormatada}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2 text-center">
+                        <button onclick="removerPedidoCompleto('${p.id}')" class="w-7 h-7 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Pedido">
+                            <i class="ph ph-trash text-sm"></i>
                         </button>
                     </td>
                 </tr>
             `).join('');
         };
 
+        window.removerPedidoCompleto = async function(pedidoId) {
+            if (!confirm("Remover este pedido? Isso também removerá o registro correspondente no Fluxo de Caixa.")) return;
+            try {
+                await deleteDoc(doc(db, "pedidos", pedidoId));
+                try {
+                    await deleteDoc(doc(db, "fluxo_caixa", `caixa_${pedidoId}`));
+                } catch (_) {}
+
+                const qCaixa = query(collection(db, "fluxo_caixa"), where("pedidoId", "==", pedidoId));
+                const snapCaixa = await getDocs(qCaixa);
+                snapCaixa.forEach(async (docItem) => {
+                    await deleteDoc(doc(db, "fluxo_caixa", docItem.id));
+                });
+
+                showToast("Pedido removido com sucesso!");
+            } catch (e) {
+                console.error("Erro ao remover pedido:", e);
+                showToast("Erro ao remover pedido.");
+            }
+        };
+
         window.atualizarListaInativos = function() {
-            const limiteDias = parseInt(document.getElementById('filtro-dias-inativos').value) || 30;
-            const containerInativos = document.getElementById('inactive-clients-container');
-            let inativosHtml = "";
+            const diasFiltro = parseInt(document.getElementById('filtro-dias-inativos').value, 10) || 30;
             const hoje = new Date();
+            const container = document.getElementById('inactive-clients-container');
+            container.innerHTML = '';
             let qtdInativos = 0;
 
-            for (let [cliente, info] of Object.entries(mapaClientesGlobal)) {
+            for (const [nome, info] of Object.entries(mapaClientesGlobal)) {
                 const diffTime = Math.abs(hoje - info.data);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                if (diffDays >= limiteDias) {
+                if (diffDays > diasFiltro) {
                     qtdInativos++;
-                    const dataFormatada = info.data.toLocaleDateString('pt-BR');
-                    const telFormatado = info.telefone ? `55${info.telefone}` : '';
-                    const msgWpp = encodeURIComponent(`Olá ${cliente}! Sentimos sua falta aqui na Duda Doces. Que tal aproveitar nossos doces artesanais hoje? Temos novidades te esperando! 🍫✨`);
-                    const linkWpp = telFormatado ? `https://wa.me/${telFormatado}?text=${msgWpp}` : `https://wa.me/?text=${msgWpp}`;
+                    const telefoneLimpo = info.telefone.replace(/\D/g, '');
+                    const wppMsg = encodeURIComponent(`Oi ${nome}! Que saudade de você aqui na Duda Doces! 🍫✨ Estamos com novidades fresquinhas hoje. Que tal garantir a sua sobremesa?`);
+                    const linkWpp = telefoneLimpo ? `https://api.whatsapp.com/send?phone=55${telefoneLimpo}&text=${wppMsg}` : `#`;
 
-                    inativosHtml += `
-                        <div class="bg-duda-cream/50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-duda-pink/30 flex items-center justify-between gap-2.5">
+                    container.innerHTML += `
+                        <div class="p-3 bg-duda-cream rounded-xl sm:rounded-2xl border border-duda-pink/40 flex items-center justify-between gap-2">
                             <div class="min-w-0">
-                                <h4 class="font-bold text-duda-brown text-xs sm:text-sm truncate">${cliente}</h4>
-                                <p class="text-[11px] text-gray-500">Última: ${dataFormatada} (${diffDays}d)</p>
-                                <p class="text-[10px] text-gray-400 truncate">Tel: ${info.telefone || 'Não informado'}</p>
+                                <h4 class="font-bold text-duda-brown text-xs sm:text-sm truncate">${nome}</h4>
+                                <span class="text-[11px] text-duda-red font-semibold">Última compra há ${diffDays} dias</span>
                             </div>
-                            <a href="${linkWpp}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-all shadow-sm shrink-0" title="Enviar Mensagem no WhatsApp">
-                                <i class="ph ph-whatsapp-logo text-lg sm:text-xl"></i>
-                            </a>
+                            ${telefoneLimpo ? `
+                            <a href="${linkWpp}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1 transition-all shadow-xs shrink-0">
+                                <i class="ph ph-whatsapp-logo text-sm"></i> Chamar
+                            </a>` : '<span class="text-[11px] text-gray-400 shrink-0">Sem Tel</span>'}
                         </div>
                     `;
                 }
             }
 
             if (qtdInativos === 0) {
-                inativosHtml = `<div class="text-center py-6 text-gray-400 text-xs sm:text-sm">Nenhum cliente inativo há mais de ${limiteDias} dias. 🎉</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs sm:text-sm">Nenhum cliente sem comprar há mais de ${diasFiltro} dias!</div>`;
             }
-            containerInativos.innerHTML = inativosHtml;
         };
+
+        function renderizarGraficoMisto(labels, values) {
+            const canvas = document.getElementById('accessChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if(myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Tendência',
+                            data: values,
+                            borderColor: '#3A201E',
+                            borderWidth: 2.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: '#8A2B2B',
+                            pointRadius: 3.5
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Acessos no Dia',
+                            data: values,
+                            backgroundColor: 'rgba(138, 43, 43, 0.25)',
+                            borderColor: '#8A2B2B',
+                            borderWidth: 1.5,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { stepSize: 1 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
 
         function iniciarOuvinteCaixa() {
             const caixaRef = collection(db, "fluxo_caixa");
@@ -2377,65 +2441,79 @@
             });
         }
 
-        function obterDadosCaixaFiltrados() {
-            const mesFiltro = document.getElementById('filtro-mes')?.value || 'todos';
-            const statusFiltro = document.getElementById('filtro-status')?.value || 'todos';
-            const tipoFiltro = document.getElementById('filtro-tipo').value;
-            const categoriaFiltro = document.getElementById('filtro-categoria').value;
+        window.aplicarFiltrosCaixa = function() {
             const termoBusca = normalizarBusca(document.getElementById('busca-caixa')?.value || '');
+            const filtroMes = document.getElementById('filtro-mes')?.value || 'todos';
+            const filtroStatus = document.getElementById('filtro-status')?.value || 'todos';
+            const filtroTipo = document.getElementById('filtro-tipo').value;
+            const filtroCat = document.getElementById('filtro-categoria').value;
 
             const dadosFiltrados = listaCaixaMemoria.filter(item => {
-                const statusItem = item.statusPagamento || 'pendente';
-                const matchMes = (mesFiltro === 'todos' || obterChaveMes(item.data) === mesFiltro);
-                const matchStatus = (statusFiltro === 'todos' || statusItem === statusFiltro);
-                const matchTipo = (tipoFiltro === 'todos' || item.tipo === tipoFiltro);
-                const matchCategoria = (categoriaFiltro === 'todas' || item.categoria === categoriaFiltro);
-                const matchBusca = (!termoBusca || normalizarBusca(item.descricao || '').includes(termoBusca));
-                return matchMes && matchStatus && matchTipo && matchCategoria && matchBusca;
+                const statusItem = item.statusPagamento || 'pago';
+                const chaveMesItem = obterChaveMes(item.data);
+
+                const matchBusca = !termoBusca || (
+                    normalizarBusca(item.descricao).includes(termoBusca) ||
+                    normalizarBusca(item.categoria).includes(termoBusca) ||
+                    normalizarBusca(item.data).includes(termoBusca) ||
+                    String(item.valor ?? '').includes(termoBusca)
+                );
+                const matchMes = (filtroMes === 'todos' || chaveMesItem === filtroMes);
+                const matchStatus = (filtroStatus === 'todos' || statusItem === filtroStatus);
+                const matchTipo = (filtroTipo === 'todos' || item.tipo === filtroTipo);
+                const matchCat = (filtroCat === 'todas' || item.categoria === filtroCat);
+                return matchBusca && matchMes && matchStatus && matchTipo && matchCat;
             });
 
-            return { dadosFiltrados, mesFiltro };
+            renderizarTabelaCaixa(dadosFiltrados, filtroMes);
+        };
+
+        function calcularValorEfetivoEntrada(item) {
+            const valorBruto = parseFloat(item.valor) || 0;
+            if (item.tipo !== 'entrada') return valorBruto;
+
+            const status = item.statusPagamento || 'pago';
+            if (status === 'pago') return valorBruto;
+            if (status === '50porcento') return valorBruto * 0.5;
+            return 0;
         }
 
-        window.aplicarFiltrosCaixa = function() {
-            const { dadosFiltrados, mesFiltro } = obterDadosCaixaFiltrados();
-            if (campoCaixaEmEdicao) {
-                calcularTotaisCaixa(dadosFiltrados, mesFiltro);
-                return;
-            }
-            renderizarTabelaCaixa(dadosFiltrados, mesFiltro);
-        };
-
-        window.marcarEdicaoCaixa = function(id, campo) {
-            campoCaixaEmEdicao = `${id}:${campo}`;
-        };
-
-        window.encerrarEdicaoCaixa = function() {
-            campoCaixaEmEdicao = null;
-            const { dadosFiltrados, mesFiltro } = obterDadosCaixaFiltrados();
-            renderizarTabelaCaixa(dadosFiltrados, mesFiltro);
-        };
-
-        window.renderizarTabelaCaixa = function(dados, mesFiltro = 'todos') {
+        function renderizarTabelaCaixa(dados, filtroMes = 'todos') {
             const tbody = document.getElementById('tabela-caixa-body');
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado para os filtros atuais.</td></tr>`;
-                calcularTotaisCaixa(dados, mesFiltro);
-                return;
-            }
+            let totalEntradas = 0;
+            let totalSaidas = 0;
 
             dados.forEach((item) => {
-                const status = item.statusPagamento || 'pendente';
+                const valorBruto = parseFloat(item.valor) || 0;
+                const statusItem = item.statusPagamento || 'pago';
+
+                if (item.tipo === 'entrada') {
+                    totalEntradas += calcularValorEfetivoEntrada(item);
+                } else if (item.tipo === 'saida') {
+                    totalSaidas += valorBruto;
+                }
+
+                const corTipo = item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold';
+                const bgStatus = statusItem === 'pago'
+                    ? 'bg-green-50 text-green-700 border-green-200'
+                    : statusItem === '50porcento'
+                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                    : 'bg-yellow-50 text-yellow-700 border-yellow-200';
+
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-duda-cream/40 transition-colors';
+                tr.className = "hover:bg-duda-cream/40 transition-colors";
                 tr.innerHTML = `
-                    <td class="py-2 px-3 sm:px-4"><input type="date" value="${item.data || ''}" onfocus="marcarEdicaoCaixa('${item.id}', 'data')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'data', this.value)"></td>
-                    <td class="py-2 px-3 sm:px-4"><input type="text" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="marcarEdicaoCaixa('${item.id}', 'descricao')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'descricao', this.value)"></td>
-                    <td class="py-2 px-3 sm:px-4">
-                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'categoria')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'categoria', this.value)">
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <input type="date" data-caixa-id="${item.id}" data-caixa-campo="data" value="${item.data || ''}" onfocus="registrarFocoCaixa('${item.id}', 'data')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'data', this.value)" class="text-gray-600">
+                    </td>
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <input type="text" data-caixa-id="${item.id}" data-caixa-campo="descricao" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="registrarFocoCaixa('${item.id}', 'descricao')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'descricao', this.value)" class="font-medium text-duda-brown">
+                    </td>
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <select data-caixa-id="${item.id}" data-caixa-campo="categoria" onfocus="registrarFocoCaixa('${item.id}', 'categoria')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'categoria', this.value)" class="text-gray-700">
                             <option value="Vendas" ${item.categoria === 'Vendas' ? 'selected' : ''}>💰 Vendas</option>
                             <option value="Ingredientes" ${item.categoria === 'Ingredientes' ? 'selected' : ''}>🍓 Ingredientes</option>
                             <option value="Embalagens" ${item.categoria === 'Embalagens' ? 'selected' : ''}>📦 Embalagens</option>
@@ -2444,136 +2522,103 @@
                             <option value="Outros" ${item.categoria === 'Outros' ? 'selected' : ''}>⚙️ Outros</option>
                         </select>
                     </td>
-                    <td class="py-2 px-3 sm:px-4">
-                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'tipo')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'tipo', this.value)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <select data-caixa-id="${item.id}" data-caixa-campo="tipo" onfocus="registrarFocoCaixa('${item.id}', 'tipo')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'tipo', this.value)" class="${corTipo}">
                             <option value="entrada" ${item.tipo === 'entrada' ? 'selected' : ''}>🟢 Entrada</option>
                             <option value="saida" ${item.tipo === 'saida' ? 'selected' : ''}>🔴 Saída</option>
                         </select>
                     </td>
-                    <td class="py-2 px-3 sm:px-4">
-                        <input type="number" step="0.01" value="${item.valor || 0}" onfocus="marcarEdicaoCaixa('${item.id}', 'valor')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="${item.tipo === 'entrada' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <input type="number" step="0.01" data-caixa-id="${item.id}" data-caixa-campo="valor" value="${valorBruto}" onfocus="registrarFocoCaixa('${item.id}', 'valor')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'valor', parseFloat(this.value) || 0)" class="font-bold text-duda-brown">
                     </td>
-                    <td class="py-2 px-3 sm:px-4">
-                        <select onfocus="marcarEdicaoCaixa('${item.id}', 'statusPagamento')" onblur="encerrarEdicaoCaixa()" onchange="atualizarCampoCaixa('${item.id}', 'statusPagamento', this.value)" class="font-semibold text-xs py-1.5 px-2 rounded-lg border border-gray-200 ${status === 'pago' ? 'bg-green-50 text-green-700' : status === '50porcento' ? 'bg-amber-50 text-amber-700' : 'bg-yellow-50 text-yellow-700'}">
-                            <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
-                            <option value="pago" ${status === 'pago' ? 'selected' : ''}>✅ Pago Integral</option>
-                            <option value="50porcento" ${status === '50porcento' ? 'selected' : ''}>⚡ Pago 50%</option>
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <select data-caixa-id="${item.id}" data-caixa-campo="statusPagamento" onfocus="registrarFocoCaixa('${item.id}', 'statusPagamento')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'statusPagamento', this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold ${bgStatus}">
+                            <option value="pago" ${statusItem === 'pago' ? 'selected' : ''}>✅ Pago integral</option>
+                            <option value="50porcento" ${statusItem === '50porcento' ? 'selected' : ''}>⚡ Pago 50%</option>
+                            <option value="pendente" ${statusItem === 'pendente' ? 'selected' : ''}>⏳ Pendente</option>
                         </select>
                     </td>
-                    <td class="py-2 px-3 sm:px-4 text-center">
-                        <button onclick="removerLancamentoCaixa('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4 text-center">
+                        <button onclick="removerLancamentoFirebase('${item.id}', '${item.pedidoId || ''}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Linha">
                             <i class="ph ph-trash text-base"></i>
                         </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-
-            calcularTotaisCaixa(dados, mesFiltro);
-        };
-
-        function calcularTotaisCaixa(dados, mesFiltro = 'todos') {
-            let totalEntradas = 0;
-            let totalSaidas = 0;
-
-            dados.forEach(item => {
-                const val = Number(item.valor) || 0;
-                const status = item.statusPagamento || 'pendente';
-
-                if (item.tipo === 'entrada') {
-                    if (status === 'pago') {
-                        totalEntradas += val;
-                    } else if (status === '50porcento') {
-                        totalEntradas += (val / 2);
-                    }
-                } else if (item.tipo === 'saida') {
-                    totalSaidas += val;
-                }
-            });
-
-            const saldo = totalEntradas - totalSaidas;
-            const fmtBRL = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-            document.getElementById('resumo-entradas').innerText = fmtBRL(totalEntradas);
-            document.getElementById('resumo-saidas').innerText = fmtBRL(totalSaidas);
-
-            const elSaldo = document.getElementById('resumo-saldo');
-            elSaldo.innerText = fmtBRL(saldo);
-            elSaldo.className = saldo < 0 ? "text-lg sm:text-2xl font-bold text-red-600 mt-0.5 tracking-tight" : "text-lg sm:text-2xl font-bold text-duda-brown mt-0.5 tracking-tight";
-
-            const rotuloPeriodo = mesFiltro && mesFiltro !== 'todos' ? formatarNomeMes(mesFiltro) : 'Todos os meses';
-            document.getElementById('resumo-mes-titulo').innerText = `📅 Período: ${rotuloPeriodo}`;
-            document.getElementById('resumo-mes-vendas').innerText = `Entradas: ${fmtBRL(totalEntradas)}`;
-            document.getElementById('resumo-mes-gastos').innerText = `Saídas: ${fmtBRL(totalSaidas)}`;
-            document.getElementById('resumo-mes-saldo').innerText = `Saldo: ${fmtBRL(saldo)}`;
-        }
-
-        function iniciarOuvinteEstoque() {
-            const estoqueRef = collection(db, "estoque");
-
-            onSnapshot(estoqueRef, async (snapshot) => {
-                listaEstoqueMemoria = [];
-                snapshot.forEach((docSnap) => {
-                    listaEstoqueMemoria.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
-                if (listaEstoqueMemoria.length === 0) {
-                    for (let item of itensIniciaisEstoque) {
-                        await addDoc(collection(db, "estoque"), item);
-                    }
-                    return;
-                }
-
-                aplicarFiltrosEstoque();
-            });
-        }
-
-        window.aplicarFiltrosEstoque = function() {
-            const termo = normalizarBusca(document.getElementById('busca-estoque')?.value || '');
-            const statusFiltro = document.getElementById('filtro-status-estoque')?.value || 'todos';
-
-            const filtrados = listaEstoqueMemoria.filter(item => {
-                const st = item.status || 'cheio';
-                const matchStatus = (statusFiltro === 'todos' || st === statusFiltro);
-                const matchBusca = (!termo || normalizarBusca(item.nome || '').includes(termo));
-                return matchStatus && matchBusca;
-            });
-
-            renderizarTabelaEstoque(filtrados);
-        };
-
-        window.renderizarTabelaEstoque = function(dados) {
-            const tbody = document.getElementById('tabela-estoque-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
 
             if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-400">Nenhum ingrediente encontrado para os filtros selecionados.</td></tr>`;
-                return;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">Nenhum lançamento encontrado.</td></tr>`;
             }
 
-            dados.forEach((item) => {
-                const st = item.status || 'cheio';
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-duda-cream/40 transition-colors';
-                tr.innerHTML = `
-                    <td class="py-2 px-3 sm:px-4"><input type="text" value="${item.nome || ''}" onchange="atualizarCampoEstoque('${item.id}', 'nome', this.value)"></td>
-                    <td class="py-2 px-3 sm:px-4"><input type="text" value="${item.medida || ''}" onchange="atualizarCampoEstoque('${item.id}', 'medida', this.value)"></td>
-                    <td class="py-2 px-3 sm:px-4">
-                        <select onchange="atualizarCampoEstoque('${item.id}', 'status', this.value)" class="font-semibold text-xs py-1.5 px-2.5 rounded-xl border border-gray-200 ${st === 'cheio' ? 'bg-green-50 text-green-700' : st === 'metade' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}">
-                            <option value="cheio" ${st === 'cheio' ? 'selected' : ''}>🟢 Cheio</option>
-                            <option value="metade" ${st === 'metade' ? 'selected' : ''}>🟡 Metade</option>
-                            <option value="vazio" ${st === 'vazio' ? 'selected' : ''}>🔴 Vazio (Comprar)</option>
-                        </select>
-                    </td>
-                    <td class="py-2 px-3 sm:px-4 text-center">
-                        <button onclick="removerItemEstoque('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir">
-                            <i class="ph ph-trash text-base"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+            if (campoCaixaEmEdicao) {
+                const { id, campo } = campoCaixaEmEdicao;
+                const elAtivo = tbody.querySelector(`[data-caixa-id="${id}"][data-caixa-campo="${campo}"]`);
+                if (elAtivo) {
+                    elAtivo.focus();
+                }
+            }
+
+            const saldo = totalEntradas - totalSaidas;
+            document.getElementById('resumo-entradas').innerText = totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resumo-saidas').innerText = totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const elSaldo = document.getElementById('resumo-saldo');
+            elSaldo.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            elSaldo.className = `text-lg sm:text-2xl font-bold mt-0.5 tracking-tight ${saldo >= 0 ? 'text-green-600' : 'text-red-600'}`;
+
+            const tituloMesEl = document.getElementById('resumo-mes-titulo');
+            const vendasMesEl = document.getElementById('resumo-mes-vendas');
+            const gastosMesEl = document.getElementById('resumo-mes-gastos');
+            const saldoMesEl = document.getElementById('resumo-mes-saldo');
+
+            if (tituloMesEl) {
+                tituloMesEl.innerText = filtroMes === 'todos'
+                    ? '📅 Período: Todos os meses'
+                    : `📅 Período: ${formatarNomeMes(filtroMes)}`;
+            }
+            if (vendasMesEl) {
+                vendasMesEl.innerText = `Entradas: ${totalEntradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            }
+            if (gastosMesEl) {
+                gastosMesEl.innerText = `Saídas: ${totalSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+            }
+            if (saldoMesEl) {
+                saldoMesEl.innerText = `Saldo: ${saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+                saldoMesEl.className = `font-bold ${saldo >= 0 ? 'text-green-700' : 'text-red-700'}`;
+            }
+        }
+
+        window.registrarFocoCaixa = function(id, campo) {
+            campoCaixaEmEdicao = { id, campo };
+        };
+
+        window.finalizarEdicaoCaixa = function() {
+            campoCaixaEmEdicao = null;
+        };
+
+        window.atualizarCelulaCaixa = async function(id, campo, novoValor) {
+            const itemMemoria = listaCaixaMemoria.find(item => item.id === id);
+            if (itemMemoria) {
+                itemMemoria[campo] = novoValor;
+            }
+            aplicarFiltrosCaixa();
+
+            try {
+                const docRef = doc(db, "fluxo_caixa", id);
+                await updateDoc(docRef, { [campo]: novoValor });
+
+                if (campo === 'valor' && itemMemoria && itemMemoria.pedidoId) {
+                    try {
+                        await updateDoc(doc(db, "pedidos", itemMemoria.pedidoId), { valorTotal: Number(novoValor) || 0 });
+                    } catch (_) {}
+                }
+
+                showToast("Atualizado no banco!");
+            } catch (e) {
+                console.error("Erro ao atualizar célula:", e);
+                showToast("Erro ao salvar alteração.");
+            }
         };
 
         window.adicionarLancamentoFirebase = async function() {
@@ -2581,170 +2626,158 @@
             try {
                 await addDoc(collection(db, "fluxo_caixa"), {
                     data: hoje,
-                    descricao: 'Novo Lançamento',
-                    categoria: 'Ingredientes',
+                    descricao: '',
+                    categoria: 'Outros',
                     tipo: 'saida',
-                    valor: 0.00,
+                    valor: 0,
                     statusPagamento: 'pago',
                     criadoEm: serverTimestamp()
                 });
+                showToast("Nova linha adicionada!");
             } catch (e) {
-                console.error("Erro ao adicionar:", e);
+                console.error("Erro ao adicionar linha:", e);
             }
         };
 
-        window.atualizarCampoCaixa = async function(id, campo, valor) {
-            const itemLocal = listaCaixaMemoria.find(i => i.id === id);
-            if (itemLocal) itemLocal[campo] = valor;
-            const { dadosFiltrados, mesFiltro } = obterDadosCaixaFiltrados();
-            calcularTotaisCaixa(dadosFiltrados, mesFiltro);
-
+        window.removerLancamentoFirebase = async function(id, pedidoId = '') {
+            if (!confirm("Remover esta linha do fluxo de caixa? Se estiver ligada a um pedido, o pedido também será removido.")) return;
             try {
-                await updateDoc(doc(db, "fluxo_caixa", id), { [campo]: valor });
+                await deleteDoc(doc(db, "fluxo_caixa", id));
+
+                const idPedidoReal = pedidoId || (id.startsWith("caixa_") ? id.replace("caixa_", "") : "");
+                if (idPedidoReal) {
+                    try {
+                        await deleteDoc(doc(db, "pedidos", idPedidoReal));
+                    } catch (_) {}
+                }
+
+                showToast("Linha removida!");
             } catch (e) {
-                console.error("Erro ao atualizar:", e);
+                console.error("Erro ao deletar linha:", e);
             }
         };
 
-        async function excluirPedidoVinculadoSeExistir(pedidoId) {
-            if (!pedidoId) return;
-            try {
-                await deleteDoc(doc(db, "pedidos", pedidoId));
-            } catch (e) {
-                console.warn("Pedido já removido ou inexistente:", e);
-            }
-        }
+        function iniciarOuvinteEstoque() {
+            const estoqueRef = collection(db, "estoque");
+            const q = query(estoqueRef, orderBy("nome", "asc"));
 
-        async function excluirLancamentosCaixaVinculados(pedidoId) {
-            if (!pedidoId) return;
-            const caixaRef = collection(db, "fluxo_caixa");
-            const qCaixa = query(caixaRef, where("pedidoId", "==", pedidoId));
-            const snapshotCaixa = await getDocs(qCaixa);
-
-            const exclusoes = [];
-            snapshotCaixa.forEach((docCaixa) => {
-                exclusoes.push(deleteDoc(doc(db, "fluxo_caixa", docCaixa.id)));
-            });
-            await Promise.all(exclusoes);
-        }
-
-        window.removerLancamentoCaixa = async function(id) {
-            const lancamento = listaCaixaMemoria.find(item => item.id === id);
-            const temPedidoVinculado = Boolean(lancamento && lancamento.pedidoId);
-            const mensagem = temPedidoVinculado
-                ? "Deseja realmente excluir este lançamento? O pedido correspondente no Dashboard também será excluído."
-                : "Deseja realmente excluir este lançamento do Fluxo de Caixa?";
-
-            if (confirm(mensagem)) {
-                try {
-                    await deleteDoc(doc(db, "fluxo_caixa", id));
-                    if (temPedidoVinculado) {
-                        await excluirPedidoVinculadoSeExistir(lancamento.pedidoId);
-                        showToast("Lançamento e pedido no Dashboard excluídos!");
-                    } else {
-                        showToast("Lançamento excluído do Fluxo de Caixa!");
+            onSnapshot(q, async (snapshot) => {
+                if (snapshot.empty) {
+                    for (const item of itensIniciaisEstoque) {
+                        await addDoc(estoqueRef, item);
                     }
-                } catch (e) {
-                    console.error("Erro ao excluir lançamento:", e);
-                    showToast("Erro ao excluir lançamento.");
+                    return;
                 }
-            }
+
+                listaEstoqueMemoria = [];
+                snapshot.forEach((docSnap) => {
+                    listaEstoqueMemoria.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                aplicarFiltrosEstoque();
+            });
+        }
+
+        window.aplicarFiltrosEstoque = function() {
+            const termoBusca = normalizarBusca(document.getElementById('busca-estoque')?.value || '');
+            const filtroStatus = document.getElementById('filtro-status-estoque')?.value || 'todos';
+            const dadosFiltrados = listaEstoqueMemoria.filter(item => {
+                const matchBusca = !termoBusca || (
+                    normalizarBusca(item.nome).includes(termoBusca) ||
+                    normalizarBusca(item.medida).includes(termoBusca)
+                );
+                const matchStatus = (filtroStatus === 'todos' || item.status === filtroStatus);
+                return matchBusca && matchStatus;
+            });
+            renderizarTabelaEstoque(dadosFiltrados);
         };
 
-        window.removerPedidoCompleto = async function(pedidoId) {
-            if (confirm("Tem certeza que deseja excluir este pedido? O registro financeiro correspondente no Fluxo de Caixa também será apagado.")) {
-                try {
-                    await deleteDoc(doc(db, "pedidos", pedidoId));
-                    await excluirLancamentosCaixaVinculados(pedidoId);
-                    showToast("Pedido e caixa excluídos com sucesso!");
-                } catch (e) {
-                    console.error("Erro ao excluir pedido vinculado:", e);
-                    showToast("Erro ao excluir pedido e lançamento.");
-                }
+        function renderizarTabelaEstoque(dados) {
+            const tbody = document.getElementById('tabela-estoque-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            dados.forEach((item) => {
+                let bgSelect = 'bg-green-50 text-green-700 border-green-200';
+                if(item.status === 'metade') bgSelect = 'bg-yellow-50 text-yellow-700 border-yellow-200';
+                if(item.status === 'vazio') bgSelect = 'bg-red-50 text-red-700 border-red-200';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-duda-cream/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <input type="text" value="${item.nome || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'nome', this.value)" class="font-bold text-duda-brown">
+                    </td>
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <input type="text" value="${item.medida || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'medida', this.value)" class="text-gray-600">
+                    </td>
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4">
+                        <select onchange="atualizarCelulaEstoque('${item.id}', 'status', this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold ${bgSelect}">
+                            <option value="cheio" ${item.status === 'cheio' ? 'selected' : ''}>🟢 Cheio</option>
+                            <option value="metade" ${item.status === 'metade' ? 'selected' : ''}>🟡 Metade</option>
+                            <option value="vazio" ${item.status === 'vazio' ? 'selected' : ''}>🔴 Vazio</option>
+                        </select>
+                    </td>
+                    <td class="py-2 sm:py-2.5 px-3 sm:px-4 text-center">
+                        <button onclick="removerItemEstoque('${item.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-all flex items-center justify-center mx-auto" title="Excluir Item">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (dados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-400">Nenhum ingrediente encontrado.</td></tr>`;
+            }
+        }
+
+        window.atualizarCelulaEstoque = async function(id, campo, novoValor) {
+            try {
+                const docRef = doc(db, "estoque", id);
+                await updateDoc(docRef, { [campo]: novoValor });
+                showToast("Estoque atualizado!");
+            } catch (e) {
+                console.error("Erro ao atualizar estoque:", e);
             }
         };
 
         window.adicionarItemEstoque = async function() {
             try {
                 await addDoc(collection(db, "estoque"), {
-                    nome: 'Novo Ingrediente',
-                    medida: '1 un',
-                    status: 'cheio',
-                    criadoEm: serverTimestamp()
+                    nome: '',
+                    medida: '',
+                    status: 'cheio'
                 });
+                showToast("Novo item adicionado ao estoque!");
             } catch (e) {
                 console.error("Erro ao adicionar item no estoque:", e);
             }
         };
 
-        window.atualizarCampoEstoque = async function(id, campo, valor) {
-            try {
-                await updateDoc(doc(db, "estoque", id), { [campo]: valor });
-            } catch (e) {
-                console.error("Erro ao atualizar estoque:", e);
-            }
-        };
-
         window.removerItemEstoque = async function(id) {
-            if (confirm("Deseja remover este item do estoque?")) {
-                try {
-                    await deleteDoc(doc(db, "estoque", id));
-                } catch (e) {
-                    console.error("Erro ao excluir do estoque:", e);
-                }
+            if (!confirm("Remover este item do estoque?")) return;
+            try {
+                await deleteDoc(doc(db, "estoque", id));
+                showToast("Item removido!");
+            } catch (e) {
+                console.error("Erro ao deletar item do estoque:", e);
             }
         };
-
-        function renderizarGraficoAcessos(labels, data) {
-            const ctx = document.getElementById('accessChart').getContext('2d');
-            if (myChart) myChart.destroy();
-
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['Hoje'],
-                    datasets: [
-                        {
-                            type: 'bar',
-                            label: 'Volume Diário',
-                            data: data.length > 0 ? data : [0],
-                            backgroundColor: 'rgba(138, 43, 43, 0.85)',
-                            borderRadius: 6,
-                            order: 2
-                        },
-                        {
-                            type: 'line',
-                            label: 'Tendência',
-                            data: data.length > 0 ? data : [0],
-                            borderColor: '#B38B59',
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            tension: 0.3,
-                            order: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: true, position: 'top' } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
-        }
 
         function showToast(text) {
             const toast = document.getElementById('toast');
             if(!toast) return;
             toast.innerText = text;
             toast.style.visibility = "visible";
-            setTimeout(() => { toast.style.visibility = "hidden"; }, 3000);
+            setTimeout(() => { toast.style.visibility = "hidden"; }, 2500);
         }
 
         window.addEventListener('load', async () => {
             await carregarSenhaAdmin();
             if (sessionStorage.getItem("duda_admin_autenticado") === "sim") {
                 liberarPainel();
+            } else {
+                document.getElementById("input-senha-painel")?.focus();
             }
         });
     </script>
