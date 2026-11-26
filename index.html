@@ -1593,7 +1593,17 @@
                 });
         }
 
+        let ultimoUrlWppAberta = "";
+        let timestampUltimaAberturaWpp = 0;
+
         function abrirLinkWhatsApp(url) {
+            const agora = Date.now();
+            if (url === ultimoUrlWppAberta && (agora - timestampUltimaAberturaWpp) < 4000) {
+                return;
+            }
+            ultimoUrlWppAberta = url;
+            timestampUltimaAberturaWpp = agora;
+
             const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             if (isMobile) {
                 window.location.href = url;
@@ -1757,6 +1767,17 @@
             });
         }
 
+        function removerDuplicidadeMensagem(texto) {
+            const limpo = String(texto || "").trim();
+            const marcador = "*NOVO PEDIDO - DUDA DOCES*";
+            const primeiraPos = limpo.indexOf(marcador);
+            const segundaPos = primeiraPos >= 0 ? limpo.indexOf(marcador, primeiraPos + marcador.length) : -1;
+            if (segundaPos > 0) {
+                return limpo.slice(0, segundaPos).trim();
+            }
+            return limpo;
+        }
+
         window.finalizeOrderWpp = async function() {
             if (enviandoPedido) return;
 
@@ -1844,6 +1865,7 @@
                 message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
                 message += `Aguardando confirmação! ✨`;
 
+                message = removerDuplicidadeMensagem(message);
                 const encodedMessage = encodeURIComponent(message);
                 const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
 
