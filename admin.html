@@ -728,11 +728,12 @@
                     </div>
 
                     <div class="overflow-x-auto border rounded-xl sm:rounded-2xl" style="border-color: var(--border-subtle);">
-                        <table class="w-full text-left border-collapse min-w-[600px]">
+                        <table class="w-full text-left border-collapse min-w-[720px]">
                             <thead>
                                 <tr class="panel-surface-3 border-b text-[11px] sm:text-xs font-bold text-dim uppercase tracking-wider">
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-16">Foto</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-44">Nome do Produto</th>
+                                    <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-36">Categoria</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Descrição</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-32">Valor (R$)</th>
                                     <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 w-24 text-center">Ações</th>
@@ -1103,9 +1104,25 @@
 
                 <!-- Área Rolável dos Campos -->
                 <div class="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-8 sm:py-5 space-y-3.5">
-                    <div>
-                        <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Nome do Produto *</label>
-                        <input type="text" id="prod-nome" required placeholder="Ex: Brownie com Pistache" class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none transition-all">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Nome do Produto *</label>
+                            <input type="text" id="prod-nome" required placeholder="Ex: Cookie Tradicional" class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Categoria *</label>
+                            <select id="prod-categoria" onchange="alternarCategoriaCustomModal()" class="w-full panel-input px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold outline-none transition-all">
+                                <option value="Cookie">Cookie</option>
+                                <option value="Brownies">Brownies</option>
+                                <option value="Brownies Recheados">Brownies Recheados</option>
+                                <option value="Porções">Porções</option>
+                                <option value="Especiais">Especiais</option>
+                                <option value="Doces">Doces</option>
+                                <option value="__custom__">Outra categoria...</option>
+                            </select>
+                            <input type="text" id="prod-categoria-custom" placeholder="Digite a categoria..." class="hidden mt-2 w-full panel-input px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold outline-none transition-all">
+                        </div>
                     </div>
 
                     <div>
@@ -1127,7 +1144,7 @@
 
                     <div>
                         <label class="block text-[11px] sm:text-xs font-bold text-soft uppercase tracking-wider mb-1">Ou URL / Nome do arquivo da imagem</label>
-                        <input type="text" id="prod-imagem-url" placeholder="Ex: Brownie.png ou https://..." oninput="atualizarPreviewManual()" class="w-full panel-input px-3.5 py-2 rounded-xl border text-xs font-medium outline-none transition-all">
+                        <input type="text" id="prod-imagem-url" placeholder="Ex: Cookie.png ou https://..." oninput="atualizarPreviewManual()" class="w-full panel-input px-3.5 py-2 rounded-xl border text-xs font-medium outline-none transition-all">
                     </div>
 
                     <div class="flex items-center gap-3 panel-surface-2 p-2.5 sm:p-3 rounded-2xl border">
@@ -1192,6 +1209,8 @@
         let filtroStatusPedidoAtual = 'todos';
         let itensPedidoManual = [];
         let salvandoPedidoManual = false;
+
+        const CATEGORIAS_PADRAO = ['Cookie', 'Brownies', 'Brownies Recheados', 'Porções', 'Especiais', 'Doces'];
 
         const NOMES_ABAS = {
             dashboard: 'Dashboard',
@@ -1277,27 +1296,6 @@
                 urlPreviewTemporaria = null;
             }
         }
-
-        const itensIniciaisEstoque = [
-            { nome: 'Leite Condensado', medida: '395 g', status: 'cheio' },
-            { nome: 'Creme de Leite', medida: '200 g', status: 'cheio' },
-            { nome: 'Leite Ninho', medida: '380 g', status: 'cheio' },
-            { nome: 'Manteiga', medida: '500 g', status: 'cheio' },
-            { nome: 'Cacau em pó', medida: '140 g', status: 'cheio' },
-            { nome: 'Maracujá', medida: '436 g', status: 'cheio' },
-            { nome: 'Cobertop Blend', medida: '1010 g', status: 'cheio' },
-            { nome: 'Cobertop Branco', medida: '1010 g', status: 'cheio' },
-            { nome: 'Vinagre', medida: '750 ml', status: 'cheio' },
-            { nome: 'Corante', medida: '25 ml', status: 'cheio' },
-            { nome: 'Açúcar', medida: '5000 g', status: 'cheio' },
-            { nome: 'Ovos', medida: '30 unidades', status: 'cheio' },
-            { nome: 'Farinha de Trigo', medida: '1000 g', status: 'cheio' },
-            { nome: 'Óleo', medida: '900 ml', status: 'cheio' },
-            { nome: 'Fermento Químico', medida: '100 g', status: 'cheio' },
-            { nome: 'Leite Integral', medida: '1000 ml', status: 'cheio' },
-            { nome: 'Morango', medida: '300 g', status: 'cheio' },
-            { nome: 'Uva', medida: '500 g', status: 'cheio' }
-        ];
 
         let insumosBase = {
             'Fruta Morango': { valor: 0.67, desc: 'Por unidade' },
@@ -1804,7 +1802,10 @@
                 if (snap.exists()) {
                     const data = snap.data();
                     if (Array.isArray(data.itens)) {
-                        catalogoLoja = data.itens;
+                        catalogoLoja = data.itens.map((item) => ({
+                            ...item,
+                            category: item?.category || 'Cookie'
+                        }));
                     }
                     if (data.precosBombom && typeof data.precosBombom === "object") {
                         precosBombomCatalogo = { ...precosBombomCatalogo, ...data.precosBombom };
@@ -1822,6 +1823,15 @@
             tbody.innerHTML = "";
 
             catalogoLoja.forEach((item, idx) => {
+                const catAtual = item.category || 'Cookie';
+                const opcoesCat = CATEGORIAS_PADRAO.includes(catAtual)
+                    ? CATEGORIAS_PADRAO
+                    : [catAtual, ...CATEGORIAS_PADRAO];
+
+                const selectCatHtml = opcoesCat.map((c) =>
+                    `<option value="${esc(c)}" ${catAtual === c ? 'selected' : ''}>${esc(c)}</option>`
+                ).join("");
+
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-[var(--table-hover)] transition-colors";
                 tr.innerHTML = `
@@ -1832,6 +1842,11 @@
                         <input type="text" value="${esc(item.nome)}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-bold">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
+                        <select onchange="atualizarItemCatalogo(${idx}, 'category', this.value)" class="text-xs font-bold text-accent">
+                            ${selectCatHtml}
+                        </select>
+                    </td>
+                    <td class="py-2 px-3 sm:px-4">
                         <input type="text" value="${esc(item.descricao)}" placeholder="Descrição do produto..." onchange="atualizarItemCatalogo(${idx}, 'descricao', this.value)" class="text-xs text-soft">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
@@ -1839,7 +1854,7 @@
                     </td>
                     <td class="py-2 px-3 sm:px-4 text-center">
                         <div class="flex items-center justify-center gap-1.5">
-                            <button type="button" onclick="abrirModalProduto(${idx})" class="w-8 h-8 rounded-lg panel-surface-2 border text-accent hover:opacity-80 transition-all flex items-center justify-center" title="Editar produto e imagem">
+                            <button type="button" onclick="abrirModalProduto(${idx})" class="w-8 h-8 rounded-lg panel-surface-2 border text-accent hover:opacity-80 transition-all flex items-center justify-center" title="Editar produto, categoria e imagem">
                                 <i class="ph ph-pencil-simple text-base"></i>
                             </button>
                             <button type="button" onclick="removerItemCatalogo(${idx})" class="w-8 h-8 rounded-lg panel-surface-2 border text-dim hover:bg-rose-50 hover:text-rose-600 transition-all flex items-center justify-center" title="Remover item">
@@ -1928,6 +1943,7 @@
                 itensPedidoManual.push({
                     id: prod.id,
                     name: prod.nome,
+                    category: prod.category || "Cookie",
                     price: Number(prod.preco) || 0,
                     image: prod.image || "Brownie.png",
                     quantity: qtd
@@ -1956,6 +1972,7 @@
                     id,
                     bombomKey: key,
                     name,
+                    category: "Bombom",
                     price: Number(preco) || 10.00,
                     image: "logo.png",
                     quantity: qtd
@@ -1984,6 +2001,7 @@
             itensPedidoManual.push({
                 id: `avulso-${Date.now()}`,
                 name: nome,
+                category: "Cookie",
                 price: preco,
                 image: "logo.png",
                 quantity: qtd
@@ -2147,6 +2165,43 @@
         });
 
         // ================= MODAL PRODUTOS =================
+        window.alternarCategoriaCustomModal = function() {
+            const selectCat = document.getElementById("prod-categoria");
+            const inputCustom = document.getElementById("prod-categoria-custom");
+            if (!selectCat || !inputCustom) return;
+            if (selectCat.value === "__custom__") {
+                inputCustom.classList.remove("hidden");
+                inputCustom.focus();
+            } else {
+                inputCustom.classList.add("hidden");
+            }
+        };
+
+        function configurarCategoriaNoModal(categoria) {
+            const selectCat = document.getElementById("prod-categoria");
+            const inputCustom = document.getElementById("prod-categoria-custom");
+            const valorCat = String(categoria || "Cookie").trim() || "Cookie";
+
+            if (CATEGORIAS_PADRAO.includes(valorCat)) {
+                selectCat.value = valorCat;
+                inputCustom.value = "";
+                inputCustom.classList.add("hidden");
+            } else {
+                selectCat.value = "__custom__";
+                inputCustom.value = valorCat;
+                inputCustom.classList.remove("hidden");
+            }
+        }
+
+        function obterCategoriaDoModal() {
+            const selectCat = document.getElementById("prod-categoria");
+            const inputCustom = document.getElementById("prod-categoria-custom");
+            if (selectCat.value === "__custom__") {
+                return inputCustom.value.trim() || "Cookie";
+            }
+            return selectCat.value || "Cookie";
+        }
+
         window.abrirModalProduto = function(idx = -1) {
             limparUrlPreviewTemporaria();
             arquivoImagemSelecionado = null;
@@ -2158,6 +2213,7 @@
                 const item = catalogoLoja[idx];
                 document.getElementById("modal-produto-titulo").innerText = "Editar Produto do Catálogo";
                 document.getElementById("prod-nome").value = item.nome || "";
+                configurarCategoriaNoModal(item.category || "Cookie");
                 document.getElementById("prod-descricao").value = item.descricao || "";
                 document.getElementById("prod-preco").value = Number(item.preco ?? 0).toFixed(2).replace(".", ",");
                 document.getElementById("prod-imagem-url").value = item.image || "Brownie.png";
@@ -2165,6 +2221,7 @@
             } else {
                 document.getElementById("modal-produto-titulo").innerText = "Adicionar Novo Produto";
                 document.getElementById("prod-nome").value = "";
+                configurarCategoriaNoModal("Cookie");
                 document.getElementById("prod-descricao").value = "";
                 document.getElementById("prod-preco").value = "";
                 document.getElementById("prod-imagem-url").value = "Brownie.png";
@@ -2233,6 +2290,7 @@
 
             const idx = parseInt(document.getElementById("prod-edit-index").value, 10);
             const nome = document.getElementById("prod-nome").value.trim();
+            const categoria = obterCategoriaDoModal();
             const descricao = document.getElementById("prod-descricao").value.trim();
             const preco = parsePrecoInput(document.getElementById("prod-preco").value);
             let imagemFinal = document.getElementById("prod-imagem-url").value.trim() || "Brownie.png";
@@ -2271,7 +2329,7 @@
                     id: existente?.id || gerarSlugId(nome),
                     nome,
                     descricao,
-                    category: existente?.category || "Brownies",
+                    category: categoria,
                     image: imagemFinal,
                     preco
                 };
@@ -2547,7 +2605,6 @@
                     }
                 });
 
-                
                 document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
                 renderizarTabelaPedidos();
@@ -2989,8 +3046,6 @@
             const q = query(estoqueRef, orderBy("nome", "asc"));
 
             onSnapshot(q, async (snapshot) => {
-                
-
                 listaEstoqueMemoria = [];
                 snapshot.forEach((docSnap) => {
                     listaEstoqueMemoria.push({ id: docSnap.id, ...docSnap.data() });
