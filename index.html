@@ -905,12 +905,14 @@
             return R * c;
         }
 
-        function calcularValorFretePorKm(kmRota) {
-            const km = Math.max(0.2, Number(kmRota) || 0.5);
-            const bruto = 4.00 + (km * 1.50);
-            return Math.round(bruto * 2) / 2;
-        }
-
+function calcularValorFretePorKm(kmRota) {
+    const km = Math.max(0.5, Number(kmRota) || 0.5);
+    const precoGasolina = 6.50;
+    const kmPorLitro = 7;
+    const custoPorKm = precoGasolina / kmPorLitro;
+    const bruto = (km * 2) * custoPorKm; // multiplica por 2 para cobrir ida e volta
+    return Math.max(3.00, Math.round(bruto * 2) / 2); // arredonda de R$ 0,50 em R$ 0,50 (mínimo R$ 3,00)
+}
         async function geocodificarEnderecoNominatim(consultaTexto) {
             const queryLimpa = String(consultaTexto || "").trim();
             if (!queryLimpa) return null;
