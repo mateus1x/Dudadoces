@@ -14,11 +14,11 @@
   .reveal-left{transform:translateX(-50px)}.reveal-right{transform:translateX(50px)}
   /* chocolate escorrendo */
   .drip{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;z-index:5;pointer-events:none;display:block}
-  .drip path{fill:${CREAM}}
+  .drip path{fill:${BROWN}}
   .drip .d{transform-origin:top;animation:dripGrow 4s ease-in-out infinite;animation-delay:var(--dl,0s)}
   @keyframes dripGrow{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.28)}}
   /* faixa deslizante */
-  .marquee{background:${BROWN};color:${PINK};overflow:hidden;white-space:nowrap;padding:14px 0;border-block:2px solid ${GOLD}}
+  .marquee{background:${BROWN};color:${PINK};overflow:hidden;white-space:nowrap;padding:14px 0;border-top:0;border-bottom:2px solid ${GOLD}}
   .marquee-track{display:inline-flex;gap:3rem;animation:marq 28s linear infinite;font-family:'Playfair Display',serif;font-style:italic;font-size:1.05rem}
   .marquee:hover .marquee-track{animation-play-state:paused}
   @keyframes marq{to{transform:translateX(-50%)}}
@@ -123,7 +123,7 @@
       }
       hero.appendChild(f);
     }
-    var d = '<svg class="drip" viewBox="0 0 1200 46" preserveAspectRatio="none"><path d="M0 46V8Q30 0 60 8T120 8V30Q120 38 128 38T136 30V8Q200 0 260 8T380 8V22Q380 30 388 30T396 22V8Q470 0 540 8T660 8V34Q660 44 670 44T680 34V8Q760 0 830 8T950 8V26Q950 34 958 34T966 26V8Q1040 0 1100 8T1200 8V46Z"/><path class="d" style="--dl:.4s" d="M0 0"/></svg>';
+    var d = '<svg class="drip" viewBox="0 0 1200 46" preserveAspectRatio="none"><path d="M0 46V24Q50 2 100 24T200 24T300 24T400 24T500 24T600 24T700 24T800 24T900 24T1000 24T1100 24T1200 24V46Z"/></svg>';
     hero.insertAdjacentHTML('beforeend', d);
     hero.addEventListener('mousemove', function (e) {
       if (reduce || innerWidth < 768) return;
