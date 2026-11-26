@@ -1,4 +1,4 @@
-/* Duda Doces – camada de animações e interações.
+x/* Duda Doces – camada de animações e interações.
    Uso: adicione <script src="duda-melhorias.js"></script> antes de </body>.
    Não altera cores nem estrutura: só soma movimento e interatividade. */
 (function () {
@@ -224,7 +224,6 @@
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
 
-
 /* Duda Doces – extras: modal de produto, filtro, bombom desenhado, meta da sacola,
    depoimentos e contagem de datas. Carregue DEPOIS do duda-melhorias.js. */
 (function () {
@@ -272,18 +271,6 @@
   .cat-chip.on{background:${RED};border-color:${RED};color:#fff;box-shadow:0 10px 22px -10px ${RED}}
   .card-pop{animation:cardPop .55s cubic-bezier(.34,1.56,.64,1) both;animation-delay:var(--pd,0s)}
   @keyframes cardPop{from{opacity:0;transform:translateY(24px) scale(.88)}to{opacity:1;transform:none}}
-  /* bombom desenhado */
-  .bd{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:14px;margin:0 auto 28px}
-  .bd svg{width:210px;height:210px;overflow:visible;animation:bdFloat 5s ease-in-out infinite;filter:drop-shadow(0 18px 18px rgba(138,43,43,.18))}
-  @keyframes bdFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
-  .bd .L{transform-box:fill-box;transform-origin:center}
-  .bd .L.new{animation:layerIn .7s cubic-bezier(.34,1.56,.64,1)}
-  @keyframes layerIn{from{opacity:0;transform:translateY(-36px) scale(.8)}to{opacity:1;transform:none}}
-  .bd-btn{border:2px solid ${RED};background:#fff;color:${RED};font-weight:700;padding:10px 24px;border-radius:99px;cursor:pointer;transition:all .3s;font-size:.9rem}
-  .bd-btn:hover{background:${RED};color:#fff;transform:scale(1.05)}
-  .bd-btn.roll span{display:inline-block;animation:dice .6s ease}
-  @keyframes dice{to{transform:rotate(540deg)}}
-  .bd-cap{font-size:.8rem;color:${BROWN};font-weight:600;opacity:.7}
   /* meta da sacola */
   #cart-goal{margin-bottom:14px;background:${CREAM};border:1px solid ${PINK}88;border-radius:16px;padding:10px 14px}
   #cart-goal p{font-size:12px;font-weight:700;color:${BROWN};margin-bottom:7px}
@@ -368,54 +355,6 @@
   }
   if (pc) new MutationObserver(function () { buildFilter(); if (active !== 'Todos') applyFilter(); }).observe(pc, { childList: true });
 
-  /* ============ 3. BOMBOM DESENHADO ============ */
-  var FRUTA = {
-    Morango: 'M100 38C150 36 168 84 100 168C32 84 50 36 100 38Z',
-    Uva: 'M100 44C142 44 160 78 156 112C152 146 128 166 100 166C72 166 48 146 44 112C40 78 58 44 100 44Z'
-  };
-  var DRIP = 'M0 0H200V84Q186 100 170 84T140 92Q130 112 118 92T94 100Q86 120 76 98T50 90Q38 102 30 86T0 84Z';
-  function bombomSVG(s, ch) {
-    var m = s.fruta === 'Morango', f = FRUTA[s.fruta] || FRUTA.Morango;
-    var rec = { ninho: '#FFF3DC', chocolate: '#5A2E22', 'maracujá': '#F2B823' }[s.recheio] || '#FFF3DC';
-    var cob = { branco: '#FFF8EC', chocolate: '#6B3A2A', calda: '#B3202F', cravejado: '#6B3A2A' }[s.cobertura] || '#FFF8EC';
-    function L(k, inner) { return '<g class="L' + (ch === k || ch === 'all' ? ' new' : '') + '">' + inner + '</g>'; }
-    var seeds = '';
-    if (m) [[80, 100], [118, 96], [100, 124], [76, 138], [124, 140], [100, 152]].forEach(function (p) { seeds += '<ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="2" ry="3.2" fill="#FFE9A8"/>'; });
-    var crumbs = '';
-    if (s.cobertura === 'cravejado') [[60, 64, GOLD], [90, 56, '#fff'], [120, 62, PINK], [142, 74, GOLD], [76, 80, PINK], [108, 78, '#fff'], [130, 52, '#fff'], [52, 82, '#fff']].forEach(function (p) { crumbs += '<rect x="' + p[0] + '" y="' + p[1] + '" width="7" height="4" rx="1.5" fill="' + p[2] + '" transform="rotate(' + (p[0] * 3 % 90) + ' ' + p[0] + ' ' + p[1] + ')"/>'; });
-    var gloss = s.cobertura === 'calda' ? '<ellipse cx="78" cy="62" rx="10" ry="5" fill="#fff" opacity=".45" transform="rotate(-25 78 62)"/>' : '';
-    var top = m ? '<path d="M100 42C86 28 74 32 68 44C84 44 92 48 100 42C108 48 116 44 132 44C126 32 114 28 100 42Z" fill="#4C8A3C"/>'
-                : '<path d="M100 46Q100 30 114 22" stroke="#6B4A2A" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M112 26C124 14 138 20 140 30C128 34 120 32 112 26Z" fill="#6FA03F"/>';
-    return '<svg viewBox="0 0 200 200" role="img" aria-label="Bombom montado"><defs><clipPath id="bc"><path d="' + f + '"/></clipPath></defs>' +
-      '<ellipse cx="100" cy="182" rx="54" ry="7" fill="rgba(58,32,30,.18)"/>' +
-      L('fruta', '<path d="' + f + '" fill="' + (m ? '#D63A4A' : '#B9D872') + '"/>' + seeds + '<ellipse cx="82" cy="110" rx="7" ry="14" fill="#fff" opacity=".18" transform="rotate(12 82 110)"/>') +
-      '<g clip-path="url(#bc)">' +
-      L('recheio', '<ellipse cx="100" cy="122" rx="32" ry="38" fill="' + rec + '"/><ellipse cx="92" cy="108" rx="8" ry="12" fill="#fff" opacity=".35"/>') +
-      L('cobertura', '<path d="' + DRIP + '" fill="' + cob + '"/>' + crumbs + gloss) + '</g>' + L('topo', top) + '</svg>';
-  }
-  var bd;
-  function drawBombom(ch) {
-    if (!bd || typeof customBombom === 'undefined') return;
-    $('.bd-svg', bd).innerHTML = bombomSVG(customBombom, ch || 'all');
-  }
-  function setupBombom() {
-    var prev = $('#bombom-preview-img'); if (!prev) return;
-    var anchor = prev.closest('.max-w-2xl'); if (!anchor) return;
-    bd = document.createElement('div'); bd.className = 'bd';
-    bd.innerHTML = '<div class="bd-svg"></div><span class="bd-cap">Seu bombom ganhando forma</span><button type="button" class="bd-btn"><span>🎲</span> Surpreenda-me</button>';
-    anchor.parentNode.insertBefore(bd, anchor);
-    $('.bd-btn', bd).onclick = function () {
-      var b = this; b.classList.remove('roll'); void b.offsetWidth; b.classList.add('roll');
-      var pick = { fruta: ['Morango', 'Uva'], recheio: ['ninho', 'chocolate', 'maracujá'], cobertura: ['branco', 'chocolate', 'calda', 'cravejado'] };
-      ['fruta', 'recheio', 'cobertura'].forEach(function (c, i) {
-        var o = pick[c]; setTimeout(function () { window.selectCustomOption(c, o[Math.floor(Math.random() * o.length)]); }, i * 280);
-      });
-    };
-    drawBombom('all');
-  }
-  var _sel = window.selectCustomOption;
-  if (typeof _sel === 'function') window.selectCustomOption = function (c, v) { _sel(c, v); drawBombom(c); };
-
   /* ============ 4. META DA SACOLA ============ */
   function setupGoal() {
     if (!META.ativo) return;
@@ -486,7 +425,7 @@
     }, 4500);
   }
 
-  function init() { setupBombom(); setupGoal(); setupCountdown(); setupDepoimentos(); buildFilter(); }
+  function init() { setupGoal(); setupCountdown(); setupDepoimentos(); buildFilter(); }
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
 
