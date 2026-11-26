@@ -223,3 +223,270 @@
   function init() { setupHero(); setupMarquee(); setupReveals(); setupCards(); }
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
+
+
+/* Duda Doces – extras: modal de produto, filtro, bombom desenhado, meta da sacola,
+   depoimentos e contagem de datas. Carregue DEPOIS do duda-melhorias.js. */
+(function () {
+  'use strict';
+
+  /* ======== CONFIGURAÇÕES (edite aqui) ======== */
+  var META = { ativo: true, valor: 50, brinde: 'um brinde surpresa' };   // meta da sacola
+  var DEPOIMENTOS = [                                                    // prints dos elogios
+    { img: 'depoimento1.png' }, { img: 'depoimento2.png' },
+    { img: 'depoimento3.png' }, { img: 'depoimento4.png' }
+  ];
+  /* ============================================ */
+
+  var CREAM = '#FCF9F6', PINK = '#E8C1C1', RED = '#8A2B2B', BROWN = '#3A201E', GOLD = '#B38B59';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function money(v) { return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+  var css = `
+  /* modal */
+  .pm{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(58,32,30,.7);backdrop-filter:blur(6px)}
+  .pm.open{display:flex;animation:pmFade .3s ease}
+  @keyframes pmFade{from{opacity:0}to{opacity:1}}
+  .pm-box{position:relative;background:#fff;border-radius:28px;max-width:880px;width:100%;max-height:92vh;overflow:auto;display:grid;grid-template-columns:1fr;box-shadow:0 40px 90px -20px rgba(0,0,0,.5);animation:pmIn .5s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes pmIn{from{opacity:0;transform:translateY(40px) scale(.9)}to{opacity:1;transform:none}}
+  @media(min-width:768px){.pm-box{grid-template-columns:1.1fr 1fr}}
+  .pm-img{overflow:hidden;background:${CREAM};min-height:260px}
+  .pm-img img{width:100%;height:100%;object-fit:cover;display:block;animation:pmZoom 8s ease-out forwards}
+  @keyframes pmZoom{from{transform:scale(1)}to{transform:scale(1.12)}}
+  .pm-body{padding:28px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+  .pm-cat{align-self:flex-start;background:${PINK}55;color:${RED};font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:99px}
+  .pm-body h3{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:${BROWN};line-height:1.15}
+  .pm-body p{color:#6b7280;line-height:1.7;font-size:.95rem}
+  .pm-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;flex-wrap:wrap}
+  .pm-price{font-size:2rem;font-weight:700;color:${RED}}
+  .pm-add{background:${BROWN};color:#fff;font-weight:700;padding:14px 26px;border-radius:99px;border:0;cursor:pointer;transition:all .3s}
+  .pm-add:hover{background:${RED};transform:scale(1.05)}
+  .pm-x{position:absolute;top:12px;right:12px;z-index:2;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:${BROWN};font-size:22px;cursor:pointer;transition:all .3s}
+  .pm-x:hover{background:${RED};color:#fff;transform:rotate(90deg)}
+  #products-container .product-card{cursor:pointer}
+  /* filtro */
+  .cat-filter{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 28px}
+  .cat-chip{border:2px solid ${PINK};background:#fff;color:${BROWN};font-weight:600;font-size:.85rem;padding:9px 22px;border-radius:99px;cursor:pointer;transition:all .3s}
+  .cat-chip:hover{border-color:${RED};transform:translateY(-2px)}
+  .cat-chip.on{background:${RED};border-color:${RED};color:#fff;box-shadow:0 10px 22px -10px ${RED}}
+  .card-pop{animation:cardPop .55s cubic-bezier(.34,1.56,.64,1) both;animation-delay:var(--pd,0s)}
+  @keyframes cardPop{from{opacity:0;transform:translateY(24px) scale(.88)}to{opacity:1;transform:none}}
+  /* bombom desenhado */
+  .bd{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:14px;margin:0 auto 28px}
+  .bd svg{width:210px;height:210px;overflow:visible;animation:bdFloat 5s ease-in-out infinite;filter:drop-shadow(0 18px 18px rgba(138,43,43,.18))}
+  @keyframes bdFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
+  .bd .L{transform-box:fill-box;transform-origin:center}
+  .bd .L.new{animation:layerIn .7s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes layerIn{from{opacity:0;transform:translateY(-36px) scale(.8)}to{opacity:1;transform:none}}
+  .bd-btn{border:2px solid ${RED};background:#fff;color:${RED};font-weight:700;padding:10px 24px;border-radius:99px;cursor:pointer;transition:all .3s;font-size:.9rem}
+  .bd-btn:hover{background:${RED};color:#fff;transform:scale(1.05)}
+  .bd-btn.roll span{display:inline-block;animation:dice .6s ease}
+  @keyframes dice{to{transform:rotate(540deg)}}
+  .bd-cap{font-size:.8rem;color:${BROWN};font-weight:600;opacity:.7}
+  /* meta da sacola */
+  #cart-goal{margin-bottom:14px;background:${CREAM};border:1px solid ${PINK}88;border-radius:16px;padding:10px 14px}
+  #cart-goal p{font-size:12px;font-weight:700;color:${BROWN};margin-bottom:7px}
+  #cart-goal .tr{height:9px;background:${PINK}66;border-radius:9px;overflow:hidden}
+  #cart-goal .fl{height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,${PINK},${RED});transition:width .7s cubic-bezier(.34,1.56,.64,1)}
+  #cart-goal.ok .fl{background:linear-gradient(90deg,${GOLD},${RED})}
+  /* contador */
+  .cd{background:linear-gradient(135deg,${BROWN},#1F100F);color:#fff;padding:56px 16px;text-align:center;position:relative;overflow:hidden}
+  .cd::before{content:'🍓 🍫 🍇 🍓 🍫 🍇 🍓 🍫';position:absolute;inset:auto 0 8px;font-size:22px;opacity:.12;letter-spacing:34px;white-space:nowrap;animation:cdSlide 30s linear infinite}
+  @keyframes cdSlide{to{transform:translateX(-300px)}}
+  .cd h2{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4.5vw,2.8rem);font-weight:700;margin:8px 0 6px}
+  .cd small{color:${PINK};letter-spacing:.14em;text-transform:uppercase;font-size:11px;font-weight:600}
+  .cd p{color:#e5d5d2;font-weight:300;max-width:520px;margin:0 auto 22px;font-size:.95rem}
+  .cd-grid{display:flex;justify-content:center;gap:10px;margin-bottom:26px;position:relative}
+  .cd-box{background:#ffffff14;border:1px solid #ffffff30;border-radius:18px;min-width:70px;padding:12px 8px}
+  .cd-box b{display:block;font-size:1.9rem;font-family:'Playfair Display',serif;color:${PINK}}
+  .cd-box i{font-style:normal;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+  .cd-box b.tick{animation:tick .35s ease}
+  @keyframes tick{from{transform:translateY(-8px);opacity:.3}to{transform:none;opacity:1}}
+  .cd-btn{background:${RED};color:#fff;font-weight:700;border:0;border-radius:99px;padding:15px 34px;cursor:pointer;transition:all .3s;position:relative}
+  .cd-btn:hover{background:#6b1f1f;transform:scale(1.06)}
+  /* depoimentos */
+  .dp{padding:64px 0;background:${CREAM}}
+  .dp-head{text-align:center;margin-bottom:28px;padding:0 16px}
+  .dp-head span{color:${RED};background:${PINK}4d;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:6px 16px;border-radius:99px;display:inline-block;margin-bottom:12px}
+  .dp-head h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3rem);color:${BROWN};font-weight:700}
+  .dp-wrap{position:relative;max-width:1100px;margin:0 auto}
+  .dp-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 24px 24px;scrollbar-width:none}
+  .dp-track::-webkit-scrollbar{display:none}
+  .dp-card{flex:0 0 min(260px,72vw);scroll-snap-align:center;background:#fff;border:1px solid ${PINK}88;border-radius:22px;padding:10px;box-shadow:0 20px 40px -20px ${RED}44;transition:transform .4s}
+  .dp-card:hover{transform:translateY(-8px) rotate(-1deg)}
+  .dp-card img{width:100%;display:block;border-radius:14px}
+  .dp-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:${RED};font-size:20px;box-shadow:0 8px 20px rgba(0,0,0,.15);cursor:pointer;z-index:2;display:none}
+  @media(min-width:768px){.dp-nav{display:block}}
+  .dp-nav:hover{background:${RED};color:#fff}
+  `;
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+  /* ============ 1. MODAL DO PRODUTO ============ */
+  var pm = document.createElement('div'); pm.className = 'pm';
+  pm.innerHTML = '<div class="pm-box"><button class="pm-x" aria-label="Fechar">×</button><div class="pm-img"><img alt=""></div><div class="pm-body"><span class="pm-cat"></span><h3></h3><p></p><div class="pm-foot"><strong class="pm-price"></strong><button class="pm-add">Adicionar à sacola</button></div></div></div>';
+  document.body.appendChild(pm);
+  var pmId = null;
+  function closePm() { pm.classList.remove('open'); document.body.style.overflow = ''; }
+  function openPm(id) {
+    var p = (typeof products !== 'undefined' ? products : []).filter(function (x) { return String(x.id) === String(id); })[0];
+    if (!p) return; pmId = id;
+    var im = $('.pm-img img', pm); im.src = p.image; im.alt = p.name; im.style.animation = 'none'; void im.offsetWidth; im.style.animation = '';
+    $('.pm-cat', pm).textContent = p.category || 'Doces'; $('h3', pm).textContent = p.name;
+    $('p', pm).textContent = p.description; $('.pm-price', pm).textContent = money(p.price);
+    pm.classList.add('open'); document.body.style.overflow = 'hidden';
+  }
+  pm.addEventListener('click', function (e) { if (e.target === pm || e.target.closest('.pm-x')) closePm(); });
+  $('.pm-add', pm).addEventListener('click', function () { var id = pmId; closePm(); if (id) window.addToCart(id); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePm(); });
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest && e.target.closest('#products-container .product-card');
+    if (!card || e.target.closest('button')) return;
+    var b = $('button[onclick^="addToCart"]', card); if (!b) return;
+    var m = b.getAttribute('onclick').match(/addToCart\('([^']+)'\)/); if (m) openPm(m[1]);
+  });
+
+  /* ============ 2. FILTRO POR CATEGORIA ============ */
+  var pc = $('#products-container'), active = 'Todos';
+  function applyFilter() {
+    var n = 0;
+    $$('.product-card', pc).forEach(function (c) {
+      var cat = ($('span.uppercase', c) || {}).textContent; cat = (cat || '').trim();
+      var show = active === 'Todos' || cat === active;
+      c.style.display = show ? '' : 'none';
+      if (show) { c.classList.remove('card-pop'); void c.offsetWidth; c.style.setProperty('--pd', (n++ * .07) + 's'); c.classList.add('card-pop'); }
+    });
+  }
+  function buildFilter() {
+    if (!pc) return;
+    var cats = []; $$('.product-card span.uppercase', pc).forEach(function (s) { var t = s.textContent.trim(); if (t && cats.indexOf(t) < 0) cats.push(t); });
+    var bar = $('#cat-filter'); if (!bar) { bar = document.createElement('div'); bar.id = 'cat-filter'; bar.className = 'cat-filter'; pc.parentNode.insertBefore(bar, pc); }
+    if (cats.length < 2) { bar.innerHTML = ''; return; }
+    if (cats.indexOf(active) < 0) active = 'Todos';
+    bar.innerHTML = ['Todos'].concat(cats).map(function (c) { return '<button class="cat-chip' + (c === active ? ' on' : '') + '" data-c="' + c + '">' + c + '</button>'; }).join('');
+    $$('.cat-chip', bar).forEach(function (b) { b.onclick = function () { active = b.dataset.c; $$('.cat-chip', bar).forEach(function (x) { x.classList.toggle('on', x === b); }); applyFilter(); }; });
+  }
+  if (pc) new MutationObserver(function () { buildFilter(); if (active !== 'Todos') applyFilter(); }).observe(pc, { childList: true });
+
+  /* ============ 3. BOMBOM DESENHADO ============ */
+  var FRUTA = {
+    Morango: 'M100 38C150 36 168 84 100 168C32 84 50 36 100 38Z',
+    Uva: 'M100 44C142 44 160 78 156 112C152 146 128 166 100 166C72 166 48 146 44 112C40 78 58 44 100 44Z'
+  };
+  var DRIP = 'M0 0H200V84Q186 100 170 84T140 92Q130 112 118 92T94 100Q86 120 76 98T50 90Q38 102 30 86T0 84Z';
+  function bombomSVG(s, ch) {
+    var m = s.fruta === 'Morango', f = FRUTA[s.fruta] || FRUTA.Morango;
+    var rec = { ninho: '#FFF3DC', chocolate: '#5A2E22', 'maracujá': '#F2B823' }[s.recheio] || '#FFF3DC';
+    var cob = { branco: '#FFF8EC', chocolate: '#6B3A2A', calda: '#B3202F', cravejado: '#6B3A2A' }[s.cobertura] || '#FFF8EC';
+    function L(k, inner) { return '<g class="L' + (ch === k || ch === 'all' ? ' new' : '') + '">' + inner + '</g>'; }
+    var seeds = '';
+    if (m) [[80, 100], [118, 96], [100, 124], [76, 138], [124, 140], [100, 152]].forEach(function (p) { seeds += '<ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="2" ry="3.2" fill="#FFE9A8"/>'; });
+    var crumbs = '';
+    if (s.cobertura === 'cravejado') [[60, 64, GOLD], [90, 56, '#fff'], [120, 62, PINK], [142, 74, GOLD], [76, 80, PINK], [108, 78, '#fff'], [130, 52, '#fff'], [52, 82, '#fff']].forEach(function (p) { crumbs += '<rect x="' + p[0] + '" y="' + p[1] + '" width="7" height="4" rx="1.5" fill="' + p[2] + '" transform="rotate(' + (p[0] * 3 % 90) + ' ' + p[0] + ' ' + p[1] + ')"/>'; });
+    var gloss = s.cobertura === 'calda' ? '<ellipse cx="78" cy="62" rx="10" ry="5" fill="#fff" opacity=".45" transform="rotate(-25 78 62)"/>' : '';
+    var top = m ? '<path d="M100 42C86 28 74 32 68 44C84 44 92 48 100 42C108 48 116 44 132 44C126 32 114 28 100 42Z" fill="#4C8A3C"/>'
+                : '<path d="M100 46Q100 30 114 22" stroke="#6B4A2A" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M112 26C124 14 138 20 140 30C128 34 120 32 112 26Z" fill="#6FA03F"/>';
+    return '<svg viewBox="0 0 200 200" role="img" aria-label="Bombom montado"><defs><clipPath id="bc"><path d="' + f + '"/></clipPath></defs>' +
+      '<ellipse cx="100" cy="182" rx="54" ry="7" fill="rgba(58,32,30,.18)"/>' +
+      L('fruta', '<path d="' + f + '" fill="' + (m ? '#D63A4A' : '#B9D872') + '"/>' + seeds + '<ellipse cx="82" cy="110" rx="7" ry="14" fill="#fff" opacity=".18" transform="rotate(12 82 110)"/>') +
+      '<g clip-path="url(#bc)">' +
+      L('recheio', '<ellipse cx="100" cy="122" rx="32" ry="38" fill="' + rec + '"/><ellipse cx="92" cy="108" rx="8" ry="12" fill="#fff" opacity=".35"/>') +
+      L('cobertura', '<path d="' + DRIP + '" fill="' + cob + '"/>' + crumbs + gloss) + '</g>' + L('topo', top) + '</svg>';
+  }
+  var bd;
+  function drawBombom(ch) {
+    if (!bd || typeof customBombom === 'undefined') return;
+    $('.bd-svg', bd).innerHTML = bombomSVG(customBombom, ch || 'all');
+  }
+  function setupBombom() {
+    var prev = $('#bombom-preview-img'); if (!prev) return;
+    var anchor = prev.closest('.max-w-2xl'); if (!anchor) return;
+    bd = document.createElement('div'); bd.className = 'bd';
+    bd.innerHTML = '<div class="bd-svg"></div><span class="bd-cap">Seu bombom ganhando forma</span><button type="button" class="bd-btn"><span>🎲</span> Surpreenda-me</button>';
+    anchor.parentNode.insertBefore(bd, anchor);
+    $('.bd-btn', bd).onclick = function () {
+      var b = this; b.classList.remove('roll'); void b.offsetWidth; b.classList.add('roll');
+      var pick = { fruta: ['Morango', 'Uva'], recheio: ['ninho', 'chocolate', 'maracujá'], cobertura: ['branco', 'chocolate', 'calda', 'cravejado'] };
+      ['fruta', 'recheio', 'cobertura'].forEach(function (c, i) {
+        var o = pick[c]; setTimeout(function () { window.selectCustomOption(c, o[Math.floor(Math.random() * o.length)]); }, i * 280);
+      });
+    };
+    drawBombom('all');
+  }
+  var _sel = window.selectCustomOption;
+  if (typeof _sel === 'function') window.selectCustomOption = function (c, v) { _sel(c, v); drawBombom(c); };
+
+  /* ============ 4. META DA SACOLA ============ */
+  function setupGoal() {
+    if (!META.ativo) return;
+    var sub = $('#cart-subtotal'); if (!sub) return;
+    var box = sub.parentElement.parentElement, g = document.createElement('div'); g.id = 'cart-goal';
+    g.innerHTML = '<p></p><div class="tr"><div class="fl"></div></div>'; box.parentNode.insertBefore(g, box);
+    function upd() {
+      var t = (typeof cart !== 'undefined' ? cart : []).reduce(function (a, i) { return a + i.price * i.quantity; }, 0);
+      g.style.display = t > 0 ? '' : 'none';
+      var falta = META.valor - t; g.classList.toggle('ok', falta <= 0);
+      $('p', g).textContent = falta > 0 ? '🎁 Faltam ' + money(falta) + ' para ganhar ' + META.brinde : '🎉 Parabéns! Você ganhou ' + META.brinde + '!';
+      $('.fl', g).style.width = Math.min(100, t / META.valor * 100) + '%';
+    }
+    new MutationObserver(upd).observe(sub, { childList: true, characterData: true, subtree: true }); upd();
+  }
+
+  /* ============ 5. CONTAGEM DE DATAS ============ */
+  function pascoa(y) {
+    var a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+      h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+      mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(y, mes - 1, dia, 23, 59, 59);
+  }
+  function maes(y) { var w = new Date(y, 4, 1).getDay(); return new Date(y, 4, 1 + (7 - w) % 7 + 7, 23, 59, 59); }
+  function proxima() {
+    var now = new Date(), y = now.getFullYear(), L = [];
+    [y, y + 1].forEach(function (a) { L.push({ n: 'Dia das Mães', d: maes(a) }, { n: 'Páscoa', d: pascoa(a) }, { n: 'Natal', d: new Date(a, 11, 25, 23, 59, 59) }); });
+    return L.filter(function (e) { return e.d > now; }).sort(function (a, b) { return a.d - b.d; })[0];
+  }
+  function setupCountdown() {
+    var anchor = $('#encomendas'); if (!anchor) return; var ev = proxima();
+    var s = document.createElement('section'); s.className = 'cd';
+    var art = ev.n === 'Natal' ? 'o' : (ev.n === 'Páscoa' ? 'a' : 'o');
+    s.innerHTML = '<small>Datas especiais</small><h2>Já pensou n' + art + ' ' + ev.n + '?</h2><p>Reserve seus doces com antecedência e deixe tudo pronto para a data.</p>' +
+      '<div class="cd-grid"><div class="cd-box"><b data-k="d">0</b><i>dias</i></div><div class="cd-box"><b data-k="h">0</b><i>horas</i></div><div class="cd-box"><b data-k="m">0</b><i>min</i></div><div class="cd-box"><b data-k="s">0</b><i>seg</i></div></div>' +
+      '<button class="cd-btn">Encomendar para ' + (ev.n === 'Páscoa' ? 'a ' : 'o ') + ev.n + '</button>';
+    anchor.parentNode.insertBefore(s, anchor);
+    function tick() {
+      var df = Math.max(0, ev.d - new Date()), v = { d: Math.floor(df / 864e5), h: Math.floor(df / 36e5) % 24, m: Math.floor(df / 6e4) % 60, s: Math.floor(df / 1e3) % 60 };
+      $$('b', s).forEach(function (b) { var t = String(v[b.dataset.k]); if (b.textContent !== t) { b.textContent = t; if (b.dataset.k === 's') { b.classList.remove('tick'); void b.offsetWidth; b.classList.add('tick'); } } });
+    }
+    tick(); setInterval(tick, 1000);
+    $('.cd-btn', s).onclick = function () {
+      var dt = ev.d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+      window.open('https://wa.me/' + WPP_NUMBER + '?text=' + encodeURIComponent('Olá Duda Doces! Quero encomendar doces para ' + (ev.n === 'Páscoa' ? 'a ' : 'o ') + ev.n + ' (' + dt + '). Pode me ajudar?'), '_blank', 'noopener,noreferrer');
+    };
+  }
+
+  /* ============ 6. DEPOIMENTOS ============ */
+  function setupDepoimentos() {
+    var anchor = $('#encomendas'); if (!anchor || !DEPOIMENTOS.length) return;
+    var s = document.createElement('section'); s.className = 'dp';
+    s.innerHTML = '<div class="dp-head"><span>Carinho de quem provou</span><h2>O que dizem sobre nós</h2></div><div class="dp-wrap"><button class="dp-nav" style="left:-8px" aria-label="Anterior">‹</button><div class="dp-track"></div><button class="dp-nav" style="right:-8px" aria-label="Próximo">›</button></div>';
+    var tr = $('.dp-track', s);
+    DEPOIMENTOS.forEach(function (d) {
+      var c = document.createElement('div'); c.className = 'dp-card';
+      var im = new Image(); im.alt = 'Elogio de cliente da Duda Doces'; im.loading = 'lazy';
+      im.onerror = function () { c.remove(); if (!tr.children.length) s.remove(); };
+      im.src = d.img; c.appendChild(im); tr.appendChild(c);
+    });
+    anchor.parentNode.insertBefore(s, anchor);
+    var step = function (dir) { tr.scrollBy({ left: dir * 280, behavior: 'smooth' }); };
+    var nav = $$('.dp-nav', s); nav[0].onclick = function () { step(-1); }; nav[1].onclick = function () { step(1); };
+    var hover = false; s.onmouseenter = function () { hover = true; }; s.onmouseleave = function () { hover = false; };
+    setInterval(function () {
+      if (hover || !s.isConnected) return;
+      if (tr.scrollLeft + tr.clientWidth >= tr.scrollWidth - 10) tr.scrollTo({ left: 0, behavior: 'smooth' }); else step(1);
+    }, 4500);
+  }
+
+  function init() { setupBombom(); setupGoal(); setupCountdown(); setupDepoimentos(); buildFilter(); }
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
+})();
+
