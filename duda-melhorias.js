@@ -1,4 +1,7 @@
-x/* Duda Doces – camada de animações e interações.
+/* Duda Doces – animações, interações e extras (arquivo único).
+   Uso: <script src="duda-tudo.js"></script> antes de </body>, depois dos outros scripts. */
+
+/* Duda Doces – camada de animações e interações.
    Uso: adicione <script src="duda-melhorias.js"></script> antes de </body>.
    Não altera cores nem estrutura: só soma movimento e interatividade. */
 (function () {
@@ -224,6 +227,8 @@ x/* Duda Doces – camada de animações e interações.
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
 
+;
+
 /* Duda Doces – extras: modal de produto, filtro, bombom desenhado, meta da sacola,
    depoimentos e contagem de datas. Carregue DEPOIS do duda-melhorias.js. */
 (function () {
@@ -428,4 +433,3 @@ x/* Duda Doces – camada de animações e interações.
   function init() { setupGoal(); setupCountdown(); setupDepoimentos(); buildFilter(); }
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
-
