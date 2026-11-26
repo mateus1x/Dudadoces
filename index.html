@@ -275,9 +275,13 @@
                     <img class="h-12 md:h-20 w-auto object-contain filter drop-shadow-sm" src="logo.png" alt="Duda Doces Logo">
                 </a>
 
-                <nav class="hidden md:flex space-x-12 items-center">
+                <nav class="hidden md:flex space-x-8 lg:space-x-10 items-center">
                     <a href="#monte" class="text-sm tracking-widest uppercase text-duda-brown hover:text-duda-red font-semibold transition-all hover:scale-105">Monte seu Bombom</a>
                     <a href="#catalogo" class="text-sm tracking-widest uppercase text-duda-brown hover:text-duda-red font-semibold transition-all hover:scale-105">Catálogo</a>
+                    <a href="#natal" class="text-sm tracking-widest uppercase text-duda-red hover:text-duda-brown font-bold transition-all hover:scale-105 flex items-center gap-1">
+                        <span>Natal</span>
+                        <span>🎄</span>
+                    </a>
                     <a href="#encomendas" class="text-sm tracking-widest uppercase text-duda-brown hover:text-duda-red font-semibold transition-all hover:scale-105">Festas & Eventos</a>
                 </nav>
 
@@ -474,6 +478,48 @@
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-10" id="products-container"></div>
         </section>
 
+        <!-- SEÇÃO: ESPECIAL DE NATAL -->
+        <section id="natal" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-24 border-t border-gray-100">
+            <div class="bg-gradient-to-br from-white via-duda-cream/80 to-duda-pink/25 rounded-3xl shadow-premium p-6 sm:p-12 border border-duda-pink/50 relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-duda-red/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-duda-pink/35 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 md:gap-12 relative z-10">
+                    <!-- Coluna da Mensagem -->
+                    <div class="space-y-4 sm:space-y-6 text-center lg:text-left">
+                        <span class="text-duda-red font-semibold uppercase tracking-widest text-xs bg-duda-pink/40 px-4 py-1.5 rounded-full inline-block">
+                            🎄 Edição Especial de Natal
+                        </span>
+                        <h2 class="text-3xl sm:text-5xl font-serif font-bold text-duda-brown leading-tight">
+                            O sabor do seu Natal começa aqui
+                        </h2>
+                        <p class="text-sm sm:text-lg text-gray-600 font-light leading-relaxed">
+                            Nossa <strong class="font-semibold text-duda-brown">Torta de Natal</strong> foi pensada para roubar a cena na sua ceia: massa macia, camadas cremosas no ponto certo e finalização artesanal irresistível para deixar todo mundo pedindo mais uma fatia.
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+                            <button onclick="orderChristmasCake()" class="btn-glow inline-flex items-center justify-center gap-2 bg-duda-red hover:bg-[#6b1f1f] text-white font-bold px-7 py-3.5 sm:px-8 sm:py-4 rounded-full shadow-premium transition-all hover:scale-105 text-sm sm:text-base w-full sm:w-auto">
+                                <i class="ph ph-whatsapp-logo text-xl"></i>
+                                <span>Encomendar Torta de Natal</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Coluna da Foto Torta-Natal.jpeg -->
+                    <div class="flex justify-center">
+                        <div class="w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-duda-cream aspect-[4/3] relative group">
+                            <img
+                                id="torta-natal-img"
+                                src="Torta-Natal.jpeg"
+                                alt="Torta de Natal Duda Doces"
+                                onerror="this.onerror=null; this.src='logo.png';"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- SEÇÃO: FESTAS E EVENTOS -->
         <section id="encomendas" class="bg-white border-y border-gray-100 py-14 md:py-24 relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -522,7 +568,7 @@
 
     <!-- Barra Inferior Fixa Mobile -->
     <nav aria-label="Navegação rápida mobile" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-duda-pink/40 shadow-[0_-8px_24px_rgba(58,32,30,0.08)]">
-        <div class="grid grid-cols-4 items-center px-2 py-1.5">
+        <div class="grid grid-cols-5 items-center px-1 py-1.5">
             <a href="#monte" class="flex flex-col items-center justify-center py-1 rounded-xl text-duda-brown hover:text-duda-red active:bg-duda-cream transition-colors">
                 <i class="ph ph-magic-wand text-lg"></i>
                 <span class="text-[10px] font-bold tracking-wide mt-0.5">Bombom</span>
@@ -530,6 +576,10 @@
             <a href="#catalogo" class="flex flex-col items-center justify-center py-1 rounded-xl text-duda-brown hover:text-duda-red active:bg-duda-cream transition-colors">
                 <i class="ph ph-storefront text-lg"></i>
                 <span class="text-[10px] font-bold tracking-wide mt-0.5">Catálogo</span>
+            </a>
+            <a href="#natal" class="flex flex-col items-center justify-center py-1 rounded-xl text-duda-red hover:text-duda-brown active:bg-duda-cream transition-colors">
+                <span class="text-base leading-none">🎄</span>
+                <span class="text-[10px] font-bold tracking-wide mt-0.5">Natal</span>
             </a>
             <a href="#encomendas" class="flex flex-col items-center justify-center py-1 rounded-xl text-duda-brown hover:text-duda-red active:bg-duda-cream transition-colors">
                 <i class="ph ph-sparkle text-lg"></i>
@@ -1553,6 +1603,11 @@
             if (!popup) {
                 window.location.href = url;
             }
+        }
+
+        function orderChristmasCake() {
+            const msg = encodeURIComponent("Olá Duda Doces! Vi a Torta de Natal no site e gostaria de encomendar para as festas de fim de ano.");
+            abrirLinkWhatsApp(`https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${msg}`);
         }
 
         function orderForParty() {
