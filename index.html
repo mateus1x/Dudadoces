@@ -1180,10 +1180,10 @@
                             <h3 class="font-serif font-bold text-sm sm:text-xl text-duda-brown mb-1 sm:mb-2 leading-tight">${product.name}</h3>
                             <p class="text-gray-500 text-[11px] sm:text-sm font-light mb-3 sm:mb-6 leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none">${product.description}</p>
                         </div>
-                        <div class="flex items-center justify-between pt-2.5 sm:pt-4 border-t border-gray-100 gap-1">
+                        <div class="flex items-center justify-between pt-2.5 sm:pt-4 border-t border-gray-100 gap-1.5">
                             <span class="text-sm sm:text-2xl font-bold text-duda-red">${formatMoney(product.price)}</span>
-                            <button onclick="addToCart('${product.id}')" class="btn-glow bg-duda-brown hover:bg-duda-red text-white p-2 sm:p-3.5 rounded-xl sm:rounded-2xl transition-all shadow-sm hover:shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 shrink-0">
-                                <i class="ph ph-shopping-bag text-base sm:text-xl"></i>
+                            <button onclick="addToCart('${product.id}')" aria-label="Adicionar ${product.name} à sacola" class="btn-glow bg-duda-brown hover:bg-duda-red text-white px-3.5 py-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl transition-all shadow-sm hover:shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 shrink-0">
+                                <i class="ph ph-shopping-bag text-xl sm:text-xl"></i>
                             </button>
                         </div>
                     </div>
@@ -1543,9 +1543,21 @@
                 });
         }
 
+        function abrirLinkWhatsApp(url) {
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            if (isMobile) {
+                window.location.href = url;
+                return;
+            }
+            const popup = window.open(url, '_blank', 'noopener,noreferrer');
+            if (!popup) {
+                window.location.href = url;
+            }
+        }
+
         function orderForParty() {
             const msg = encodeURIComponent("Olá Duda Doces! Gostaria de encomendar doces para uma festa. Poderia me passar mais informações?");
-            window.open(`https://wa.me/${WPP_NUMBER}?text=${msg}`, '_blank', 'noopener,noreferrer');
+            abrirLinkWhatsApp(`https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${msg}`);
         }
 
         function formatMoney(value) {
@@ -1648,7 +1660,6 @@
                     return;
                 }
 
-                // Migração e limpeza segura de documentos antigos/duplicados para o mesmo visitanteId
                 const qAntigos = query(collection(db, "acessos"), where("visitanteId", "==", visitanteId));
                 const snapAntigos = await getDocs(qAntigos);
 
@@ -1762,6 +1773,25 @@
                 const total = subtotal + taxaEntrega;
                 const dataHoje = new Date().toISOString().split('T')[0];
 
+                let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
+                message += `👤 *Cliente:* ${name}\n`;
+                message += `📱 *Telefone:* ${phoneInput}\n`;
+                message += `🛍️ *Itens do Pedido:*\n`;
+                itensSnapshot.forEach(item => {
+                    message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
+                });
+                message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : `Retirada (${PICKUP_REGION}) 🏪`}\n`;
+                if (deliveryType === 'entrega') {
+                    message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
+                    message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}${distanciaEstimadaKm ? ` (~${distanciaEstimadaKm} km do Estoril)` : ''}\n`;
+                }
+                message += `💳 *Pagamento:* ${paymentMethod}\n`;
+                message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
+                message += `Aguardando confirmação! ✨`;
+
+                const encodedMessage = encodeURIComponent(message);
+                const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
+
                 const dadosPedido = {
                     clienteNome: name,
                     clienteTelefone: phone,
@@ -1789,25 +1819,6 @@
                     criadoEm: serverTimestamp()
                 });
 
-                let message = `🍫 *NOVO PEDIDO - DUDA DOCES* 🍫\n\n`;
-                message += `👤 *Cliente:* ${name}\n`;
-                message += `📱 *Telefone:* ${phoneInput}\n`;
-                message += `🛍️ *Itens do Pedido:*\n`;
-                itensSnapshot.forEach(item => {
-                    message += `• ${item.quantity}x ${item.name} (${formatMoney(item.price * item.quantity)})\n`;
-                });
-                message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : `Retirada (${PICKUP_REGION}) 🏪`}\n`;
-                if (deliveryType === 'entrega') {
-                    message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
-                    message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}${distanciaEstimadaKm ? ` (~${distanciaEstimadaKm} km do Estoril)` : ''}\n`;
-                }
-                message += `💳 *Pagamento:* ${paymentMethod}\n`;
-                message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
-                message += `Aguardando confirmação! ✨`;
-
-                const encodedMessage = encodeURIComponent(message);
-                const wppUrl = `https://api.whatsapp.com/send?phone=${WPP_NUMBER}&text=${encodedMessage}`;
-
                 cart = [];
                 ultimoPedidoIdEnviado = null;
                 backToCartItems();
@@ -1818,7 +1829,7 @@
 
                 if (whatsappAbertoParaPedidoId !== pedidoId) {
                     whatsappAbertoParaPedidoId = pedidoId;
-                    window.open(wppUrl, '_blank', 'noopener,noreferrer');
+                    abrirLinkWhatsApp(wppUrl);
                 }
             } catch (e) {
                 console.error("Erro ao salvar pedido no Firebase: ", e);
