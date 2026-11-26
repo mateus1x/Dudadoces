@@ -237,8 +237,8 @@
   /* ======== CONFIGURAÇÕES (edite aqui) ======== */
   var META = { ativo: true, valor: 50, brinde: 'um brinde surpresa' };   // meta da sacola
   var DEPOIMENTOS = [                                                    // prints dos elogios
-    { img: 'depoimento1.png' }, { img: 'depoimento2.png' },
-    { img: 'depoimento3.png' }, { img: 'depoimento4.png' }
+    { img: 'Depoimento1.jpeg' }, { img: 'Depoimento2.jpeg' },
+    { img: 'Depoimento3.jpeg' }, { img: 'Depoimento4.jpeg' }
   ];
   /* ============================================ */
 
