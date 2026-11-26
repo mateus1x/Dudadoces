@@ -631,10 +631,10 @@
             <div class="bg-white p-3.5 rounded-2xl border border-duda-pink/40 text-xs text-gray-600 space-y-1 shadow-2xs">
                 <p class="font-bold text-duda-brown flex items-center gap-1.5">
                     <i class="ph ph-map-pin text-duda-red text-sm"></i>
-                    Retirada: <span id="checkout-pickup-region">Rua Cordelina Silveira Mattos, Estoril - BH</span>
+                    Retirada: <span id="checkout-pickup-region">Rua Cordelina Silveira Mattos, 35, Estoril - BH</span>
                 </p>
                 <p id="checkout-estimated-time" class="text-[11px] text-gray-500">
-                    ⏱️ Frete calculado automaticamente a partir do Estoril (BH) ao informar o endereço.
+                    ⏱️ Frete calculado automaticamente a partir da Rua Cordelina Silveira Mattos, 35 (Estoril - BH).
                 </p>
             </div>
 
@@ -665,7 +665,7 @@
                 <div class="flex gap-2">
                     <div class="flex-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">CEP *</label>
-                        <input type="text" id="client-cep" placeholder="00000-000" maxlength="9" oninput="handleAddressInputChange(true)" onblur="searchCep(this.value)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
+                        <input type="text" id="client-cep" placeholder="00000-000" maxlength="9" oninput="handleAddressInputChange(true)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-duda-red text-sm">
                     </div>
                     <div class="flex items-end">
                         <span id="cep-loading" class="text-xs text-duda-red pb-3 hidden font-medium animate-pulse">Calculando...</span>
@@ -693,6 +693,8 @@
                     <option value="" disabled selected>Selecione a forma de pagamento</option>
                     <option value="Pix">Pix (Recomendado)</option>
                     <option value="Dinheiro">Dinheiro</option>
+                    <option value="Cartão Débito">Cartão Débito</option>
+                    <option value="Cartão Crédito">Cartão Crédito</option>
                 </select>
             </div>
         </div>
@@ -803,8 +805,11 @@
             }
         ];
 
-        const ORIGEM_FRETE_ENDERECO = "Rua Cordelina Silveira Mattos, Estoril, Belo Horizonte, MG, Brasil";
-        let origemCoords = { lat: -19.9585, lon: -43.9798 };
+        // Coordenadas exatas: Rua Cordelina Silveira Mattos, 35 - Estoril, Belo Horizonte - MG
+        const ORIGEM_FRETE_ENDERECO = "Rua Cordelina Silveira Mattos, 35, Estoril, Belo Horizonte, MG, Brasil";
+        let origemCoords = { lat: -19.96105, lon: -43.96895 };
+        const cacheRotas = new Map();
+        const cacheCep = new Map();
 
         let products = baseProducts.map(p => ({ ...p }));
         let cart = [];
@@ -814,9 +819,10 @@
         let debounceFreteTimer = null;
         let ultimoCepConsultado = "";
         let ultimaChaveGeocodificada = "";
+        let requisicaoFreteSeq = 0;
 
-        let PICKUP_REGION = "Rua Cordelina Silveira Mattos, Estoril - BH";
-        let ESTIMATED_TIME = "⏱️ Frete calculado automaticamente a partir do Estoril (BH) ao informar o endereço.";
+        let PICKUP_REGION = "Rua Cordelina Silveira Mattos, 35, Estoril - BH";
+        let ESTIMATED_TIME = "⏱️ Frete calculado automaticamente a partir da Rua Cordelina Silveira Mattos, 35 (Estoril - BH).";
         const WPP_NUMBER = "5531983087045";
 
         let customBombom = {
@@ -893,6 +899,13 @@
             return `btn-${categoria}-${limpo}`;
         }
 
+        function fetchComTimeout(url, options = {}, timeoutMs = 4500) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            return fetch(url, { ...options, signal: controller.signal })
+                .finally(() => clearTimeout(timer));
+        }
+
         function calcularDistanciaLinhaRetaKm(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -905,42 +918,58 @@
             return R * c;
         }
 
-function calcularValorFretePorKm(kmRota) {
-    const km = Math.max(0.5, Number(kmRota) || 0.5);
-    const precoGasolina = 6.50;
-    const kmPorLitro = 7;
-    const custoPorKm = precoGasolina / kmPorLitro;
-    const bruto = (km * 2) * custoPorKm; // multiplica por 2 para cobrir ida e volta
-    return Math.max(3.00, Math.round(bruto * 2) / 2); // arredonda de R$ 0,50 em R$ 0,50 (mínimo R$ 3,00)
-}
-        async function geocodificarEnderecoNominatim(consultaTexto) {
-            const queryLimpa = String(consultaTexto || "").trim();
-            if (!queryLimpa) return null;
-
-            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(queryLimpa)}`;
-            const resp = await fetch(url, {
-                headers: { "Accept": "application/json" }
-            });
-            if (!resp.ok) return null;
-            const resultados = await resp.json();
-            if (!Array.isArray(resultados) || resultados.length === 0) return null;
-
-            const lat = parseFloat(resultados[0].lat);
-            const lon = parseFloat(resultados[0].lon);
-            if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
-            return { lat, lon };
+        // Cálculo baseado no consumo: carro 7 km/l, gasolina R$ 6,50 (ida e volta)
+        function calcularValorFretePorKm(kmRota) {
+            const km = Math.max(0.3, Number(kmRota) || 0.5);
+            const precoGasolina = 6.50;
+            const kmPorLitro = 7;
+            const custoPorKm = precoGasolina / kmPorLitro;
+            const bruto = (km * 2) * custoPorKm;
+            return Math.max(3.00, Math.round(bruto * 2) / 2);
         }
 
-        async function garantirCoordenadasOrigem() {
+        async function consultarDistanciaRotaCarroKm(destLat, destLon) {
             try {
-                const coords = await geocodificarEnderecoNominatim(ORIGEM_FRETE_ENDERECO);
-                if (coords) {
-                    origemCoords = coords;
+                const url = `https://router.project-osrm.org/route/v1/driving/${origemCoords.lon},${origemCoords.lat};${destLon},${destLat}?overview=false`;
+                const resp = await fetchComTimeout(url, {}, 3500);
+                if (!resp.ok) return null;
+                const data = await resp.json();
+                const metros = data?.routes?.[0]?.distance;
+                if (typeof metros === 'number' && metros > 0) {
+                    return Math.max(0.3, Number((metros / 1000).toFixed(1)));
                 }
             } catch (_) {}
+            return null;
         }
 
-        async function calcularFreteAutomaticoPorEndereco() {
+        async function geocodificarEnderecoRapido(consultaTexto, cepLimpo = "") {
+            const tentativas = [];
+            const queryLimpa = String(consultaTexto || "").trim();
+            if (queryLimpa) tentativas.push(queryLimpa);
+            if (cepLimpo.length === 8) {
+                const cepFormatado = `${cepLimpo.slice(0, 5)}-${cepLimpo.slice(5)}`;
+                tentativas.push(`${cepFormatado}, Belo Horizonte, MG, Brasil`);
+            }
+
+            for (const q of tentativas) {
+                try {
+                    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&viewbox=-44.07,-19.77,-43.85,-20.06&bounded=1&q=${encodeURIComponent(q)}`;
+                    const resp = await fetchComTimeout(url, { headers: { "Accept": "application/json" } }, 4000);
+                    if (!resp.ok) continue;
+                    const resultados = await resp.json();
+                    if (Array.isArray(resultados) && resultados.length > 0) {
+                        const lat = parseFloat(resultados[0].lat);
+                        const lon = parseFloat(resultados[0].lon);
+                        if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+                            return { lat, lon };
+                        }
+                    }
+                } catch (_) {}
+            }
+            return null;
+        }
+
+        async function calcularFreteAutomaticoPorEndereco(coordsPreCalculadas = null) {
             const rua = document.getElementById('client-rua')?.value.trim() || '';
             const numero = document.getElementById('client-numero')?.value.trim() || '';
             const bairro = document.getElementById('client-bairro')?.value.trim() || '';
@@ -957,7 +986,7 @@ function calcularValorFretePorKm(kmRota) {
             }
 
             const consultaDestino = partesEndereco.join(', ');
-            if (!rua && !bairro && cepLimpo.length !== 8) {
+            if (!rua && !bairro && cepLimpo.length !== 8 && !coordsPreCalculadas) {
                 freteCalculadoAtivo = false;
                 distanciaEstimadaKm = null;
                 DELIVERY_FEE = 0;
@@ -967,54 +996,76 @@ function calcularValorFretePorKm(kmRota) {
             }
 
             const chaveBusca = `${consultaDestino.toLowerCase()}|${cepLimpo}`;
-            if (chaveBusca === ultimaChaveGeocodificada && freteCalculadoAtivo) {
+            if (cacheRotas.has(chaveBusca)) {
+                const cached = cacheRotas.get(chaveBusca);
+                DELIVERY_FEE = cached.fee;
+                distanciaEstimadaKm = cached.km;
+                freteCalculadoAtivo = true;
+                ultimaChaveGeocodificada = chaveBusca;
+                if (statusBadge) {
+                    statusBadge.innerText = `${cached.km} km do Estoril • ${formatMoney(cached.fee)}`;
+                }
                 updateCartUI();
                 return;
             }
 
+            const seqAtual = ++requisicaoFreteSeq;
             if (loading) loading.classList.remove('hidden');
-            if (statusBadge) statusBadge.innerText = "Calculando frete...";
+            if (statusBadge) statusBadge.innerText = "Calculando rota...";
 
             try {
-                let destinoCoords = await geocodificarEnderecoNominatim(consultaDestino);
+                let destinoCoords = coordsPreCalculadas || await geocodificarEnderecoRapido(consultaDestino, cepLimpo);
                 if (!destinoCoords && bairro) {
-                    destinoCoords = await geocodificarEnderecoNominatim(`${bairro}, Belo Horizonte, MG, Brasil`);
+                    destinoCoords = await geocodificarEnderecoRapido(`${bairro}, Belo Horizonte, MG, Brasil`, "");
                 }
 
+                if (seqAtual !== requisicaoFreteSeq) return;
+
                 if (destinoCoords) {
-                    const kmLinhaReta = calcularDistanciaLinhaRetaKm(
-                        origemCoords.lat,
-                        origemCoords.lon,
-                        destinoCoords.lat,
-                        destinoCoords.lon
-                    );
-                    const kmRotaEstimada = Math.max(0.5, Number((kmLinhaReta * 1.35).toFixed(1)));
-                    DELIVERY_FEE = calcularValorFretePorKm(kmRotaEstimada);
-                    distanciaEstimadaKm = kmRotaEstimada;
+                    let kmRota = await consultarDistanciaRotaCarroKm(destinoCoords.lat, destinoCoords.lon);
+                    if (kmRota === null) {
+                        const kmLinhaReta = calcularDistanciaLinhaRetaKm(
+                            origemCoords.lat,
+                            origemCoords.lon,
+                            destinoCoords.lat,
+                            destinoCoords.lon
+                        );
+                        kmRota = Math.max(0.3, Number((kmLinhaReta * 1.25).toFixed(1)));
+                    }
+
+                    if (seqAtual !== requisicaoFreteSeq) return;
+
+                    DELIVERY_FEE = calcularValorFretePorKm(kmRota);
+                    distanciaEstimadaKm = kmRota;
                     freteCalculadoAtivo = true;
                     ultimaChaveGeocodificada = chaveBusca;
+                    cacheRotas.set(chaveBusca, { km: kmRota, fee: DELIVERY_FEE });
 
                     if (statusBadge) {
-                        statusBadge.innerText = `~${kmRotaEstimada} km do Estoril • ${formatMoney(DELIVERY_FEE)}`;
+                        statusBadge.innerText = `${kmRota} km do Estoril • ${formatMoney(DELIVERY_FEE)}`;
                     }
                 } else {
                     freteCalculadoAtivo = false;
                     distanciaEstimadaKm = null;
                     DELIVERY_FEE = 0;
                     if (statusBadge) {
-                        statusBadge.innerText = "Não foi possível localizar o endereço. Confira rua e bairro.";
+                        statusBadge.innerText = "Endereço não localizado. Confira rua e bairro.";
                     }
                 }
             } catch (_) {
-                freteCalculadoAtivo = false;
-                distanciaEstimadaKm = null;
-                DELIVERY_FEE = 0;
-                if (statusBadge) {
-                    statusBadge.innerText = "Não foi possível calcular o frete agora.";
+                if (seqAtual === requisicaoFreteSeq) {
+                    freteCalculadoAtivo = false;
+                    distanciaEstimadaKm = null;
+                    DELIVERY_FEE = 0;
+                    if (statusBadge) {
+                        statusBadge.innerText = "Não foi possível calcular o frete agora.";
+                    }
                 }
             } finally {
-                if (loading) loading.classList.add('hidden');
-                updateCartUI();
+                if (seqAtual === requisicaoFreteSeq) {
+                    if (loading) loading.classList.add('hidden');
+                    updateCartUI();
+                }
             }
         }
 
@@ -1028,6 +1079,7 @@ function calcularValorFretePorKm(kmRota) {
                 cepInput.value = v;
                 const clean = v.replace(/\D/g, '');
                 if (clean.length === 8 && clean !== ultimoCepConsultado) {
+                    clearTimeout(debounceFreteTimer);
                     searchCep(v);
                     return;
                 }
@@ -1036,7 +1088,7 @@ function calcularValorFretePorKm(kmRota) {
             clearTimeout(debounceFreteTimer);
             debounceFreteTimer = setTimeout(() => {
                 calcularFreteAutomaticoPorEndereco();
-            }, 650);
+            }, 350);
         }
 
         function atualizarInfoEntregaCheckout() {
@@ -1054,7 +1106,7 @@ function calcularValorFretePorKm(kmRota) {
             if (feeRowEl) feeRowEl.innerText = feeFormatted;
             if (feeLabelEl) {
                 feeLabelEl.innerText = distanciaEstimadaKm
-                    ? `Taxa de Entrega (~${distanciaEstimadaKm} km)`
+                    ? `Taxa de Entrega (${distanciaEstimadaKm} km)`
                     : 'Taxa de Entrega';
             }
             if (hintEl) hintEl.innerText = freteCalculadoAtivo ? feeFormatted : "Informe o endereço";
@@ -1556,7 +1608,43 @@ function calcularValorFretePorKm(kmRota) {
             btnNext.onclick = proceedToCheckout;
         }
 
-        function searchCep(cep) {
+        // Busca rápida em paralelo: BrasilAPI (já traz coordenadas!) + ViaCEP
+        async function consultarCepRapido(cleanCep) {
+            if (cacheCep.has(cleanCep)) {
+                return cacheCep.get(cleanCep);
+            }
+
+            const brasilApiPromise = fetchComTimeout(`https://brasilapi.com.br/api/cep/v2/${cleanCep}`, {}, 3500)
+                .then(async (res) => {
+                    if (!res.ok) throw new Error('brasilapi');
+                    const d = await res.json();
+                    const lat = parseFloat(d?.location?.coordinates?.latitude);
+                    const lon = parseFloat(d?.location?.coordinates?.longitude);
+                    return {
+                        rua: d.street || '',
+                        bairro: d.neighborhood || '',
+                        coords: (!Number.isNaN(lat) && !Number.isNaN(lon)) ? { lat, lon } : null
+                    };
+                });
+
+            const viaCepPromise = fetchComTimeout(`https://viacep.com.br/ws/${cleanCep}/json/`, {}, 3500)
+                .then(async (res) => {
+                    if (!res.ok) throw new Error('viacep');
+                    const d = await res.json();
+                    if (d.erro) throw new Error('cep_invalido');
+                    return {
+                        rua: d.logradouro || '',
+                        bairro: d.bairro || '',
+                        coords: null
+                    };
+                });
+
+            const resultado = await Promise.any([brasilApiPromise, viaCepPromise]);
+            cacheCep.set(cleanCep, resultado);
+            return resultado;
+        }
+
+        async function searchCep(cep) {
             const cleanCep = cep.replace(/\D/g, '');
             const statusBadge = document.getElementById('cep-status-badge');
             if (cleanCep.length !== 8) {
@@ -1567,30 +1655,22 @@ function calcularValorFretePorKm(kmRota) {
             ultimoCepConsultado = cleanCep;
             const loading = document.getElementById('cep-loading');
             if (loading) loading.classList.remove('hidden');
-            if (statusBadge) statusBadge.innerText = "Buscando CEP e calculando...";
+            if (statusBadge) statusBadge.innerText = "Buscando CEP...";
 
-            fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
-                .then(res => res.json())
-                .then(async (data) => {
-                    if (!data.erro) {
-                        const ruaInput = document.getElementById('client-rua');
-                        const bairroInput = document.getElementById('client-bairro');
-                        if (ruaInput && !ruaInput.value.trim()) {
-                            ruaInput.value = data.logradouro || '';
-                        }
-                        if (bairroInput && !bairroInput.value.trim()) {
-                            bairroInput.value = data.bairro || '';
-                        }
-                        await calcularFreteAutomaticoPorEndereco();
-                        document.getElementById('client-numero')?.focus();
-                    } else {
-                        if (loading) loading.classList.add('hidden');
-                        if (statusBadge) statusBadge.innerText = "CEP não encontrado";
-                    }
-                })
-                .catch(async () => {
-                    await calcularFreteAutomaticoPorEndereco();
-                });
+            try {
+                const infoCep = await consultarCepRapido(cleanCep);
+                const ruaInput = document.getElementById('client-rua');
+                const bairroInput = document.getElementById('client-bairro');
+
+                if (ruaInput) ruaInput.value = infoCep.rua || ruaInput.value;
+                if (bairroInput) bairroInput.value = infoCep.bairro || bairroInput.value;
+
+                document.getElementById('client-numero')?.focus();
+                await calcularFreteAutomaticoPorEndereco(infoCep.coords);
+            } catch (_) {
+                if (loading) loading.classList.add('hidden');
+                if (statusBadge) statusBadge.innerText = "CEP não encontrado. Preencha rua e bairro.";
+            }
         }
 
         let ultimoUrlWppAberta = "";
@@ -1640,7 +1720,6 @@ function calcularValorFretePorKm(kmRota) {
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            garantirCoordenadasOrigem();
             renderProducts();
             initCarousel();
             updateCustomBombomAnimation();
@@ -1859,7 +1938,7 @@ function calcularValorFretePorKm(kmRota) {
                 message += `\n📦 *Tipo:* ${deliveryType === 'entrega' ? 'Entrega 🛵' : `Retirada (${PICKUP_REGION}) 🏪`}\n`;
                 if (deliveryType === 'entrega') {
                     message += `📍 *Endereço:* ${rua}, Nº ${numero} - ${bairro} (CEP: ${cep})\n`;
-                    message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}${distanciaEstimadaKm ? ` (~${distanciaEstimadaKm} km do Estoril)` : ''}\n`;
+                    message += `💵 *Taxa de Entrega:* ${formatMoney(DELIVERY_FEE)}${distanciaEstimadaKm ? ` (${distanciaEstimadaKm} km do Estoril)` : ''}\n`;
                 }
                 message += `💳 *Pagamento:* ${paymentMethod}\n`;
                 message += `💰 *Total a Pagar:* *${formatMoney(total)}*\n\n`;
