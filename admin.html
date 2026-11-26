@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -38,10 +38,10 @@
     </script>
 
     <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <style>
         :root {
@@ -70,27 +70,27 @@
         }
 
         html[data-theme="dark"] {
-            --bg-body: #121316;
-            --bg-surface: #1A1C20;
-            --bg-surface-2: #22252B;
-            --bg-surface-3: #1E2126;
-            --bg-header: rgba(26, 28, 32, 0.95);
-            --bg-footer: #15171A;
-            --text-footer: #A8B0BD;
-            --border-subtle: #2E323B;
-            --border-divider: #262930;
-            --text-primary: #F3F4F6;
-            --text-secondary: #C4CAD4;
-            --text-muted: #969FA9;
-            --text-placeholder: #7C8591;
-            --accent-red: #E06C6C;
-            --accent-red-btn: #9E3232;
-            --accent-red-hover: #B83B3B;
-            --accent-pink-soft: #F2B8B8;
-            --accent-gold: #E2B879;
-            --shadow-premium: 0 18px 36px -14px rgba(0, 0, 0, 0.65);
-            --table-hover: rgba(255, 255, 255, 0.04);
-            --table-focus: #292D35;
+            --bg-body: #14100F;
+            --bg-surface: #1D1816;
+            --bg-surface-2: #26201D;
+            --bg-surface-3: #211B19;
+            --bg-header: rgba(20, 16, 15, 0.88);
+            --bg-footer: #0F0C0B;
+            --text-footer: #A89C96;
+            --border-subtle: #3A302C;
+            --border-divider: #2E2623;
+            --text-primary: #F1E9E4;
+            --text-secondary: #CFC3BC;
+            --text-muted: #A09089;
+            --text-placeholder: #7D6F69;
+            --accent-red: #E8A5A5;
+            --accent-red-btn: #A34848;
+            --accent-red-hover: #B85A5A;
+            --accent-pink-soft: #F0BDBD;
+            --accent-gold: #D9B380;
+            --shadow-premium: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 28px -16px rgba(0,0,0,0.6);
+            --table-hover: rgba(255, 255, 255, 0.035);
+            --table-focus: #2E2724;
             --color-scheme: dark;
         }
 
@@ -206,6 +206,56 @@
         table select option {
             background-color: var(--bg-surface);
             color: var(--text-primary);
+        }
+    
+        :focus-visible { outline: 2px solid var(--accent-red); outline-offset: 2px; }
+        /* ===== MODO ESCURO v2: refinamentos ===== */
+        body, .panel-surface, .panel-surface-2, .panel-surface-3, .panel-input, header {
+            transition: background-color .25s ease, border-color .25s ease, color .25s ease;
+        }
+        html[data-theme="dark"] { color-scheme: dark; }
+        html[data-theme="dark"] * { scrollbar-color: #4A3D38 transparent; scrollbar-width: thin; }
+        html[data-theme="dark"] ::selection { background: rgba(232,165,165,.3); }
+
+        html[data-theme="dark"] .badge-accent {
+            background-color: rgba(232,165,165,.12); color: #F0BDBD; border-color: rgba(232,165,165,.26);
+        }
+        html[data-theme="dark"] .panel-btn-primary { color: #FFF5F2; }
+        html[data-theme="dark"] .panel-input:focus,
+        html[data-theme="dark"] table input:focus,
+        html[data-theme="dark"] table select:focus { box-shadow: 0 0 0 3px rgba(232,165,165,.16); }
+
+        /* Status (pago / pendente / estoque): translúcidos em vez de pastéis */
+        html[data-theme="dark"] .bg-emerald-100 { background-color: rgba(52,211,153,.13) !important; }
+        html[data-theme="dark"] .text-emerald-700, html[data-theme="dark"] .text-emerald-800 { color: #7FD8B0 !important; }
+        html[data-theme="dark"] .border-emerald-200 { border-color: rgba(52,211,153,.28) !important; }
+        html[data-theme="dark"] .bg-rose-100 { background-color: rgba(251,113,133,.13) !important; }
+        html[data-theme="dark"] .text-rose-700, html[data-theme="dark"] .text-rose-800 { color: #F2A3AE !important; }
+        html[data-theme="dark"] .border-rose-200 { border-color: rgba(251,113,133,.28) !important; }
+        html[data-theme="dark"] .bg-amber-100 { background-color: rgba(251,191,36,.13) !important; }
+        html[data-theme="dark"] .text-amber-800 { color: #E9C77A !important; }
+        html[data-theme="dark"] .border-amber-200 { border-color: rgba(251,191,36,.28) !important; }
+        html[data-theme="dark"] .bg-yellow-100 { background-color: rgba(234,179,8,.13) !important; }
+        html[data-theme="dark"] .text-yellow-800 { color: #E3CB6E !important; }
+        html[data-theme="dark"] .border-yellow-200 { border-color: rgba(234,179,8,.28) !important; }
+
+        /* Entradas / saídas / erros */
+        html[data-theme="dark"] .text-emerald-600 { color: #7FD8B0 !important; }
+        html[data-theme="dark"] .text-rose-600 { color: #F2A3AE !important; }
+        html[data-theme="dark"] .text-red-600 { color: #F2A3AE !important; }
+        html[data-theme="dark"] .hover\:bg-rose-50:hover { background-color: rgba(251,113,133,.14) !important; }
+        html[data-theme="dark"] .hover\:text-rose-600:hover { color: #F7B4BD !important; }
+        html[data-theme="dark"] .bg-emerald-600 { background-color: #2F8F6B !important; }
+        html[data-theme="dark"] .hover\:bg-emerald-700:hover { background-color: #277A5B !important; }
+
+        /* Cores fixas da marca que ficavam agressivas */
+        html[data-theme="dark"] .bg-\[\#3A201E\] { background-color: #2A1F1C !important; border: 1px solid #3A302C; }
+        html[data-theme="dark"] .bg-\[\#8A2B2B\],
+        html[data-theme="dark"] .hover\:bg-\[\#8A2B2B\]:hover { background-color: #A34848 !important; color: #FFF5F2 !important; }
+        html[data-theme="dark"] .border-\[\#8A2B2B\] { border-color: rgba(232,165,165,.7) !important; }
+        html[data-theme="dark"] #toast {
+            background: #2E2623 !important; color: #F1E9E4 !important; border: 1px solid #3A302C;
+            box-shadow: 0 12px 30px rgba(0,0,0,.5) !important;
         }
     </style>
 </head>
@@ -358,7 +408,7 @@
                             <i class="ph ph-currency-dollar"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider truncate">Faturamento</p>
+                            <p class="text-[10px] sm:text-xs font-bold text-dim uppercase tracking-wider truncate" title="Entradas efetivamente recebidas (considera pago, 50% e pendente)">Recebido</p>
                             <h3 id="stat-faturamento" class="text-base sm:text-2xl font-bold mt-0.5 tracking-tight truncate">R$ 0,00</h3>
                         </div>
                     </div>
@@ -587,6 +637,7 @@
                             <span id="resumo-mes-vendas" class="text-emerald-600">Entradas: R$ 0,00</span>
                             <span id="resumo-mes-gastos" class="text-rose-600">Saídas: R$ 0,00</span>
                             <span id="resumo-mes-saldo" class="font-bold">Saldo: R$ 0,00</span>
+                            <button type="button" onclick="exportarCaixaCSV()" class="panel-surface border text-soft text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1" title="Exportar lançamentos filtrados em CSV"><i class="ph ph-download-simple"></i> CSV</button>
                         </div>
                     </div>
 
@@ -1106,6 +1157,7 @@
     <!-- Script Principal Unificado -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
         import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1120,6 +1172,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         const HASH_SENHA_PADRAO = "69e62ea6ec1e1e35959c97f5631d02c93286c13410c20895fb8b5118cf644ef0";
         let hashSenhaAdminAtual = HASH_SENHA_PADRAO;
@@ -1159,7 +1212,7 @@
                 const icone = btn.querySelector('i');
                 const rotulo = btn.querySelector('.tema-label');
                 if (icone) {
-                    icone.className = ehEscuro ? 'ph ph-sun text-base text-[#E2B879]' : 'ph ph-moon text-base text-accent';
+                    icone.className = ehEscuro ? 'ph ph-sun text-base text-[#D9B380]' : 'ph ph-moon text-base text-accent';
                 }
                 if (rotulo) {
                     rotulo.innerText = ehEscuro ? 'Claro' : 'Escuro';
@@ -1182,7 +1235,7 @@
         };
 
         // Inicia no tema salvo (ou modo claro padrão)
-        aplicarTema(localStorage.getItem('duda_tema_painel') || 'light');
+        aplicarTema(localStorage.getItem('duda_tema_painel') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
 
         window.abrirMenuLateral = function() {
             const drawer = document.getElementById('sidebar-drawer');
@@ -1262,6 +1315,12 @@
             'Embalagem (un)': { valor: 0.012, desc: 'Embalagem' },
             'Adesivos (un)': { valor: 0.28, desc: 'Adesivo' },
             'Mão de Obra': { valor: 4.00, desc: 'Taxa fixa por bombom' }
+        };
+
+        let brownieDados = {
+            tradicional: { custoIng: 1.67, custoExt: 0.29, preco: 7.00, spec: '80g' },
+            bite: { custoIng: 0.65, custoExt: 0.15, preco: 3.50, spec: '1 unidade bite' },
+            pacote8: { custoIng: 5.20, custoExt: 0.85, preco: 24.00, spec: 'Pacote com 8 unidades' }
         };
 
         let catalogoLoja = [
@@ -1405,6 +1464,43 @@
             }
         });
 
+        let pedidosPrimeiraCarga = true;
+        let ultimosDadosCaixaFiltrados = [];
+
+        function tocarAvisoPedido() {
+            try {
+                const C = window.AudioContext || window.webkitAudioContext;
+                const c = new C(); const o = c.createOscillator(); const g = c.createGain();
+                o.connect(g); g.connect(c.destination); o.type = 'sine'; o.frequency.value = 880;
+                g.gain.setValueAtTime(0.15, c.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6);
+                o.start(); o.stop(c.currentTime + 0.6);
+            } catch (_) {}
+        }
+
+        window.exportarCaixaCSV = function() {
+            const seguro = (v) => {
+                let s = String(v ?? '');
+                if (/^[=+\-@]/.test(s)) s = "'" + s;
+                return '"' + s.replace(/"/g, '""') + '"';
+            };
+            const linhas = [['Data','Descrição','Categoria','Tipo','Valor (R$)','Status','Valor efetivo (R$)'].map(seguro).join(';')];
+            ultimosDadosCaixaFiltrados.forEach((i) => {
+                const bruto = (parseFloat(i.valor) || 0);
+                linhas.push([i.data, i.descricao, i.categoria, i.tipo, bruto.toFixed(2).replace('.', ','), i.statusPagamento || 'pago', calcularValorEfetivoEntrada(i).toFixed(2).replace('.', ',')].map(seguro).join(';'));
+            });
+            const blob = new Blob(['\ufeff' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `fluxo-de-caixa-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        };
+
+        function esc(v) {
+            return String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        }
+
         function normalizarBusca(texto = "") {
             return String(texto)
                 .toLowerCase()
@@ -1483,6 +1579,7 @@
                 const snap = await getDoc(doc(db, "calculo_de_custo", "matriz_custos"));
                 if (snap.exists() && snap.data().insumosBase) {
                     const salvos = snap.data().insumosBase;
+                    if (snap.data().brownies) { for (const [t, d] of Object.entries(snap.data().brownies)) { if (brownieDados[t]) brownieDados[t] = { ...brownieDados[t], ...d }; } }
                     for (const [chave, info] of Object.entries(salvos)) {
                         if (insumosBase[chave] && typeof info.valor === "number") {
                             insumosBase[chave].valor = info.valor;
@@ -1564,22 +1661,7 @@
 
         window.calcularBrownie = function() {
             const tipo = document.getElementById('filtro-brownie')?.value || 'tradicional';
-            let custoIng = 1.67;
-            let custoExt = 0.29;
-            let preco = 7.00;
-            let spec = "80g";
-
-            if (tipo === 'bite') {
-                custoIng = 0.65;
-                custoExt = 0.15;
-                preco = 3.50;
-                spec = "1 unidade bite";
-            } else if (tipo === 'pacote8') {
-                custoIng = 5.20;
-                custoExt = 0.85;
-                preco = 24.00;
-                spec = "Pacote com 8 unidades";
-            }
+            let { custoIng, custoExt, preco, spec } = brownieDados[tipo] || brownieDados.tradicional;
 
             const total = custoIng + custoExt;
             const lucro = preco - total;
@@ -1634,10 +1716,30 @@
                     </div>
                 `;
             }
+            const nomesBrw = { tradicional: 'Brownie Tradicional', bite: 'Brownie Bite', pacote8: 'Pacote 8 Bites' };
+            const camposBrw = { custoIng: 'Ingredientes', custoExt: 'Embalagem', preco: 'Preço de venda' };
+            for (const [t, d] of Object.entries(brownieDados)) {
+                for (const [c, rot] of Object.entries(camposBrw)) {
+                    html += `
+                    <div class="panel-surface-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl border space-y-1">
+                        <label class="block text-[11px] sm:text-xs font-bold text-soft truncate" title="${nomesBrw[t]} — ${rot}">${nomesBrw[t]} — ${rot}</label>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-bold text-accent">R$</span>
+                            <input type="number" step="0.01" id="brw-${t}-${c}" value="${d[c]}" onchange="atualizarSimuladorLocal()" class="w-full panel-input px-2.5 py-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border text-xs sm:text-sm font-bold outline-none">
+                        </div>
+                    </div>`;
+                }
+            }
             container.innerHTML = html;
         }
 
         window.atualizarSimuladorLocal = function() {
+            for (const t of Object.keys(brownieDados)) {
+                for (const c of ['custoIng', 'custoExt', 'preco']) {
+                    const el = document.getElementById(`brw-${t}-${c}`);
+                    if (el) brownieDados[t][c] = parseFloat(el.value) || 0;
+                }
+            }
             for(let insumo of Object.keys(insumosBase)) {
                 const inputEl = document.getElementById(`input-${insumo}`);
                 if(inputEl) {
@@ -1653,7 +1755,7 @@
             atualizarSimuladorLocal();
             try {
                 await setDoc(doc(db, "calculo_de_custo", "matriz_custos"), {
-                    insumosBase,
+                    insumosBase, brownies: brownieDados,
                     atualizadoEm: serverTimestamp()
                 });
                 showToast("Custos salvos e sincronizados no Firebase!");
@@ -1724,13 +1826,13 @@
                 tr.className = "hover:bg-[var(--table-hover)] transition-colors";
                 tr.innerHTML = `
                     <td class="py-2 px-3 sm:px-4">
-                        <img src="${item.image || 'Brownie.png'}" alt="${item.nome || 'Produto'}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border panel-surface-2">
+                        <img src="${esc(item.image || 'Brownie.png')}" alt="${esc(item.nome || 'Produto')}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border panel-surface-2">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
-                        <input type="text" value="${item.nome || ''}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-bold">
+                        <input type="text" value="${esc(item.nome)}" onchange="atualizarItemCatalogo(${idx}, 'nome', this.value)" class="font-bold">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
-                        <input type="text" value="${item.descricao || ''}" placeholder="Descrição do produto..." onchange="atualizarItemCatalogo(${idx}, 'descricao', this.value)" class="text-xs text-soft">
+                        <input type="text" value="${esc(item.descricao)}" placeholder="Descrição do produto..." onchange="atualizarItemCatalogo(${idx}, 'descricao', this.value)" class="text-xs text-soft">
                     </td>
                     <td class="py-2 px-3 sm:px-4">
                         <input type="number" step="0.01" value="${item.preco ?? 0}" onchange="atualizarItemCatalogo(${idx}, 'preco', parseFloat(this.value) || 0)" class="font-bold text-accent">
@@ -1755,7 +1857,7 @@
             const sel = document.getElementById("manual-select-produto");
             if (!sel) return;
             sel.innerHTML = catalogoLoja.map((item, idx) => `
-                <option value="${idx}">${item.nome} — R$ ${Number(item.preco || 0).toFixed(2).replace(".", ",")}</option>
+                <option value="${idx}">${esc(item.nome)} — R$ ${Number(item.preco || 0).toFixed(2).replace(".", ",")}</option>
             `).join("");
         }
 
@@ -1929,7 +2031,7 @@
             lista.innerHTML = itensPedidoManual.map((item, idx) => `
                 <div class="flex items-center justify-between gap-2 panel-surface-2 px-3 py-2 rounded-xl border text-xs">
                     <div class="min-w-0 flex-1">
-                        <p class="font-bold truncate">${item.quantity}x ${item.name}</p>
+                        <p class="font-bold truncate">${item.quantity}x ${esc(item.name)}</p>
                         <span class="text-[11px] text-dim">Unit: R$ ${item.price.toFixed(2).replace(".", ",")}</span>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
@@ -2152,7 +2254,16 @@
             try {
                 if (arquivoImagemSelecionado) {
                     document.getElementById("prod-status-upload").innerText = "Otimizando imagem...";
-                    imagemFinal = await converterImagemParaDataUrlLeve(arquivoImagemSelecionado);
+                    try {
+                        const dataUrl = await converterImagemParaDataUrlLeve(arquivoImagemSelecionado, 900, 0.8);
+                        const blob = await (await fetch(dataUrl)).blob();
+                        const refImg = ref(storage, `produtos/${Date.now()}_${gerarSlugId(nome)}.jpg`);
+                        await uploadBytes(refImg, blob, { contentType: 'image/jpeg' });
+                        imagemFinal = await getDownloadURL(refImg);
+                    } catch (errUp) {
+                        console.warn("Storage indisponível, usando imagem embutida:", errUp);
+                        imagemFinal = await converterImagemParaDataUrlLeve(arquivoImagemSelecionado);
+                    }
                 }
 
                 const existente = idx >= 0 ? catalogoLoja[idx] : null;
@@ -2208,7 +2319,7 @@
         };
 
         window.removerItemCatalogo = async function(idx) {
-            if (!confirm("Deseja remover este produto do catálogo da loja?")) return;
+            const _removido = catalogoLoja[idx]; const _idxRem = idx;
             catalogoLoja.splice(idx, 1);
             renderizarTabelaProdutosLoja();
             try {
@@ -2217,7 +2328,7 @@
                     precosBombom: precosBombomCatalogo,
                     atualizadoEm: serverTimestamp()
                 });
-                showToast("Produto removido do catálogo!");
+                showToast("Produto removido do catálogo!", () => { catalogoLoja.splice(_idxRem, 0, _removido); renderizarTabelaProdutosLoja(); salvarPrecosCatalogoFirebase(true); });
             } catch (e) {
                 console.error("Erro ao remover item:", e);
             }
@@ -2326,7 +2437,7 @@
                     : 'bg-yellow-100 text-yellow-800 border-yellow-200';
 
                 const enderecoHtml = (p.tipoPedido === 'entrega' && p.endereco && typeof p.endereco === 'object')
-                    ? `<p class="text-[11px] text-soft mt-1">📍 ${p.endereco.rua || ''}, Nº ${p.endereco.numero || ''} - ${p.endereco.bairro || ''} ${p.endereco.cep ? `(CEP: ${p.endereco.cep})` : ''}</p>`
+                    ? `<p class="text-[11px] text-soft mt-1">📍 ${esc(p.endereco.rua)}, Nº ${esc(p.endereco.numero)} - ${esc(p.endereco.bairro)} ${p.endereco.cep ? `(CEP: ${esc(p.endereco.cep)})` : ''}</p>`
                     : '';
 
                 const itensHtml = Array.isArray(p.itens) && p.itens.length > 0
@@ -2334,7 +2445,7 @@
                         <li class="flex items-center justify-between gap-2 text-xs sm:text-sm py-1.5 border-b border-dashed last:border-none" style="border-color: var(--border-divider);">
                             <span class="font-semibold">
                                 <span class="inline-block badge-accent font-extrabold text-[11px] px-1.5 py-0.5 rounded-md mr-1">${item.quantity || 1}x</span>
-                                ${item.name || 'Produto'}
+                                ${esc(item.name || 'Produto')}
                             </span>
                             <span class="text-xs font-bold text-soft shrink-0">R$ ${((Number(item.price) || 0) * (Number(item.quantity) || 1)).toFixed(2).replace('.', ',')}</span>
                         </li>
@@ -2346,8 +2457,8 @@
                         <div class="space-y-2.5 sm:space-y-3">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="min-w-0">
-                                    <h3 class="font-bold text-sm sm:text-base truncate">${p.clienteNome}</h3>
-                                    <p class="text-[11px] sm:text-xs text-soft font-medium">${p.dataFormatada} • ${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'} • ${p.formaPagamento}</p>
+                                    <h3 class="font-bold text-sm sm:text-base truncate">${esc(p.clienteNome)}</h3>
+                                    <p class="text-[11px] sm:text-xs text-soft font-medium">${p.dataFormatada} • ${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'} • ${esc(p.formaPagamento)}</p>
                                     ${enderecoHtml}
                                 </div>
                                 <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${badgeStyle} shrink-0">
@@ -2388,6 +2499,16 @@
             const qPedidos = query(pedidosRef, orderBy("dataPedido", "desc"));
 
             onSnapshot(qPedidos, (queryPedidos) => {
+                if (!pedidosPrimeiraCarga) {
+                    queryPedidos.docChanges().forEach((ch) => {
+                        const d = ch.doc.data();
+                        if (ch.type === 'added' && d.origem !== 'manual_admin' && !ch.doc.metadata.hasPendingWrites) {
+                            tocarAvisoPedido();
+                            showToast('🛎️ Novo pedido de ' + (d.clienteNome || 'cliente') + '!');
+                        }
+                    });
+                }
+                pedidosPrimeiraCarga = false;
                 let faturamentoTotal = 0;
                 let qtdPedidos = 0;
                 listaPedidosMemoria = [];
@@ -2426,7 +2547,7 @@
                     }
                 });
 
-                document.getElementById('stat-faturamento').innerText = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                
                 document.getElementById('stat-pedidos').innerText = qtdPedidos;
 
                 renderizarTabelaPedidos();
@@ -2452,7 +2573,7 @@
                     let timestampUsar = a.ultimoAcesso || a.primeiroAcesso;
                     if (timestampUsar && timestampUsar.toDate) {
                         const dateObj = timestampUsar.toDate();
-                        const diaKey = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                        const diaKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
                         diasContagem[diaKey] = (diasContagem[diaKey] || 0) + 1;
                     }
                 });
@@ -2460,8 +2581,9 @@
                 document.getElementById('stat-visitantes').innerText = visitantesUnicosSet.size;
                 document.getElementById('stat-acessos-totais').innerText = totalAcessosSoma;
 
-                const labelsGrafico = Object.keys(diasContagem).slice(-7);
-                const dataGrafico = labelsGrafico.map(label => diasContagem[label]);
+                const chavesOrdenadas = Object.keys(diasContagem).sort().slice(-7);
+                const labelsGrafico = chavesOrdenadas.map(k => `${k.slice(8)}/${k.slice(5, 7)}`);
+                const dataGrafico = chavesOrdenadas.map(k => diasContagem[k]);
                 ultimosLabelsGrafico = labelsGrafico.length ? labelsGrafico : ['Hoje'];
                 ultimosValoresGrafico = dataGrafico.length ? dataGrafico : [0];
                 renderizarGraficoMisto(ultimosLabelsGrafico, ultimosValoresGrafico);
@@ -2490,9 +2612,9 @@
 
             tbody.innerHTML = pedidosFiltrados.slice(0, 12).map((p) => `
                 <tr class="hover:bg-[var(--table-hover)] transition-colors">
-                    <td class="py-2.5 sm:py-3.5 px-2 font-semibold">${p.clienteNome}</td>
+                    <td class="py-2.5 sm:py-3.5 px-2 font-semibold">${esc(p.clienteNome)}</td>
                     <td class="py-2.5 sm:py-3.5 px-2 text-soft">${p.tipoPedido === 'entrega' ? '🛵 Entrega' : '🏪 Retirada'}</td>
-                    <td class="py-2.5 sm:py-3.5 px-2"><span class="panel-surface-2 text-soft border px-2 py-0.5 rounded-lg text-[11px] font-semibold">${p.formaPagamento}</span></td>
+                    <td class="py-2.5 sm:py-3.5 px-2"><span class="panel-surface-2 text-soft border px-2 py-0.5 rounded-lg text-[11px] font-semibold">${esc(p.formaPagamento)}</span></td>
                     <td class="py-2.5 sm:py-3.5 px-2 font-bold text-accent">R$ ${p.valorTotal.toFixed(2).replace('.', ',')}</td>
                     <td class="py-2.5 sm:py-3.5 px-2 text-dim text-[11px]">${p.dataFormatada}</td>
                     <td class="py-2.5 sm:py-3.5 px-2 text-center">
@@ -2514,9 +2636,7 @@
 
                 const qCaixa = query(collection(db, "fluxo_caixa"), where("pedidoId", "==", pedidoId));
                 const snapCaixa = await getDocs(qCaixa);
-                snapCaixa.forEach(async (docItem) => {
-                    await deleteDoc(doc(db, "fluxo_caixa", docItem.id));
-                });
+                await Promise.all(snapCaixa.docs.map((d) => deleteDoc(doc(db, "fluxo_caixa", d.id))));
 
                 showToast("Pedido removido com sucesso!");
             } catch (e) {
@@ -2533,7 +2653,7 @@
             let qtdInativos = 0;
 
             for (const [nome, info] of Object.entries(mapaClientesGlobal)) {
-                const diffTime = Math.abs(hoje - info.data);
+                const diffTime = Math.max(0, hoje - info.data);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                 if (diffDays > diasFiltro) {
@@ -2545,7 +2665,7 @@
                     container.innerHTML += `
                         <div class="p-3 panel-surface-2 rounded-xl sm:rounded-2xl border flex items-center justify-between gap-2">
                             <div class="min-w-0">
-                                <h4 class="font-bold text-xs sm:text-sm truncate">${nome}</h4>
+                                <h4 class="font-bold text-xs sm:text-sm truncate">${esc(nome)}</h4>
                                 <span class="text-[11px] text-accent font-semibold">Última compra há ${diffDays} dias</span>
                             </div>
                             ${telefoneLimpo ? `
@@ -2569,13 +2689,13 @@
             if(myChart) myChart.destroy();
 
             const escuro = obterTemaAtual() === 'dark';
-            const corLinha = escuro ? '#F2B8B8' : '#3A201E';
-            const corPonto = escuro ? '#E2B879' : '#8A2B2B';
-            const corBordaPonto = escuro ? '#1A1C20' : '#FFFFFF';
-            const corBarraFundo = escuro ? 'rgba(224, 108, 108, 0.25)' : 'rgba(138, 43, 43, 0.15)';
-            const corBarraBorda = escuro ? '#E06C6C' : '#8A2B2B';
-            const corGrid = escuro ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)';
-            const corTick = escuro ? '#969FA9' : '#6B7280';
+            const corLinha = escuro ? '#E8A5A5' : '#3A201E';
+            const corPonto = escuro ? '#D9B380' : '#8A2B2B';
+            const corBordaPonto = escuro ? '#1D1816' : '#FFFFFF';
+            const corBarraFundo = escuro ? 'rgba(232, 165, 165, 0.22)' : 'rgba(138, 43, 43, 0.15)';
+            const corBarraBorda = escuro ? '#E8A5A5' : '#8A2B2B';
+            const corGrid = escuro ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+            const corTick = escuro ? '#A09089' : '#6B7280';
 
             myChart = new Chart(ctx, {
                 type: 'bar',
@@ -2634,6 +2754,7 @@
                     listaCaixaMemoria.push({ id: docSnap.id, ...docSnap.data() });
                 });
                 sincronizarOpcoesMes(listaCaixaMemoria);
+                atualizarFaturamentoDashboard();
                 aplicarFiltrosCaixa();
             });
         }
@@ -2662,8 +2783,15 @@
                 return matchBusca && matchMes && matchStatus && matchTipo && matchCat;
             });
 
+            ultimosDadosCaixaFiltrados = dadosFiltrados;
             renderizarTabelaCaixa(dadosFiltrados, filtroMes);
         };
+
+        function atualizarFaturamentoDashboard() {
+            const total = listaCaixaMemoria.filter(i => i.tipo === 'entrada').reduce((a, i) => a + calcularValorEfetivoEntrada(i), 0);
+            const el = document.getElementById('stat-faturamento');
+            if (el) el.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
 
         function calcularValorEfetivoEntrada(item) {
             const valorBruto = parseFloat(item.valor) || 0;
@@ -2707,7 +2835,7 @@
                         <input type="date" data-caixa-id="${item.id}" data-caixa-campo="data" value="${item.data || ''}" onfocus="registrarFocoCaixa('${item.id}', 'data')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'data', this.value)" class="text-soft">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="text" data-caixa-id="${item.id}" data-caixa-campo="descricao" value="${item.descricao || ''}" placeholder="Descrição..." onfocus="registrarFocoCaixa('${item.id}', 'descricao')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'descricao', this.value)" class="font-medium">
+                        <input type="text" data-caixa-id="${item.id}" data-caixa-campo="descricao" value="${esc(item.descricao)}" placeholder="Descrição..." onfocus="registrarFocoCaixa('${item.id}', 'descricao')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'descricao', this.value)" class="font-medium">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
                         <select data-caixa-id="${item.id}" data-caixa-campo="categoria" onfocus="registrarFocoCaixa('${item.id}', 'categoria')" onblur="finalizarEdicaoCaixa()" onchange="atualizarCelulaCaixa('${item.id}', 'categoria', this.value)" class="text-soft">
@@ -2837,7 +2965,9 @@
         };
 
         window.removerLancamentoFirebase = async function(id, pedidoId = '') {
-            if (!confirm("Remover esta linha do fluxo de caixa? Se estiver ligada a um pedido, o pedido também será removido.")) return;
+            const _cx = listaCaixaMemoria.find(i => i.id === id);
+            const _temPedido = !!(pedidoId || id.startsWith("caixa_"));
+            if (_temPedido && !confirm("Esta linha está ligada a um pedido; o pedido também será removido. Continuar?")) return;
             try {
                 await deleteDoc(doc(db, "fluxo_caixa", id));
 
@@ -2848,7 +2978,7 @@
                     } catch (_) {}
                 }
 
-                showToast("Linha removida!");
+                showToast("Linha removida!", (!_temPedido && _cx) ? () => { const { id: _i, ...dados } = _cx; setDoc(doc(db, "fluxo_caixa", id), dados); } : null);
             } catch (e) {
                 console.error("Erro ao deletar linha:", e);
             }
@@ -2859,12 +2989,7 @@
             const q = query(estoqueRef, orderBy("nome", "asc"));
 
             onSnapshot(q, async (snapshot) => {
-                if (snapshot.empty) {
-                    for (const item of itensIniciaisEstoque) {
-                        await addDoc(estoqueRef, item);
-                    }
-                    return;
-                }
+                
 
                 listaEstoqueMemoria = [];
                 snapshot.forEach((docSnap) => {
@@ -2902,10 +3027,10 @@
                 tr.className = "hover:bg-[var(--table-hover)] transition-colors";
                 tr.innerHTML = `
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="text" value="${item.nome || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'nome', this.value)" class="font-bold">
+                        <input type="text" value="${esc(item.nome)}" onchange="atualizarCelulaEstoque('${item.id}', 'nome', this.value)" class="font-bold">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
-                        <input type="text" value="${item.medida || ''}" onchange="atualizarCelulaEstoque('${item.id}', 'medida', this.value)" class="text-soft">
+                        <input type="text" value="${esc(item.medida)}" onchange="atualizarCelulaEstoque('${item.id}', 'medida', this.value)" class="text-soft">
                     </td>
                     <td class="py-2 sm:py-2.5 px-3 sm:px-4">
                         <select onchange="atualizarCelulaEstoque('${item.id}', 'status', this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold ${bgSelect}">
@@ -2952,22 +3077,39 @@
         };
 
         window.removerItemEstoque = async function(id) {
-            if (!confirm("Remover este item do estoque?")) return;
+            const _bk = listaEstoqueMemoria.find(i => i.id === id);
             try {
                 await deleteDoc(doc(db, "estoque", id));
-                showToast("Item removido!");
+                showToast("Item removido!", _bk ? () => { const { id: _i, ...dados } = _bk; setDoc(doc(db, "estoque", id), dados); } : null);
             } catch (e) {
                 console.error("Erro ao deletar item do estoque:", e);
             }
         };
 
-        function showToast(text) {
+        let timerToast = null;
+        function showToast(text, desfazer) {
             const toast = document.getElementById('toast');
-            if(!toast) return;
-            toast.innerText = text;
-            toast.style.visibility = "visible";
-            setTimeout(() => { toast.style.visibility = "hidden"; }, 2500);
+            if (!toast) return;
+            toast.innerHTML = '';
+            const span = document.createElement('span');
+            span.textContent = text;
+            toast.appendChild(span);
+            if (typeof desfazer === 'function') {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = 'Desfazer';
+                b.style.cssText = 'margin-left:12px;font-weight:700;text-decoration:underline;color:#E8C1C1;';
+                b.onclick = () => { toast.style.visibility = 'hidden'; desfazer(); };
+                toast.appendChild(b);
+            }
+            toast.style.visibility = 'visible';
+            clearTimeout(timerToast);
+            timerToast = setTimeout(() => { toast.style.visibility = 'hidden'; }, desfazer ? 7000 : 2500);
         }
+
+        new MutationObserver(() => {
+            document.querySelectorAll('button[title]:not([aria-label])').forEach((b) => b.setAttribute('aria-label', b.title));
+        }).observe(document.body, { childList: true, subtree: true });
 
         window.addEventListener('load', async () => {
             atualizarIconesTema(obterTemaAtual());
