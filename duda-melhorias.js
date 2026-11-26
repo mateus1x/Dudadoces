@@ -237,8 +237,8 @@
   /* ======== CONFIGURAÇÕES (edite aqui) ======== */
   var META = { ativo: true, valor: 50, brinde: 'um brinde surpresa' };   // meta da sacola
   var DEPOIMENTOS = [                                                    // prints dos elogios
-    { img: 'Depoimento1.jpeg' }, { img: 'Depoimento2.jpeg' },
-    { img: 'Depoimento3.jpeg' }, { img: 'Depoimento4.jpeg' }
+    { img: 'depoimento1.png' }, { img: 'depoimento2.png' },
+    { img: 'depoimento3.png' }, { img: 'depoimento4.png' }
   ];
   /* ============================================ */
 
@@ -297,6 +297,25 @@
   @keyframes tick{from{transform:translateY(-8px);opacity:.3}to{transform:none;opacity:1}}
   .cd-btn{background:${RED};color:#fff;font-weight:700;border:0;border-radius:99px;padding:15px 34px;cursor:pointer;transition:all .3s;position:relative}
   .cd-btn:hover{background:#6b1f1f;transform:scale(1.06)}
+  /* clima de natal */
+  .cd.natal::before{display:none}
+  .cd.natal>*:not(.snow):not(.cd-lights):not(.cd-tree){position:relative;z-index:3}
+  .cd-lights{position:absolute;top:0;left:0;right:0;height:40px;display:flex;justify-content:space-around;z-index:2;pointer-events:none}
+  .cd-lights::before{content:'';position:absolute;top:2px;left:-2%;right:-2%;height:16px;border-bottom:2px solid #ffffff55;border-radius:0 0 50% 50%}
+  .cd-lights i{width:12px;height:18px;margin-top:12px;background:var(--bc);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;animation:bulb 1.6s ease-in-out infinite;animation-delay:var(--bd)}
+  @keyframes bulb{0%,100%{opacity:.35;box-shadow:none}50%{opacity:1;box-shadow:0 0 14px 4px var(--bc)}}
+  .snow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+  .snow span{position:absolute;top:-20px;left:var(--sl);font-size:var(--ss);color:#fff;opacity:.85;animation:snowFall var(--st) linear infinite;animation-delay:var(--sd)}
+  @keyframes snowFall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(24px,230px) rotate(180deg)}100%{transform:translate(-12px,470px) rotate(360deg)}}
+  .cd-tree{position:absolute;bottom:12px;font-size:46px;z-index:2;transform-origin:bottom;animation:treeSway 4s ease-in-out infinite}
+  .cd-tree.l{left:6%}.cd-tree.r{right:6%;animation-delay:-2s}
+  @media(max-width:640px){.cd-tree{display:none}}
+  @keyframes treeSway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  .cd.natal h2 .ho{display:inline-block;animation:hoho 2.4s ease-in-out infinite}
+  @keyframes hoho{0%,100%{transform:rotate(-10deg) scale(1)}50%{transform:rotate(10deg) scale(1.2)}}
+  .cd.natal .cd-btn{animation:giftPulse 2s ease-in-out infinite}
+  @keyframes giftPulse{0%,100%{box-shadow:0 0 0 0 #8A2B2Baa}50%{box-shadow:0 0 0 14px #8A2B2B00}}
+  @media(prefers-reduced-motion:reduce){.snow,.cd-lights i,.cd-tree,.cd.natal h2 .ho,.cd.natal .cd-btn{animation:none}}
   /* depoimentos */
   .dp{padding:64px 0;background:${CREAM}}
   .dp-head{text-align:center;margin-bottom:28px;padding:0 16px}
@@ -397,6 +416,16 @@
       '<div class="cd-grid"><div class="cd-box"><b data-k="d">0</b><i>dias</i></div><div class="cd-box"><b data-k="h">0</b><i>horas</i></div><div class="cd-box"><b data-k="m">0</b><i>min</i></div><div class="cd-box"><b data-k="s">0</b><i>seg</i></div></div>' +
       '<button class="cd-btn">Encomendar para ' + (ev.n === 'Páscoa' ? 'a ' : 'o ') + ev.n + '</button>';
     anchor.parentNode.insertBefore(s, anchor);
+    if (ev.n === 'Natal') {
+      s.classList.add('natal');
+      $('small', s).textContent = 'Clima de Natal';
+      $('h2', s).innerHTML += ' <span class="ho">🎄</span>';
+      $('p', s).textContent = 'Brownies e bombons para a ceia, para presentear ou para adoçar o Natal de alguém. Reserve com antecedência.';
+      var cores = ['#E8C1C1', '#B38B59', '#ffffff', '#d9534f'], lz = '', nv = '';
+      for (var i = 0; i < 18; i++) lz += '<i style="--bc:' + cores[i % 4] + ';--bd:' + (i % 4) * .4 + 's"></i>';
+      for (var j = 0; j < 36; j++) nv += '<span style="--sl:' + (Math.random() * 100) + '%;--ss:' + (10 + Math.random() * 14) + 'px;--st:' + (7 + Math.random() * 7) + 's;--sd:' + (-Math.random() * 12) + 's">' + ['❄', '❅', '•'][j % 3] + '</span>';
+      s.insertAdjacentHTML('afterbegin', '<div class="snow">' + nv + '</div><div class="cd-lights">' + lz + '</div><span class="cd-tree l">🎄</span><span class="cd-tree r">🎁</span>');
+    }
     function tick() {
       var df = Math.max(0, ev.d - new Date()), v = { d: Math.floor(df / 864e5), h: Math.floor(df / 36e5) % 24, m: Math.floor(df / 6e4) % 60, s: Math.floor(df / 1e3) % 60 };
       $$('b', s).forEach(function (b) { var t = String(v[b.dataset.k]); if (b.textContent !== t) { b.textContent = t; if (b.dataset.k === 's') { b.classList.remove('tick'); void b.offsetWidth; b.classList.add('tick'); } } });
